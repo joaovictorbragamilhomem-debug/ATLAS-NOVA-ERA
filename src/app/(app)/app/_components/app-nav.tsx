@@ -4,13 +4,14 @@ const LINKS = [
   { href: "/app", label: "Início" },
   { href: "/app/clientes", label: "Clientes" },
   { href: "/app/calendario", label: "Calendário" },
+  { href: "/app/relatorios", label: "Relatórios" },
   { href: "/app/equipe", label: "Equipe" },
   { href: "/app/assinatura", label: "Assinatura" },
 ]
 
 function AppNav() {
   return (
-    <nav className="border-b border-border bg-card">
+    <nav className="border-b border-border bg-card print:hidden">
       <div className="mx-auto flex max-w-4xl items-center gap-1 overflow-x-auto px-4">
         {LINKS.map((link) => (
           <Link
