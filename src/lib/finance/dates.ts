@@ -3,8 +3,12 @@
 // "Hoje" é sempre calculado no fuso America/Sao_Paulo, conforme a regra
 // do projeto, mesmo que o servidor rode em UTC (caso comum na Vercel).
 
+export function toSaoPauloISODate(date: Date): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(date);
+}
+
 export function todayInSaoPauloISODate(): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
+  return toSaoPauloISODate(new Date());
 }
 
 export function daysBetweenISODates(fromISODate: string, toISODate: string): number {
