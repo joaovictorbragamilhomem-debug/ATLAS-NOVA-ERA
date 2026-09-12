@@ -141,6 +141,8 @@ function traduzErroAuth(message: string): string {
   if (m.includes("already registered") || m.includes("already exists")) return "Já existe uma conta com esse e-mail."
   if (m.includes("email not confirmed")) return "Confirme seu e-mail antes de entrar — veja sua caixa de entrada."
   if (m.includes("password should be at least")) return "A senha precisa ter pelo menos 8 caracteres."
-  if (m.includes("rate limit")) return "Muitas tentativas seguidas. Aguarde um pouco e tente de novo."
-  return "Não foi possível completar a ação. Tente novamente."
+  if (m.includes("rate limit")) return "Muitos cadastros seguidos em pouco tempo. Aguarde alguns minutos e tente de novo."
+  if (m.includes("email address") && m.includes("invalid")) return "Esse e-mail não é válido. Confira se digitou certo."
+  console.error("[traduzErroAuth] erro não mapeado:", message)
+  return "Não foi possível completar a ação. Tente novamente em instantes."
 }
