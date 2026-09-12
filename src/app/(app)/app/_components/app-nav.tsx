@@ -6,6 +6,7 @@ const LINKS = [
   { href: "/app/fichas", label: "Fichas" },
   { href: "/app/calendario", label: "Calendário" },
   { href: "/app/relatorios", label: "Relatórios" },
+  { href: "/app/whatsapp", label: "WhatsApp" },
   { href: "/app/equipe", label: "Equipe" },
   { href: "/app/assinatura", label: "Assinatura" },
 ]

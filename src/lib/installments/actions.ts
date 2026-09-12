@@ -5,6 +5,7 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getCurrentMembership } from "@/lib/auth/current-user";
 import { assertOrganizationIsWritable } from "@/lib/subscription/assert-writable";
 import { logAudit } from "@/lib/audit/log";
+import { enqueuePaymentConfirmationMessage } from "@/lib/whatsapp/enqueue";
 
 export type InstallmentActionResult = { error: string | null };
 
@@ -72,6 +73,8 @@ export async function registerInstallmentPaymentAction(
     before: { paid_amount_cents: installment.paid_amount_cents, status: installment.status },
     after: { paid_amount_cents: newPaidAmountCents, status: newStatus, amount_cents: amountCents, method },
   });
+
+  await enqueuePaymentConfirmationMessage(installmentId);
 
   revalidatePath(`/app/contratos/${installment.contract_id}`);
   return { error: null };

@@ -16,6 +16,15 @@ export function extractTemplateVariables(body: string): string[] {
   return Array.from(found);
 }
 
+// A Meta não aceita texto livre em mensagem por iniciativa da empresa — só
+// modelo aprovado, com parâmetros posicionais ({{1}}, {{2}}...). Por isso,
+// além de renderizar o texto (para mostrar na tela), também precisamos dos
+// valores na mesma ordem em que as variáveis aparecem no nosso modelo, para
+// mandar como os parâmetros posicionais do modelo espelhado na Meta.
+export function renderTemplateToPositionalParams(body: string, variables: TemplateVariables): string[] {
+  return extractTemplateVariables(body).map((key) => variables[key] ?? "");
+}
+
 // As variáveis que o motor de cobrança vai suportar de verdade (Fase 5).
 export const KNOWN_TEMPLATE_VARIABLES = [
   "nome",

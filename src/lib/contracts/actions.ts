@@ -8,6 +8,7 @@ import { assertOrganizationIsWritable } from "@/lib/subscription/assert-writable
 import { logAudit } from "@/lib/audit/log";
 import { centsFromDigits } from "@/lib/masks";
 import { generateInstallmentSchedule } from "@/lib/contracts/generate-installment-schedule";
+import { enqueueContractCreatedMessage } from "@/lib/whatsapp/enqueue";
 import type { Periodicity } from "@/lib/finance/dates";
 
 export type ContractActionState = { error: string | null };
@@ -123,6 +124,8 @@ export async function createContractAction(
       installment_amount_cents: installmentAmountCents,
     },
   });
+
+  await enqueueContractCreatedMessage(contract.id);
 
   revalidatePath(`/app/clientes/${customerId}`);
   redirect(`/app/contratos/${contract.id}`);

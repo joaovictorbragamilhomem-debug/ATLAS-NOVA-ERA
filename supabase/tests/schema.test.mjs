@@ -131,6 +131,31 @@ await asUser(userOperatorA, async () => {
   }
 });
 
+// --- Papel: só o Dono conecta o WhatsApp (Fase 5) -----------------------
+await asUser(userOperatorA, async () => {
+  try {
+    await db.query(
+      `insert into whatsapp_connections (organization_id, provider) values ($1, 'meta_cloud_api')`,
+      [orgA]
+    );
+    check("operador NÃO consegue conectar o WhatsApp (deveria ter sido bloqueado)", false);
+  } catch {
+    check("operador é bloqueado ao tentar conectar o WhatsApp", true);
+  }
+});
+
+await asUser(userA, async () => {
+  try {
+    await db.query(
+      `insert into whatsapp_connections (organization_id, provider) values ($1, 'meta_cloud_api')`,
+      [orgA]
+    );
+    check("dono consegue conectar o WhatsApp da própria empresa", true);
+  } catch (err) {
+    check(`dono consegue conectar o WhatsApp da própria empresa (erro: ${err.message})`, false);
+  }
+});
+
 await asUser(userOperatorA, async () => {
   try {
     await db.query(`update installments set status = 'paid', paid_amount_cents = 100000 where id = $1`, [installmentA]);
