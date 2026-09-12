@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { PlusIcon, UsersIcon } from "lucide-react"
+import { PlusIcon, UsersIcon, UploadIcon } from "lucide-react"
 import { getCurrentMembership } from "@/lib/auth/current-user"
 import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
@@ -30,9 +30,14 @@ export default async function ClientesPage() {
     <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-6 px-4 py-10">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Clientes</h1>
-        <Button size="sm" nativeButton={false} render={<Link href="/app/clientes/novo" />}>
-          <PlusIcon /> Novo cliente
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="secondary" nativeButton={false} render={<Link href="/app/clientes/importar" />}>
+            <UploadIcon /> Importar CSV
+          </Button>
+          <Button size="sm" nativeButton={false} render={<Link href="/app/clientes/novo" />}>
+            <PlusIcon /> Novo cliente
+          </Button>
+        </div>
       </div>
 
       {customers.length === 0 ? (
