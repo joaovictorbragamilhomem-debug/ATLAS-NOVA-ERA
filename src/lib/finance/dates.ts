@@ -66,3 +66,20 @@ export function nextDueDateForPeriodicity(isoDate: string, periodicity: Periodic
   if (periodicity === "biweekly") return addDaysToISODate(isoDate, 14);
   return addMonthsToISODate(isoDate, 1);
 }
+
+// Helpers de calendário mensal (para telas como /app/calendario) — sempre a
+// partir de "YYYY-MM", sem hora nem fuso envolvidos.
+export function daysInMonth(yearMonth: string): number {
+  const [year, month] = yearMonth.split("-").map(Number);
+  return new Date(Date.UTC(year, month, 0)).getUTCDate();
+}
+
+// 0 = domingo ... 6 = sábado, igual ao Date.getDay().
+export function weekdayOfISODate(isoDate: string): number {
+  const [year, month, day] = isoDate.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day)).getUTCDay();
+}
+
+export function addMonthsToYearMonth(yearMonth: string, months: number): string {
+  return addMonthsToISODate(`${yearMonth}-01`, months).slice(0, 7);
+}
