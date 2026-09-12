@@ -42,7 +42,10 @@ function InviteForm() {
         <Label htmlFor="invite-role">Papel</Label>
         <Select name="role" defaultValue="operator">
           <SelectTrigger id="invite-role" className="w-full sm:w-40">
-            <SelectValue />
+            {/* Sem isso, o gatilho mostra o valor cru ("operator") em vez do
+            rótulo em português — SelectValue não lê os children de SelectItem
+            sozinho, precisa de uma função de formatação. */}
+            <SelectValue>{(value: string) => ROLE_LABEL[value as TeamMember["role"]]}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="manager">Gestor</SelectItem>
@@ -87,7 +90,7 @@ function MemberRow({ member, canManage, isOwner }: { member: TeamMember; canMana
         {canManage ? (
           <Select value={member.role} onValueChange={(v) => handleRoleChange(v as TeamMember["role"])} disabled={busy}>
             <SelectTrigger size="sm" className="w-32">
-              <SelectValue />
+              <SelectValue>{(value: string) => ROLE_LABEL[value as TeamMember["role"]]}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="manager">Gestor</SelectItem>

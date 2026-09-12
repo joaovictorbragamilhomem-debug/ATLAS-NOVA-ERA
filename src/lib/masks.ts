@@ -53,3 +53,13 @@ export function formatCentsToBRL(cents: number): string {
 export function formatDateBR(date: Date): string {
   return new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo" }).format(date);
 }
+
+// Datas de parcela (due_date etc.) são strings "YYYY-MM-DD" sem hora — nunca
+// passe por `new Date(isoDate)` para exibi-las: isso é interpretado como
+// meia-noite UTC, e formatar de volta em America/Sao_Paulo (UTC-3) pode
+// "voltar um dia". Aqui só reorganizamos o texto, sem nenhuma conversão de
+// fuso horário.
+export function formatISODateToBR(isoDate: string): string {
+  const [year, month, day] = isoDate.split("-");
+  return `${day}/${month}/${year}`;
+}

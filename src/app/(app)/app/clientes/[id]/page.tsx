@@ -1,10 +1,24 @@
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
-import { PencilIcon } from "lucide-react"
+import { PencilIcon, PlusIcon, FileTextIcon } from "lucide-react"
 import { getCurrentMembership } from "@/lib/auth/current-user"
 import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
-import { formatCPF, formatPhoneBR, e164BRToDigits } from "@/lib/masks"
+import { EmptyState } from "@/components/ui/empty-state"
+import { formatCPF, formatPhoneBR, e164BRToDigits, formatCentsToBRL } from "@/lib/masks"
+
+const PERIODICITY_LABEL: Record<string, string> = {
+  weekly: "Semanal",
+  biweekly: "Quinzenal",
+  monthly: "Mensal",
+}
+
+const CONTRACT_STATUS_LABEL: Record<string, string> = {
+  active: "Ativo",
+  completed: "Concluído",
+  renegotiated: "Renegociado",
+  canceled: "Cancelado",
+}
 
 export default async function ClienteDetalhePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -12,9 +26,18 @@ export default async function ClienteDetalhePage({ params }: { params: Promise<{
   if (!membership) redirect("/app/entrar")
 
   const supabase = await getSupabaseServerClient()
-  const { data: customer } = await supabase.from("customers").select("*").eq("id", id).maybeSingle()
+  const [{ data: customer }, { data: contracts }] = await Promise.all([
+    supabase.from("customers").select("*").eq("id", id).maybeSingle(),
+    supabase
+      .from("contracts")
+      .select("id, principal_amount_cents, installments_count, periodicity, status, created_at")
+      .eq("customer_id", id)
+      .order("created_at", { ascending: false }),
+  ])
 
   if (!customer) notFound()
+
+  const canCreateContract = membership.role !== "operator"
 
   const address = [customer.address_street, customer.address_number, customer.address_district, customer.address_city, customer.address_state]
     .filter(Boolean)
@@ -64,10 +87,47 @@ export default async function ClienteDetalhePage({ params }: { params: Promise<{
       </div>
 
       <div className="flex flex-col gap-2">
-        <h2 className="text-lg font-semibold">Contratos</h2>
-        <div className="rounded-lg border border-dashed border-border px-6 py-8 text-center text-sm text-muted-foreground">
-          Nenhum contrato ainda.
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Contratos</h2>
+          {canCreateContract && (
+            <Button size="sm" nativeButton={false} render={<Link href={`/app/clientes/${id}/contratos/novo`} />}>
+              <PlusIcon /> Novo contrato
+            </Button>
+          )}
         </div>
+
+        {!contracts || contracts.length === 0 ? (
+          <EmptyState
+            icon={FileTextIcon}
+            title="Nenhum contrato ainda"
+            description={
+              canCreateContract
+                ? "Crie o primeiro contrato para gerar o carnê de parcelas deste cliente."
+                : "Peça para o Dono ou Gestor criar o primeiro contrato."
+            }
+          />
+        ) : (
+          <ul className="flex flex-col gap-2">
+            {contracts.map((contract) => (
+              <li key={contract.id}>
+                <Link
+                  href={`/app/contratos/${contract.id}`}
+                  className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 text-sm transition-colors hover:bg-muted/50"
+                >
+                  <div className="flex flex-col">
+                    <span className="font-medium">{formatCentsToBRL(contract.principal_amount_cents)}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {contract.installments_count}x · {PERIODICITY_LABEL[contract.periodicity]}
+                    </span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {CONTRACT_STATUS_LABEL[contract.status] ?? contract.status}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </main>
   )

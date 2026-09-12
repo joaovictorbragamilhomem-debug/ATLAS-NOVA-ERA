@@ -11,6 +11,12 @@ import { onlyDigits } from "@/lib/masks"
 
 const initialState: CheckoutState = { error: null }
 
+const PLAN_LABEL: Record<string, string> = {
+  monthly: "Mensal",
+  annual: "Anual",
+  lifetime: "Vitalício",
+}
+
 function formatDocument(digits: string): string {
   const d = onlyDigits(digits).slice(0, 14)
   if (d.length <= 11) {
@@ -45,7 +51,7 @@ function CheckoutForm({ hasPricing }: { hasPricing: boolean }) {
         <Label htmlFor="plan">Plano</Label>
         <Select name="plan" defaultValue="monthly">
           <SelectTrigger id="plan" className="w-full">
-            <SelectValue />
+            <SelectValue>{(value: string) => PLAN_LABEL[value]}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="monthly">Mensal</SelectItem>

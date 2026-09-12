@@ -21,6 +21,7 @@ function Calendar({
   locale,
   formatters,
   components,
+  labels,
   ...props
 }: React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>["variant"]
@@ -42,6 +43,14 @@ function Calendar({
         formatMonthDropdown: (date) =>
           date.toLocaleString(locale?.code, { month: "short" }),
         ...formatters,
+      }}
+      // react-day-picker só localiza os dias/semanas pelo `locale` (date-fns);
+      // os rótulos de aria-label de navegação (mês anterior/seguinte) têm um
+      // valor padrão em inglês fixo e precisam ser traduzidos à parte.
+      labels={{
+        labelPrevious: () => "Mês anterior",
+        labelNext: () => "Próximo mês",
+        ...labels,
       }}
       classNames={{
         root: cn("w-fit", defaultClassNames.root),

@@ -253,7 +253,11 @@ export default function DesignPage() {
             <Label>Periodicidade</Label>
             <Select defaultValue="monthly">
               <SelectTrigger className="w-full">
-                <SelectValue />
+                <SelectValue>
+                  {(value: string) =>
+                    ({ weekly: "Semanal", biweekly: "Quinzenal", monthly: "Mensal" })[value]
+                  }
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="weekly">Semanal</SelectItem>
