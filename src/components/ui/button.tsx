@@ -42,6 +42,8 @@ function Button({
   loading = false,
   disabled,
   children,
+  render,
+  nativeButton,
   ...props
 }: Omit<ButtonPrimitive.Props, "children"> &
   VariantProps<typeof buttonVariants> & {
@@ -54,6 +56,10 @@ function Button({
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={cn(buttonVariants({ variant, size }), className)}
+      render={render}
+      // Sempre que `render` troca o elemento por um <Link>/<a>, isso não é
+      // mais um <button> nativo — evita ter que lembrar disso em cada uso.
+      nativeButton={nativeButton ?? render === undefined}
       {...props}
     >
       <span className={cn("inline-flex items-center gap-2", loading && "invisible")}>

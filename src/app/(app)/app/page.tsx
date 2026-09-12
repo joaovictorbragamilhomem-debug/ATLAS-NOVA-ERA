@@ -41,7 +41,7 @@ export default async function AppHomePage() {
               : "Seu teste grátis terminou."}{" "}
             Você ainda vê tudo, mas não consegue criar nem editar nada até assinar.
           </span>
-          <Button size="sm" render={<Link href="/app/assinatura" />}>
+          <Button size="sm" nativeButton={false} render={<Link href="/app/assinatura" />}>
             Assinar
           </Button>
         </div>
