@@ -5,7 +5,7 @@ const SAMPLE = { nome: "Maria", valor_parcela: "R$ 250,00", dias_atraso: "5", va
 const STEPS = [
   {
     label: "Dias antes",
-    message: "Oi {{nome}}, passando para lembrar: sua parcela de {{valor_parcela}} vence em 2 dias.",
+    message: "Oi {{nome}}, aqui é a Angélica, do ATLAS. Passando para lembrar: sua parcela de {{valor_parcela}} vence em 2 dias.",
   },
   {
     label: "No dia",
@@ -27,7 +27,7 @@ const STEPS = [
 
 function CollectionTimeline() {
   return (
-    <section className="cv-auto mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto mb-10 max-w-2xl text-center">
         <h2 className="text-2xl font-semibold sm:text-3xl">A cobrança acontece sozinha</h2>
         <p className="mt-2 text-muted-foreground">Do lembrete até a confirmação — cada etapa com a mensagem certa.</p>

@@ -11,7 +11,7 @@ import {
 } from "@/lib/message-template"
 
 const DEFAULT_TEMPLATE =
-  "Oi {{nome}}, tudo bem? Sua parcela de {{valor_parcela}} vence em {{vencimento}}. Se já pagou, pode ignorar 🙂"
+  "Oi {{nome}}, tudo bem? Aqui é a Angélica, do ATLAS 🙂 Sua parcela de {{valor_parcela}} vence em {{vencimento}}. Se já pagou, pode ignorar."
 
 const SAMPLE_DATA = {
   nome: "Carlos",
@@ -36,11 +36,13 @@ function MessageDemo() {
   const preview = renderTemplate(template, SAMPLE_DATA)
 
   return (
-    <section className="cv-auto mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto mb-10 max-w-2xl text-center">
         <h2 className="text-2xl font-semibold sm:text-3xl">Escreva do seu jeito, com suas variáveis</h2>
         <p className="mt-2 text-muted-foreground">
-          Edite o modelo abaixo e veja, ao lado, como o cliente recebe no WhatsApp.
+          Apresentamos a <strong className="text-foreground">Angélica</strong> — é o nome que demos para a
+          cobrança automática, pra ficar mais simpático que uma mensagem de robô. Edite o modelo abaixo e veja,
+          ao lado, como o cliente recebe no WhatsApp.
         </p>
       </div>
 

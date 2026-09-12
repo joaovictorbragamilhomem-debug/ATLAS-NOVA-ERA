@@ -45,7 +45,7 @@ const FAQS = [
 
 function Faq() {
   return (
-    <section id="duvidas" className="cv-auto mx-auto max-w-3xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
+    <section id="duvidas" className="mx-auto max-w-3xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto mb-8 max-w-2xl text-center">
         <h2 className="text-2xl font-semibold sm:text-3xl">Dúvidas frequentes</h2>
       </div>

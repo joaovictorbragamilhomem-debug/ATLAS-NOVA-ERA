@@ -77,7 +77,7 @@ const TABS = [
 
 function ProductTour() {
   return (
-    <section className="cv-auto mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto mb-8 max-w-2xl text-center">
         <h2 className="text-2xl font-semibold sm:text-3xl">Conheça o painel</h2>
         <p className="mt-2 text-muted-foreground">

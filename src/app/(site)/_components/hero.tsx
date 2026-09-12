@@ -6,6 +6,9 @@ function Hero() {
   return (
     <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 pt-14 pb-20 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:pt-20">
       <div className="flex flex-col gap-6">
+        <span className="w-fit rounded-4xl bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">
+          Feito pra quem começou no caderno — não pra banco
+        </span>
         <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
           Cobrança no automático, direto no WhatsApp
         </h1>

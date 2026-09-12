@@ -58,7 +58,7 @@ const FEATURES: { icon: LucideIcon; title: string; description: string; wide?: b
 
 function FeaturesBento() {
   return (
-    <section id="recursos" className="cv-auto mx-auto max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
+    <section id="recursos" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto mb-10 max-w-2xl text-center">
         <h2 className="text-2xl font-semibold sm:text-3xl">Tudo o que você precisa, num lugar só</h2>
         <p className="mt-2 text-muted-foreground">Sem planilha extra, sem caderno, sem WhatsApp Web em dez abas.</p>

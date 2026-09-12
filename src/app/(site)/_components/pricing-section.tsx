@@ -11,7 +11,7 @@ async function PricingSection() {
   const lifetimeLabel = PRICING.lifetimeCents !== null ? formatCentsToBRL(PRICING.lifetimeCents) : "a definir"
 
   return (
-    <section id="precos" className="cv-auto mx-auto max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
+    <section id="precos" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto mb-10 max-w-2xl text-center">
         <h2 className="text-2xl font-semibold sm:text-3xl">Preços</h2>
         <p className="mt-2 text-muted-foreground">Todos os planos incluem 7 dias grátis, sem cartão de crédito.</p>

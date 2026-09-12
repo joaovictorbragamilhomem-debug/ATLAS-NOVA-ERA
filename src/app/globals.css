@@ -141,11 +141,3 @@
 @utility tabular-nums-force {
   font-variant-numeric: tabular-nums;
 }
-
-/* Evita que o navegador calcule layout/pintura de seções fora da tela no
-   primeiro carregamento — a página de vendas é longa, isso reduz bastante
-   o tempo de bloqueio da thread principal sem mudar nada visualmente. */
-@utility cv-auto {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 700px;
-}
