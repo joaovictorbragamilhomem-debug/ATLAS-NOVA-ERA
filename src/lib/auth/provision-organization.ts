@@ -1,6 +1,25 @@
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { slugify } from "@/lib/intake/slugify";
 
 const TRIAL_DAYS = 7;
+
+// Tenta o slug "limpo" primeiro; se já existir (nome de empresa repetido),
+// acrescenta um sufixo curto e tenta de novo, algumas vezes.
+async function generateUniqueIntakeSlug(
+  supabase: SupabaseClient,
+  organizationName: string
+): Promise<string | null> {
+  const base = slugify(organizationName) || "empresa";
+
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const candidate = attempt === 0 ? base : `${base}-${Math.random().toString(36).slice(2, 6)}`;
+    const { data } = await supabase.from("organizations").select("id").eq("intake_slug", candidate).maybeSingle();
+    if (!data) return candidate;
+  }
+
+  return null;
+}
 
 // Roda logo depois do supabase.auth.signUp(): cria a organização, o
 // primeiro vínculo (dono) e a assinatura em teste — tudo de uma vez, com o
@@ -13,9 +32,11 @@ export async function provisionOrganizationForNewUser(params: {
   const supabase = getSupabaseAdminClient();
   if (!supabase) return { error: "Supabase não está configurado no servidor." };
 
+  const intakeSlug = await generateUniqueIntakeSlug(supabase, params.organizationName);
+
   const { data: org, error: orgError } = await supabase
     .from("organizations")
-    .insert({ name: params.organizationName })
+    .insert({ name: params.organizationName, intake_slug: intakeSlug })
     .select("id")
     .single();
 
