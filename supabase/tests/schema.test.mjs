@@ -262,5 +262,59 @@ await asUser(userA, async () => {
   );
 });
 
+// --- Central de conversas (whatsapp_messages) -----------------------------
+await db.query(
+  `insert into whatsapp_messages (organization_id, customer_id, direction, body, customer_phone_digits, provider_message_id, occurred_at)
+   values ($1, $2, 'inbound', 'Oi, posso pagar amanhã?', '11999998888', 'wamid.teste-1', now())`,
+  [orgA, customerA]
+);
+
+await asUser(userA, async () => {
+  const seen = await db.query(`select id from whatsapp_messages where organization_id = $1`, [orgA]);
+  check("dono da Empresa A vê a mensagem recebida da própria empresa", seen.rows.length === 1);
+});
+
+await asUser(userB, async () => {
+  const seen = await db.query(`select id from whatsapp_messages where organization_id = $1`, [orgA]);
+  check("dono da Empresa B NÃO vê mensagem da Empresa A", seen.rows.length === 0);
+});
+
+await asUser(userA, async () => {
+  try {
+    await db.query(
+      `insert into whatsapp_messages (organization_id, customer_id, direction, body, customer_phone_digits, provider_message_id, occurred_at)
+       values ($1, $2, 'outbound', 'Pode sim! Te aviso por aqui.', '11999998888', 'wamid.teste-2', now())`,
+      [orgA, customerA]
+    );
+    check("membro da organização consegue registrar a própria resposta (outbound)", true);
+  } catch (err) {
+    check(`membro da organização consegue registrar a própria resposta (erro: ${err.message})`, false);
+  }
+});
+
+await asUser(userA, async () => {
+  try {
+    await db.query(
+      `insert into whatsapp_messages (organization_id, customer_id, direction, body, customer_phone_digits, provider_message_id, occurred_at)
+       values ($1, $2, 'inbound', 'mensagem forjada', '11999998888', 'wamid.teste-3', now())`,
+      [orgA, customerA]
+    );
+    check("membro NÃO consegue forjar mensagem 'inbound' (deveria ter sido bloqueado)", false);
+  } catch {
+    check("membro é bloqueado ao tentar forjar mensagem 'inbound'", true);
+  }
+});
+
+try {
+  await db.query(
+    `insert into whatsapp_messages (organization_id, customer_id, direction, body, customer_phone_digits, provider_message_id, occurred_at)
+     values ($1, $2, 'inbound', 'reentrega do mesmo webhook', '11999998888', 'wamid.teste-1', now())`,
+    [orgA, customerA]
+  );
+  check("bloqueia duas mensagens com o mesmo provider_message_id (idempotência do webhook)", false);
+} catch {
+  check("bloqueia duas mensagens com o mesmo provider_message_id (idempotência do webhook)", true);
+}
+
 console.log(failures === 0 ? "\nTodos os testes passaram." : `\n${failures} teste(s) falharam.`);
 process.exit(failures === 0 ? 0 : 1);

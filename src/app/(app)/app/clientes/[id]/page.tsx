@@ -2,7 +2,7 @@ import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { PencilIcon, PlusIcon, FileTextIcon } from "lucide-react"
 import { getCurrentMembership } from "@/lib/auth/current-user"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
+import { getCustomerWithContracts } from "@/lib/customers/get-customer-with-contracts"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { formatCPF, formatPhoneBR, e164BRToDigits, formatCentsToBRL } from "@/lib/masks"
@@ -25,15 +25,7 @@ export default async function ClienteDetalhePage({ params }: { params: Promise<{
   const membership = await getCurrentMembership()
   if (!membership) redirect("/app/entrar")
 
-  const supabase = await getSupabaseServerClient()
-  const [{ data: customer }, { data: contracts }] = await Promise.all([
-    supabase.from("customers").select("*").eq("id", id).maybeSingle(),
-    supabase
-      .from("contracts")
-      .select("id, principal_amount_cents, installments_count, periodicity, status, created_at")
-      .eq("customer_id", id)
-      .order("created_at", { ascending: false }),
-  ])
+  const { customer, contracts } = await getCustomerWithContracts(id)
 
   if (!customer) notFound()
 
@@ -96,7 +88,7 @@ export default async function ClienteDetalhePage({ params }: { params: Promise<{
           )}
         </div>
 
-        {!contracts || contracts.length === 0 ? (
+        {contracts.length === 0 ? (
           <EmptyState
             icon={FileTextIcon}
             title="Nenhum contrato ainda"
@@ -115,9 +107,9 @@ export default async function ClienteDetalhePage({ params }: { params: Promise<{
                   className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 text-sm transition-colors hover:bg-muted/50"
                 >
                   <div className="flex flex-col">
-                    <span className="font-medium">{formatCentsToBRL(contract.principal_amount_cents)}</span>
+                    <span className="font-medium">{formatCentsToBRL(contract.principalAmountCents)}</span>
                     <span className="text-xs text-muted-foreground">
-                      {contract.installments_count}x · {PERIODICITY_LABEL[contract.periodicity]}
+                      {contract.installmentsCount}x · {PERIODICITY_LABEL[contract.periodicity]}
                     </span>
                   </div>
                   <span className="text-xs text-muted-foreground">

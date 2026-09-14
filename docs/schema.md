@@ -49,7 +49,7 @@ Em palavras simples, os 15 "blocos" se agrupam em 4 áreas:
 1. **Conta e equipe** — `organizations`, `memberships`, `subscriptions`, `audit_logs`
 2. **Clientes e captação** — `customers`, `intake_forms`, `consents`
 3. **Contratos e dinheiro** — `contracts`, `installments`, `payments`
-4. **Cobrança automática** — `message_templates`, `automation_rules`, `message_queue`, `message_logs`, `whatsapp_connections`
+4. **Cobrança automática** — `message_templates`, `automation_rules`, `message_queue`, `message_logs`, `whatsapp_connections`, `whatsapp_messages`
 
 ---
 
@@ -288,6 +288,25 @@ Histórico de cada mudança de status de uma mensagem (uma linha por evento).
 | phone_number | text | |
 | credentials_ref | text | nunca a senha/token em texto puro — referência a um cofre de segredos |
 | connected_at | timestamptz | |
+
+### `whatsapp_messages`
+Mensagens de WhatsApp trocadas com o cliente (Central de conversas, Fase 6)
+— diferente de `message_queue`, que é só a fila de cobrança automática.
+| Coluna | Tipo | Observação |
+|---|---|---|
+| id | uuid | |
+| organization_id | uuid → organizations | |
+| customer_id | uuid → customers, nulo | nulo quando a mensagem chega de um número sem cliente cadastrado ainda |
+| direction | text | `inbound` (o cliente mandou) \| `outbound` (o time respondeu) |
+| body | text | texto da mensagem; mídia (foto/áudio/documento) vira um aviso de placeholder |
+| customer_phone_digits | text | DDD+número do lado do cliente, sem `55`/`+` |
+| provider_message_id | text, único | id da mensagem na Meta — trava a mesma entrega de webhook de duplicar |
+| occurred_at | timestamptz | |
+
+**Janela de 24h:** a Meta só deixa mandar texto livre até 24h depois da
+última mensagem recebida do cliente — depois disso, só reiniciando com um
+modelo aprovado (mesmo mecanismo de `message_templates`). Isso é recalculado
+a cada envio, nunca guardado como um estado à parte.
 
 ---
 
