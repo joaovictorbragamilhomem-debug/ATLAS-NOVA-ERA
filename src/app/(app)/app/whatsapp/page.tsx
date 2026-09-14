@@ -5,6 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ConnectionPanel } from "./_components/connection-panel"
 import { TemplatesPanel, type TemplateRow } from "./_components/templates-panel"
 import { RulesPanel, type AutomationRuleRow } from "./_components/rules-panel"
+import { MessagesPanel } from "./_components/messages-panel"
+import { getMessageQueue } from "@/lib/whatsapp/get-message-queue"
 
 export default async function WhatsAppPage() {
   const membership = await getCurrentMembership()
@@ -12,7 +14,7 @@ export default async function WhatsAppPage() {
 
   const supabase = await getSupabaseServerClient()
 
-  const [{ data: organization }, { data: connection }, { data: templates }, { data: rules }] = await Promise.all([
+  const [{ data: organization }, { data: connection }, { data: templates }, { data: rules }, messages] = await Promise.all([
     supabase.from("organizations").select("pix_key").eq("id", membership.organizationId).maybeSingle(),
     supabase
       .from("whatsapp_connections")
@@ -29,6 +31,7 @@ export default async function WhatsAppPage() {
       .select("id, trigger_type, days_offset, active, send_window_start, send_window_end, skip_sunday, template_id, message_templates(name)")
       .eq("organization_id", membership.organizationId)
       .order("trigger_type"),
+    getMessageQueue(membership.organizationId),
   ])
 
   const templateRows: TemplateRow[] = (templates ?? []).map((t) => ({
@@ -64,6 +67,7 @@ export default async function WhatsAppPage() {
           <TabsTrigger value="conexao">Conexão</TabsTrigger>
           <TabsTrigger value="modelos">Modelos de mensagem</TabsTrigger>
           <TabsTrigger value="regras">Cobrança automática</TabsTrigger>
+          <TabsTrigger value="mensagens">Mensagens</TabsTrigger>
         </TabsList>
 
         <TabsContent value="conexao" className="pt-4">
@@ -81,6 +85,10 @@ export default async function WhatsAppPage() {
 
         <TabsContent value="regras" className="pt-4">
           <RulesPanel rules={ruleRows} templates={templateRows} canEdit={membership.role !== "operator"} />
+        </TabsContent>
+
+        <TabsContent value="mensagens" className="pt-4">
+          <MessagesPanel messages={messages} />
         </TabsContent>
       </Tabs>
     </main>
