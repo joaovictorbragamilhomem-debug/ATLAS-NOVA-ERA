@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
@@ -34,6 +34,15 @@ export const metadata: Metadata = {
     title: SITE_NAME,
     description: DESCRIPTION,
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Atlas",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0B1210",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
