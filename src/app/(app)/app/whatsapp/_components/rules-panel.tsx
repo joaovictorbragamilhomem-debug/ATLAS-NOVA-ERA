@@ -55,6 +55,8 @@ function NewRuleDialog({ templates }: { templates: TemplateRow[] }) {
   const [pending, setPending] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [triggerType, setTriggerType] = React.useState("reminder_before")
+  const [templateId, setTemplateId] = React.useState(templates[0]?.id ?? "")
+  const templateNameById = Object.fromEntries(templates.map((t) => [t.id, t.name]))
 
   async function handleSubmit(formData: FormData) {
     setPending(true)
@@ -103,9 +105,11 @@ function NewRuleDialog({ templates }: { templates: TemplateRow[] }) {
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="templateId">Modelo de mensagem</Label>
-            <Select name="templateId">
+            <Select name="templateId" value={templateId} onValueChange={(v) => setTemplateId(v ?? "")}>
               <SelectTrigger id="templateId" className="w-full">
-                <SelectValue placeholder="Escolha um modelo" />
+                <SelectValue placeholder="Escolha um modelo">
+                  {(v: string) => templateNameById[v] ?? "Escolha um modelo"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {templates.map((t) => (
