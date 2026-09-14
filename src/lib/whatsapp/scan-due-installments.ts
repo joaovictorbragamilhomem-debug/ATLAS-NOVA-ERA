@@ -19,10 +19,12 @@ export async function scanAndEnqueueDueInstallmentMessages(): Promise<{ enqueued
 
   const today = todayInSaoPauloISODate();
 
+  // "Oferta de renegociação" funciona igual "atraso depois de X dias" —
+  // os dois olham pra quantos dias já passaram do vencimento.
   const { data: rules } = await admin
     .from("automation_rules")
     .select("id, organization_id, trigger_type, days_offset, template_id, message_templates(body, active)")
-    .in("trigger_type", ["reminder_before", "due_today", "overdue_after"])
+    .in("trigger_type", ["reminder_before", "due_today", "overdue_after", "renegotiation_offer"])
     .eq("active", true);
 
   let enqueuedCount = 0;
@@ -34,7 +36,7 @@ export async function scanAndEnqueueDueInstallmentMessages(): Promise<{ enqueued
     let targetDate: string;
     if (rule.trigger_type === "due_today") targetDate = today;
     else if (rule.trigger_type === "reminder_before") targetDate = addDaysToISODate(today, rule.days_offset ?? 0);
-    else targetDate = addDaysToISODate(today, -(rule.days_offset ?? 0));
+    else targetDate = addDaysToISODate(today, -(rule.days_offset ?? 0)); // overdue_after / renegotiation_offer
 
     const { data: installments } = await admin
       .from("installments")

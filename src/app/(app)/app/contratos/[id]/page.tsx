@@ -1,7 +1,9 @@
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
+import { RefreshCcwIcon } from "lucide-react"
 import { getCurrentMembership } from "@/lib/auth/current-user"
 import { getSupabaseServerClient } from "@/lib/supabase/server"
+import { Button } from "@/components/ui/button"
 import { formatCentsToBRL } from "@/lib/masks"
 import { todayInSaoPauloISODate } from "@/lib/finance/dates"
 import { InstallmentsList } from "./_components/installments-list"
@@ -11,6 +13,15 @@ const PERIODICITY_LABEL: Record<string, string> = {
   biweekly: "Quinzenal",
   monthly: "Mensal",
 }
+
+const CONTRACT_STATUS_LABEL: Record<string, string> = {
+  active: "Ativo",
+  completed: "Concluído",
+  renegotiated: "Renegociado",
+  canceled: "Cancelado",
+}
+
+const OPEN_INSTALLMENT_STATUSES = ["pending", "partially_paid", "reversed"]
 
 export default async function ContratoDetalhePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -39,17 +50,42 @@ export default async function ContratoDetalhePage({ params }: { params: Promise<
       : { data: [] }
 
   const totalReceivedCents = (installments ?? []).reduce((sum, i) => sum + i.paid_amount_cents, 0)
+  const hasOpenInstallments = (installments ?? []).some((i) => OPEN_INSTALLMENT_STATUSES.includes(i.status))
+  const canRenegotiate = membership.role !== "operator" && contract.status === "active" && hasOpenInstallments
+
+  const { data: renegotiatedInto } =
+    contract.status === "renegotiated"
+      ? await supabase.from("contracts").select("id").eq("renegotiated_from_contract_id", id).maybeSingle()
+      : { data: null }
 
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 px-4 py-10">
-      <div>
-        <p className="text-sm text-muted-foreground">
-          Cliente:{" "}
-          <Link href={`/app/clientes/${contract.customers.id}`} className="underline underline-offset-2">
-            {contract.customers.name}
-          </Link>
-        </p>
-        <h1 className="text-2xl font-semibold">Contrato de {formatCentsToBRL(contract.principal_amount_cents)}</h1>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm text-muted-foreground">
+            Cliente:{" "}
+            <Link href={`/app/clientes/${contract.customers.id}`} className="underline underline-offset-2">
+              {contract.customers.name}
+            </Link>
+          </p>
+          <h1 className="text-2xl font-semibold">Contrato de {formatCentsToBRL(contract.principal_amount_cents)}</h1>
+          <p className="text-sm text-muted-foreground">
+            Status: {CONTRACT_STATUS_LABEL[contract.status] ?? contract.status}
+            {contract.status === "renegotiated" && renegotiatedInto && (
+              <>
+                {" — "}
+                <Link href={`/app/contratos/${renegotiatedInto.id}`} className="underline underline-offset-2">
+                  ver contrato novo
+                </Link>
+              </>
+            )}
+          </p>
+        </div>
+        {canRenegotiate && (
+          <Button variant="secondary" size="sm" nativeButton={false} render={<Link href={`/app/contratos/${id}/renegociar`} />}>
+            <RefreshCcwIcon /> Renegociar
+          </Button>
+        )}
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">

@@ -202,5 +202,65 @@ try {
   check("bloqueia a mesma parcela recebendo o mesmo gatilho 2x no mesmo dia", true);
 }
 
+// --- Renegociação de contrato --------------------------------------------
+// Reproduz, direto no banco, a mesma sequência de operações que
+// renegotiateContractAction (src/lib/contracts/actions.ts) faz: cria o
+// contrato novo já ligado ao antigo, marca as parcelas antigas em aberto
+// como 'renegotiated' e o contrato antigo também.
+const contractC = (await db.query(
+  `insert into contracts (organization_id, customer_id, principal_amount_cents, installments_count, periodicity, first_due_date, installment_amount_cents)
+   values ($1, $2, 200000, 2, 'monthly', current_date, 100000) returning id`,
+  [orgA, customerA]
+)).rows[0].id;
+const installmentC1 = (await db.query(
+  `insert into installments (contract_id, organization_id, number, due_date, amount_cents) values ($1, $2, 1, current_date, 100000) returning id`,
+  [contractC, orgA]
+)).rows[0].id;
+const installmentC2 = (await db.query(
+  `insert into installments (contract_id, organization_id, number, due_date, amount_cents) values ($1, $2, 2, current_date, 100000) returning id`,
+  [contractC, orgA]
+)).rows[0].id;
+
+await asUser(userA, async () => {
+  await db.query(`update installments set status = 'partially_paid', paid_amount_cents = 30000 where id = $1`, [installmentC1]);
+});
+
+await asUser(userOperatorA, async () => {
+  try {
+    await db.query(`update installments set status = 'renegotiated' where id = $1`, [installmentC1]);
+    check("operador NÃO consegue renegociar parcela (deveria ter sido bloqueado)", false);
+  } catch {
+    check("operador é bloqueado ao tentar renegociar parcela", true);
+  }
+});
+
+let contractD;
+await asUser(userA, async () => {
+  try {
+    contractD = (await db.query(
+      `insert into contracts (organization_id, customer_id, principal_amount_cents, installments_count, periodicity, first_due_date, installment_amount_cents, renegotiated_from_contract_id)
+       values ($1, $2, 170000, 1, 'monthly', current_date, 170000, $3) returning id`,
+      [orgA, customerA, contractC]
+    )).rows[0].id;
+    await db.query(`update installments set status = 'renegotiated' where id in ($1, $2)`, [installmentC1, installmentC2]);
+    await db.query(`update contracts set status = 'renegotiated' where id = $1`, [contractC]);
+    check("dono consegue renegociar o contrato (contrato novo + parcelas antigas atualizadas)", true);
+  } catch (err) {
+    check(`dono consegue renegociar o contrato (erro: ${err.message})`, false);
+  }
+});
+
+await asUser(userA, async () => {
+  const oldContract = (await db.query(`select status from contracts where id = $1`, [contractC])).rows[0];
+  const newContract = (await db.query(`select renegotiated_from_contract_id from contracts where id = $1`, [contractD])).rows[0];
+  const oldInstallments = (await db.query(`select status from installments where contract_id = $1`, [contractC])).rows;
+  check("contrato antigo fica com status 'renegotiated'", oldContract.status === "renegotiated");
+  check("contrato novo fica ligado ao contrato antigo", newContract.renegotiated_from_contract_id === contractC);
+  check(
+    "as parcelas em aberto do contrato antigo ficam 'renegotiated'",
+    oldInstallments.every((i) => i.status === "renegotiated")
+  );
+});
+
 console.log(failures === 0 ? "\nTodos os testes passaram." : `\n${failures} teste(s) falharam.`);
 process.exit(failures === 0 ? 0 : 1);

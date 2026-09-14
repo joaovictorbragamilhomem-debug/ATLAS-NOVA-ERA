@@ -42,14 +42,19 @@ const EMPTY_VALUES: ContractFormValues = {
 
 type ContractFormProps = {
   action: (state: ContractActionState, formData: FormData) => Promise<ContractActionState>
+  initialPrincipalAmountCents?: number
+  submitLabel?: string
 }
 
 // Campos controlados (useState) pelo mesmo motivo do CustomerForm: o React 19
 // reseta campos não controlados sempre que uma Server Action termina, mesmo
 // quando ela só devolve um erro de validação.
-function ContractForm({ action }: ContractFormProps) {
+function ContractForm({ action, initialPrincipalAmountCents, submitLabel }: ContractFormProps) {
   const [state, formAction, pending] = useActionState(action, { error: null } as ContractActionState)
-  const [values, setValues] = React.useState<ContractFormValues>(EMPTY_VALUES)
+  const [values, setValues] = React.useState<ContractFormValues>({
+    ...EMPTY_VALUES,
+    principalAmountCents: initialPrincipalAmountCents ?? 0,
+  })
   const [installmentAmountTouched, setInstallmentAmountTouched] = React.useState(false)
 
   function setField<K extends keyof ContractFormValues>(key: K, value: ContractFormValues[K]) {
@@ -188,7 +193,7 @@ function ContractForm({ action }: ContractFormProps) {
       {state.error && <p className="text-sm text-destructive">{state.error}</p>}
 
       <Button type="submit" loading={pending} className="w-full sm:w-auto">
-        Criar contrato e gerar carnê
+        {submitLabel ?? "Criar contrato e gerar carnê"}
       </Button>
     </form>
   )
