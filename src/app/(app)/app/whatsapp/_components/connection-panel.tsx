@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import { CheckCircle2Icon, XCircleIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/ui/password-input"
 import { Label } from "@/components/ui/label"
 import {
   connectWhatsAppAction,
@@ -80,7 +81,7 @@ function ConnectionPanel({
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="accessToken">Token de acesso</Label>
-                <Input id="accessToken" name="accessToken" type="password" required />
+                <PasswordInput id="accessToken" name="accessToken" required />
               </div>
               {state.error && <p className="text-sm text-destructive">{state.error}</p>}
               <Button type="submit" loading={pending} className="w-full sm:w-auto">

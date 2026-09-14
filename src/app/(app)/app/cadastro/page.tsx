@@ -4,6 +4,7 @@ import { useActionState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/ui/password-input"
 import { Label } from "@/components/ui/label"
 import { signUpAction, type ActionState } from "@/lib/auth/actions"
 
@@ -34,7 +35,7 @@ export default function CadastroPage() {
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="password">Senha</Label>
-          <Input id="password" name="password" type="password" autoComplete="new-password" minLength={8} required />
+          <PasswordInput id="password" name="password" autoComplete="new-password" minLength={8} required />
           <p className="text-xs text-muted-foreground">Pelo menos 8 caracteres.</p>
         </div>
         {state.error && <p className="text-sm text-destructive">{state.error}</p>}

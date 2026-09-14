@@ -6,6 +6,7 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/ui/password-input"
 import { Label } from "@/components/ui/label"
 import { signInWithPasswordAction, signInWithMagicLinkAction, type ActionState } from "@/lib/auth/actions"
 
@@ -59,7 +60,7 @@ function EntrarForm() {
                 Esqueci a senha
               </Link>
             </div>
-            <Input id="password" name="password" type="password" autoComplete="current-password" required />
+            <PasswordInput id="password" name="password" autoComplete="current-password" required />
           </div>
           {passwordState.error && <p className="text-sm text-destructive">{passwordState.error}</p>}
           <Button type="submit" loading={passwordPending} className="w-full">
