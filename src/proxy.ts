@@ -32,10 +32,17 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  // getClaims() valida a sessão e renova o token quando necessário —
-  // sem isso, a sessão do usuário pode expirar de forma imprevisível.
-  const { data } = await supabase.auth.getClaims();
-  const isLoggedIn = !!data?.claims;
+  // getUser() (não getClaims()) de propósito: getClaims() só decodifica o
+  // token localmente, sem confirmar com o servidor da Supabase — em um
+  // caso raro (sessão expirada mas o token de acesso ainda "parece" válido
+  // por mais alguns minutos), ele dizia "logado" enquanto o resto do app
+  // (que usa getUser() em getCurrentMembership()) dizia "não logado",
+  // causando um loop infinito de redirecionamento entre /app e /app/entrar.
+  // getUser() renova o token quando necessário, igual o getClaims() fazia.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isLoggedIn = !!user;
 
   const { pathname } = request.nextUrl;
   const isPublicAppPath = PUBLIC_APP_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
