@@ -28,8 +28,7 @@ function SiteFooter() {
         </div>
 
         <div className="flex flex-col gap-1 border-t border-border pt-6 text-xs text-muted-foreground">
-          {/* TODO: CNPJ real antes de publicar o site */}
-          <span>CNPJ [TODO] · [Razão social]</span>
+          <span>CNPJ 40.948.203/0001-29 · Lucas Vinicius da Luz Villacorta</span>
           <span>© {new Date().getFullYear()} ATLAS NOVA ERA. Todos os direitos reservados.</span>
         </div>
       </div>
