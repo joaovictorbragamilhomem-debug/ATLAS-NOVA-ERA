@@ -165,6 +165,7 @@ e em qual fase ela passa a ser usada.
       ficha pública de captação, importação por CSV e renegociação de contrato)
 - [x] Fase 5 — WhatsApp e cobrança automática (API oficial da Meta; falta concluir a
       verificação da empresa na Meta para as mensagens saírem do modo de teste)
-- [ ] Fase 6 — Central de conversas
+- [x] Fase 6 — Central de conversas (`/app/conversas`; mensagens recebidas + resposta
+      livre respeitando a janela de 24h da Meta, com o contrato do cliente do lado)
 - [ ] Fase 7 — Celular e acabamento
 - [ ] Fase 8 — Sugestão de resposta com IA (opcional)
