@@ -64,7 +64,8 @@ Outros comandos úteis:
    git remote add origin https://github.com/SEU-USUARIO/atlas-nova-era.git
    git push -u origin main
    ```
-4. TODO: me confirme o nome de usuário/organização do GitHub que vamos usar.
+   (já feito — o código está em
+   [github.com/joaovictorbragamilhomem-debug/ATLAS-NOVA-ERA](https://github.com/joaovictorbragamilhomem-debug/ATLAS-NOVA-ERA))
 
 ## 2. Supabase (banco de dados, login e arquivos)
 
@@ -114,8 +115,7 @@ devem — o ATLAS nunca guarda ou movimenta esse dinheiro.
    em `ASAAS_WEBHOOK_SECRET`.
 5. Quando tudo estiver testado, trocamos para a chave de produção e
    `ASAAS_ENV=production`.
-6. TODO: preciso que você me diga os valores dos planos Mensal, Anual e
-   Vitalício antes da Fase 3.
+   (valores dos planos Mensal, Anual e Vitalício já definidos e em produção)
 
 ## 5. Resend (envio de e-mails)
 
@@ -127,9 +127,9 @@ devem — o ATLAS nunca guarda ou movimenta esse dinheiro.
 
 ## 6. Domínio e DNS
 
-1. TODO: me diga qual domínio você já tem ou pretende comprar
-   (`seudominio.com.br`).
+1. Domínio já comprado: `atlasnovaera.com.br` (registro.br).
 2. Na Vercel, vá em **Project Settings → Domains** e adicione o domínio.
+   (já feito — falta só cadastrar os registros DNS abaixo)
 3. A Vercel vai te mostrar registros DNS (tipo `A` ou `CNAME`) para colocar
    no painel de onde você comprou o domínio (Registro.br, etc.).
 4. Para o Resend enviar e-mail pelo seu domínio, adicione também os
@@ -158,9 +158,13 @@ e em qual fase ela passa a ser usada.
 - [x] Fase 0 — Preparação
 - [x] Fase 1 — Identidade visual e design system (veja `/design` rodando o projeto)
 - [x] Fase 2 — Site de vendas
-- [ ] Fase 3 — Contas, equipe e assinatura (em andamento: login/cadastro prontos; faltam convite de equipe, Asaas e e-mails)
-- [ ] Fase 4 — Clientes, contratos e parcelas
-- [ ] Fase 5 — WhatsApp e cobrança automática
+- [x] Fase 3 — Contas, equipe e assinatura (login/cadastro, convite de equipe e Asaas prontos;
+      falta só o envio de e-mail pelo Resend funcionar de verdade — depende do domínio
+      próprio estar com DNS configurado, ver seção 6)
+- [x] Fase 4 — Clientes, contratos e parcelas (inclui dashboard, calendário, relatórios,
+      ficha pública de captação, importação por CSV e renegociação de contrato)
+- [x] Fase 5 — WhatsApp e cobrança automática (API oficial da Meta; falta concluir a
+      verificação da empresa na Meta para as mensagens saírem do modo de teste)
 - [ ] Fase 6 — Central de conversas
 - [ ] Fase 7 — Celular e acabamento
 - [ ] Fase 8 — Sugestão de resposta com IA (opcional)
