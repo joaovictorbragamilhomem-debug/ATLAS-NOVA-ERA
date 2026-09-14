@@ -33,6 +33,7 @@ export const KNOWN_TEMPLATE_VARIABLES = [
   "numero_parcela",
   "vencimento",
   "dias_atraso",
+  "dias_para_vencer",
   "valor_atualizado",
   "saldo_restante",
   "chave_pix",

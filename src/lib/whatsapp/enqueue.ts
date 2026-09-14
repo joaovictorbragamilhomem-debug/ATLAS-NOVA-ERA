@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
-import { todayInSaoPauloISODate } from "@/lib/finance/dates";
+import { todayInSaoPauloISODate, daysBetweenISODates } from "@/lib/finance/dates";
 import {
   calculateDaysLate,
   calculateUpdatedAmountCents,
@@ -86,6 +86,9 @@ function buildVariables(ctx: InstallmentContext, today: string): Record<string, 
     dias_atraso: String(calculateDaysLate(ctx.dueDate, today)),
     valor_atualizado: formatCentsToBRL(updatedAmountCents),
     saldo_restante: formatCentsToBRL(calculateRemainingBalanceCents(updatedAmountCents, ctx.paidAmountCents)),
+    // Só faz sentido pra lembrete antes do vencimento — parcela já vencida
+    // fica em 0, não em número negativo.
+    dias_para_vencer: String(Math.max(0, daysBetweenISODates(today, ctx.dueDate))),
     chave_pix: ctx.pixKey ?? "",
     atendente: "",
   };
