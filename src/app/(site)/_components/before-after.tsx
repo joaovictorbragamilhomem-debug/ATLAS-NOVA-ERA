@@ -1,55 +1,25 @@
 import { CheckCircle2Icon } from "lucide-react"
 
-function NotebookMock() {
+function ProblemCopy() {
   return (
-    <div className="flex h-full flex-col gap-2 rounded-xl border border-border bg-card p-4">
-      <p className="text-xs font-medium text-muted-foreground">Caderno</p>
-      <div className="flex flex-1 flex-col justify-between gap-2 rounded-lg bg-[repeating-linear-gradient(to_bottom,transparent,transparent_19px,var(--border)_20px)] p-3">
-        {["Maria - 250 dia 10", "João ligar!!", "Ana atrasou de novo", "??? conferir"].map((line, i) => (
-          <span
-            key={line}
-            className="text-sm text-muted-foreground italic"
-            style={{ transform: `rotate(${i % 2 === 0 ? -0.6 : 0.6}deg)` }}
-          >
-            {line}
-          </span>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function SpreadsheetMock() {
-  const cells = Array.from({ length: 12 })
-  return (
-    <div className="flex h-full flex-col gap-2 rounded-xl border border-border bg-card p-4">
-      <p className="text-xs font-medium text-muted-foreground">Planilha</p>
-      <div className="grid flex-1 grid-cols-3 gap-px overflow-hidden rounded-lg border border-border bg-border">
-        {cells.map((_, i) => (
-          <div key={i} className="bg-card p-2">
-            <div className="h-2 w-3/4 rounded-full bg-muted" />
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function LooseChatsMock() {
-  return (
-    <div className="flex h-full flex-col gap-2 rounded-xl border border-border bg-card p-4">
-      <p className="text-xs font-medium text-muted-foreground">Conversas soltas</p>
-      <div className="flex flex-1 flex-col gap-1.5">
-        <div className="ml-auto w-2/3 rounded-lg rounded-tr-sm bg-muted px-2.5 py-1.5 text-xs text-muted-foreground">
-          consigo pagar semana que vem?
-        </div>
-        <div className="w-1/2 rounded-lg rounded-tl-sm bg-muted px-2.5 py-1.5 text-xs text-muted-foreground">
-          quem é vc mesmo?
-        </div>
-        <div className="ml-auto w-3/5 rounded-lg rounded-tr-sm bg-muted px-2.5 py-1.5 text-xs text-muted-foreground">
-          já paguei ontem!
-        </div>
-      </div>
+    <div className="flex h-full flex-col justify-center gap-4 rounded-xl border border-border bg-card p-6">
+      <p className="text-base font-semibold text-foreground">
+        Desorganização financeira não é só estresse — é dinheiro que deixa de entrar.
+      </p>
+      <p className="text-sm text-muted-foreground">
+        Parcela que atrasa e ninguém percebe a tempo. Cliente que “esquece” porque
+        também ninguém lembrou ele. E a cobrança que sobra pra você mandar, com seu
+        número e seu nome, toda vez — virando “aquele que fica cobrando”.
+      </p>
+      <p className="text-sm text-muted-foreground">
+        O ATLAS assume essa parte: os lembretes e avisos de vencimento saem sozinhos
+        pelo WhatsApp, como um assistente virtual da sua empresa — não pelo seu
+        número pessoal.
+      </p>
+      <p className="text-sm text-muted-foreground">
+        Você para de gastar seu tempo correndo atrás de gente e volta a gastar ele no
+        que importa: o seu negócio.
+      </p>
     </div>
   )
 }
@@ -84,11 +54,7 @@ function BeforeAfter() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-1">
-          <NotebookMock />
-          <SpreadsheetMock />
-          <LooseChatsMock />
-        </div>
+        <ProblemCopy />
 
         <div className="hidden justify-center lg:flex">
           <span className="text-sm font-medium text-muted-foreground">→</span>
