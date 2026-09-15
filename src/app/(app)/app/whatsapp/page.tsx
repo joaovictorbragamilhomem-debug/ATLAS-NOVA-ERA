@@ -15,7 +15,7 @@ export default async function WhatsAppPage() {
   const supabase = await getSupabaseServerClient()
 
   const [{ data: organization }, { data: connection }, { data: templates }, { data: rules }, messages] = await Promise.all([
-    supabase.from("organizations").select("pix_key").eq("id", membership.organizationId).maybeSingle(),
+    supabase.from("organizations").select("pix_key, pix_city").eq("id", membership.organizationId).maybeSingle(),
     supabase
       .from("whatsapp_connections")
       .select("status, phone_number")
@@ -75,6 +75,7 @@ export default async function WhatsAppPage() {
             connected={connection?.status === "connected"}
             phoneNumber={connection?.phone_number ?? null}
             pixKey={organization?.pix_key ?? null}
+            pixCity={organization?.pix_city ?? null}
             canEdit={membership.role === "owner"}
           />
         </TabsContent>

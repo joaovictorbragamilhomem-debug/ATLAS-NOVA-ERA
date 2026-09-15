@@ -64,6 +64,7 @@ A empresa assinante (o "cliente do ATLAS").
 | cnpj | text | opcional |
 | phone | text | opcional |
 | pix_key | text | chave Pix padrão, usada na variável `{{chave_pix}}` das mensagens |
+| pix_city | text | cidade do recebedor, exigida pelo padrão Pix pra montar o código "Copia e Cola" (`{{pix_copia_cola}}`) |
 | intake_slug | text, único | define o link público `/c/[slug]` da ficha de cadastro |
 | created_at / updated_at | timestamptz | |
 

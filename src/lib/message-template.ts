@@ -37,5 +37,6 @@ export const KNOWN_TEMPLATE_VARIABLES = [
   "valor_atualizado",
   "saldo_restante",
   "chave_pix",
+  "pix_copia_cola",
   "atendente",
 ] as const;

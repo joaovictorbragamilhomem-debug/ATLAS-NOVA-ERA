@@ -8,6 +8,7 @@ import {
 } from "@/lib/finance/installment-amount";
 import { renderTemplate } from "@/lib/message-template";
 import { formatCentsToBRL, formatISODateToBR } from "@/lib/masks";
+import { buildPixCopiaCola } from "@/lib/pix/emv-br-code";
 
 type InstallmentContext = {
   installmentId: string;
@@ -17,6 +18,7 @@ type InstallmentContext = {
   organizationId: string;
   organizationName: string;
   pixKey: string | null;
+  pixCity: string | null;
   dueDate: string;
   amountCents: number;
   paidAmountCents: number;
@@ -38,7 +40,7 @@ async function fetchInstallmentContext(
   const { data } = await admin
     .from("installments")
     .select(
-      "id, contract_id, due_date, amount_cents, paid_amount_cents, number, contracts(customer_id, installments_count, late_fee_percent, late_interest_monthly_percent, organization_id, customers(id, name), organizations(name, pix_key))"
+      "id, contract_id, due_date, amount_cents, paid_amount_cents, number, contracts(customer_id, installments_count, late_fee_percent, late_interest_monthly_percent, organization_id, customers(id, name), organizations(name, pix_key, pix_city))"
     )
     .eq("id", installmentId)
     .maybeSingle();
@@ -58,6 +60,7 @@ async function fetchInstallmentContext(
     organizationId: contract.organization_id,
     organizationName: organization.name,
     pixKey: organization.pix_key,
+    pixCity: organization.pix_city,
     dueDate: data.due_date,
     amountCents: data.amount_cents,
     paidAmountCents: data.paid_amount_cents,
@@ -77,6 +80,23 @@ function buildVariables(ctx: InstallmentContext, today: string): Record<string, 
     lateInterestMonthlyPercent: ctx.lateInterestMonthlyPercent,
   });
 
+  // Só monta o código Pix quando a organização já configurou chave e
+  // cidade — sem isso, a variável fica vazia (a mensagem continua
+  // funcionando normal, só sem o código de pagamento).
+  let pixCopiaCola = "";
+  if (ctx.pixKey && ctx.pixCity) {
+    try {
+      pixCopiaCola = buildPixCopiaCola({
+        pixKey: ctx.pixKey,
+        merchantName: ctx.organizationName,
+        merchantCity: ctx.pixCity,
+        amountCents: updatedAmountCents,
+      });
+    } catch (err) {
+      console.error("[whatsapp pix_copia_cola]", err);
+    }
+  }
+
   return {
     nome: ctx.customerName,
     empresa: ctx.organizationName,
@@ -90,6 +110,7 @@ function buildVariables(ctx: InstallmentContext, today: string): Record<string, 
     // fica em 0, não em número negativo.
     dias_para_vencer: String(Math.max(0, daysBetweenISODates(today, ctx.dueDate))),
     chave_pix: ctx.pixKey ?? "",
+    pix_copia_cola: pixCopiaCola,
     atendente: "",
   };
 }

@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import {
   connectWhatsAppAction,
   disconnectWhatsAppAction,
-  updatePixKeyAction,
+  updatePixSettingsAction,
   type ConnectWhatsAppState,
 } from "@/lib/whatsapp/connection-actions"
 
@@ -21,16 +21,19 @@ function ConnectionPanel({
   connected,
   phoneNumber,
   pixKey,
+  pixCity,
   canEdit,
 }: {
   connected: boolean
   phoneNumber: string | null
   pixKey: string | null
+  pixCity: string | null
   canEdit: boolean
 }) {
   const [state, formAction, pending] = useActionState(connectWhatsAppAction, initialState)
   const [disconnecting, setDisconnecting] = React.useState(false)
   const [pixInput, setPixInput] = React.useState(pixKey ?? "")
+  const [pixCityInput, setPixCityInput] = React.useState(pixCity ?? "")
   const [savingPix, setSavingPix] = React.useState(false)
 
   async function handleDisconnect() {
@@ -43,10 +46,10 @@ function ConnectionPanel({
 
   async function handleSavePix() {
     setSavingPix(true)
-    const result = await updatePixKeyAction(pixInput)
+    const result = await updatePixSettingsAction(pixInput, pixCityInput)
     setSavingPix(false)
     if (result.error) toast.error(result.error)
-    else toast.success("Chave Pix salva.")
+    else toast.success("Dados do Pix salvos.")
   }
 
   return (
@@ -93,22 +96,44 @@ function ConnectionPanel({
       </div>
 
       <div className="rounded-lg border border-border bg-card p-4">
-        <p className="text-sm font-medium">Chave Pix</p>
-        <p className="text-xs text-muted-foreground">Usada na variável {"{{chave_pix}}"} das mensagens.</p>
+        <p className="text-sm font-medium">Dados do Pix</p>
+        <p className="text-xs text-muted-foreground">
+          Usados para gerar o código de pagamento (Pix Copia e Cola) nas mensagens de cobrança — o ATLAS só usa
+          esses dados pra montar o código, o dinheiro vai direto pra sua conta, nunca passa pelo ATLAS.
+        </p>
         {canEdit ? (
-          <div className="mt-3 flex flex-wrap items-end gap-2">
-            <Input
-              value={pixInput}
-              onChange={(e) => setPixInput(e.target.value)}
-              placeholder="CPF, e-mail, telefone ou chave aleatória"
-              className="max-w-xs"
-            />
-            <Button size="sm" loading={savingPix} onClick={handleSavePix}>
+          <div className="mt-3 flex flex-col gap-3">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="pixKeyInput">Chave Pix</Label>
+              <Input
+                id="pixKeyInput"
+                value={pixInput}
+                onChange={(e) => setPixInput(e.target.value)}
+                placeholder="CPF, e-mail, telefone ou chave aleatória"
+                className="max-w-xs"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="pixCityInput">Cidade</Label>
+              <Input
+                id="pixCityInput"
+                value={pixCityInput}
+                onChange={(e) => setPixCityInput(e.target.value)}
+                placeholder="Nome da cidade"
+                maxLength={15}
+                className="max-w-xs"
+              />
+              <p className="text-xs text-muted-foreground">Exigido pelo padrão Pix, até 15 caracteres.</p>
+            </div>
+            <Button size="sm" loading={savingPix} onClick={handleSavePix} className="w-fit">
               Salvar
             </Button>
           </div>
         ) : (
-          <p className="mt-2 text-sm">{pixKey ?? "Não configurada"}</p>
+          <div className="mt-2 flex flex-col gap-1 text-sm">
+            <p>Chave: {pixKey ?? "Não configurada"}</p>
+            <p>Cidade: {pixCity ?? "Não configurada"}</p>
+          </div>
         )}
       </div>
     </div>

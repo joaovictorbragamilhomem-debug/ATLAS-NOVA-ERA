@@ -111,10 +111,10 @@ export async function disconnectWhatsAppAction(): Promise<{ error: string | null
   return { error: null };
 }
 
-export async function updatePixKeyAction(pixKey: string): Promise<{ error: string | null }> {
+export async function updatePixSettingsAction(pixKey: string, pixCity: string): Promise<{ error: string | null }> {
   const membership = await getCurrentMembership();
   if (!membership) return { error: "Sessão expirada — entre novamente." };
-  if (membership.role !== "owner") return { error: "Só o Dono pode alterar a chave Pix." };
+  if (membership.role !== "owner") return { error: "Só o Dono pode alterar os dados do Pix." };
 
   const blocked = await assertOrganizationIsWritable(membership.organizationId);
   if (blocked) return { error: blocked };
@@ -122,10 +122,10 @@ export async function updatePixKeyAction(pixKey: string): Promise<{ error: strin
   const supabase = await getSupabaseServerClient();
   const { error } = await supabase
     .from("organizations")
-    .update({ pix_key: pixKey.trim() || null })
+    .update({ pix_key: pixKey.trim() || null, pix_city: pixCity.trim() || null })
     .eq("id", membership.organizationId);
 
-  if (error) return { error: "Não foi possível salvar a chave Pix." };
+  if (error) return { error: "Não foi possível salvar os dados do Pix." };
 
   revalidatePath("/app/whatsapp");
   return { error: null };
