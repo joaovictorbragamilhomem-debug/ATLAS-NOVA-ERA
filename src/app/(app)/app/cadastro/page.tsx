@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { useActionState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -10,8 +11,16 @@ import { signUpAction, type ActionState } from "@/lib/auth/actions"
 
 const initialState: ActionState = { error: null }
 
+// Campos controlados (useState) pelo mesmo motivo do CustomerForm/ContractForm:
+// o React 19 reseta campos não controlados sempre que uma Server Action
+// termina, mesmo quando ela só devolve um erro — a pessoa perdia tudo que
+// tinha digitado e tinha que preencher de novo.
 export default function CadastroPage() {
   const [state, action, pending] = useActionState(signUpAction, initialState)
+  const [organizationName, setOrganizationName] = React.useState("")
+  const [fullName, setFullName] = React.useState("")
+  const [email, setEmail] = React.useState("")
+  const [password, setPassword] = React.useState("")
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-4 py-16">
@@ -23,19 +32,49 @@ export default function CadastroPage() {
       <form action={action} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="organizationName">Nome da empresa</Label>
-          <Input id="organizationName" name="organizationName" autoComplete="organization" required />
+          <Input
+            id="organizationName"
+            name="organizationName"
+            autoComplete="organization"
+            value={organizationName}
+            onChange={(e) => setOrganizationName(e.target.value)}
+            required
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="fullName">Seu nome</Label>
-          <Input id="fullName" name="fullName" autoComplete="name" required />
+          <Input
+            id="fullName"
+            name="fullName"
+            autoComplete="name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">E-mail</Label>
-          <Input id="email" name="email" type="email" autoComplete="email" required />
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="password">Senha</Label>
-          <PasswordInput id="password" name="password" autoComplete="new-password" minLength={8} required />
+          <PasswordInput
+            id="password"
+            name="password"
+            autoComplete="new-password"
+            minLength={8}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
           <p className="text-xs text-muted-foreground">Pelo menos 8 caracteres.</p>
         </div>
         {state.error && <p className="text-sm text-destructive">{state.error}</p>}

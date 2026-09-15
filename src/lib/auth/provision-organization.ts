@@ -52,7 +52,13 @@ export async function provisionOrganizationForNewUser(params: {
   });
 
   if (membershipError) {
-    return { error: membershipError.message };
+    // Compensação manual: sem transação entre chamadas, evitamos deixar
+    // uma organização "fantasma" sem nenhum dono. Isso pode acontecer se
+    // o usuário recém-criado no Auth ainda não estiver visível pra esta
+    // conexão (ex.: e-mail de confirmação falhou por limite de envio) —
+    // nesse caso, a pessoa só precisa tentar o cadastro de novo.
+    await supabase.from("organizations").delete().eq("id", org.id);
+    return { error: "Não foi possível concluir o cadastro. Tente novamente em alguns instantes." };
   }
 
   const trialEndsAt = new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000).toISOString();
