@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
+    "@playwright/mcp": "^0.0.81",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24",
     "@types/papaparse": "^5.5.2",

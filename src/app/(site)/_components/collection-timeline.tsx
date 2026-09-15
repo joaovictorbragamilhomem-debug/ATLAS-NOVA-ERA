@@ -1,11 +1,12 @@
 import { renderTemplate } from "@/lib/message-template"
+import { Reveal } from "@/components/ui/reveal"
 
 const SAMPLE = { nome: "Maria", valor_parcela: "R$ 250,00", dias_atraso: "5", valor_atualizado: "R$ 262,50" }
 
 const STEPS = [
   {
     label: "Dias antes",
-    message: "Oi {{nome}}, aqui é a Angélica, do ATLAS. Passando para lembrar: sua parcela de {{valor_parcela}} vence em 2 dias.",
+    message: "Oi {{nome}}, aqui é a Atena, do ATLAS. Passando para lembrar: sua parcela de {{valor_parcela}} vence em 2 dias.",
   },
   {
     label: "No dia",
@@ -28,23 +29,25 @@ const STEPS = [
 function CollectionTimeline() {
   return (
     <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto mb-10 max-w-2xl text-center">
+      <Reveal className="mx-auto mb-10 max-w-2xl text-center">
         <h2 className="text-2xl font-semibold sm:text-3xl">A cobrança acontece sozinha</h2>
         <p className="mt-2 text-muted-foreground">Do lembrete até a confirmação — cada etapa com a mensagem certa.</p>
-      </div>
+      </Reveal>
 
       <ol className="grid gap-6 lg:grid-cols-5 lg:gap-4">
         {STEPS.map((step, index) => (
-          <li key={step.label} className="flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
-                {index + 1}
-              </span>
-              <span className="text-sm font-semibold">{step.label}</span>
-            </div>
-            <div className="rounded-lg rounded-tl-sm border border-border bg-card px-3 py-2.5 text-sm text-muted-foreground">
-              {renderTemplate(step.message, SAMPLE)}
-            </div>
+          <li key={step.label}>
+            <Reveal delay={Math.min(index * 0.08, 0.4)} className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
+                  {index + 1}
+                </span>
+                <span className="text-sm font-semibold">{step.label}</span>
+              </div>
+              <div className="rounded-lg rounded-tl-sm border border-border bg-card px-3 py-2.5 text-sm text-muted-foreground">
+                {renderTemplate(step.message, SAMPLE)}
+              </div>
+            </Reveal>
           </li>
         ))}
       </ol>

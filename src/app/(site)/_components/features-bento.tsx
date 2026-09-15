@@ -11,6 +11,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import { cn } from "cn"
+import { Reveal } from "@/components/ui/reveal"
 
 const FEATURES: { icon: LucideIcon; title: string; description: string; wide?: boolean }[] = [
   {
@@ -64,30 +65,33 @@ const FEATURES: { icon: LucideIcon; title: string; description: string; wide?: b
 
 function FeaturesBento() {
   return (
-    <section id="recursos" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto mb-10 max-w-2xl text-center">
-        <h2 className="text-2xl font-semibold sm:text-3xl">Tudo o que você precisa, num lugar só</h2>
-        <p className="mt-2 text-muted-foreground">Sem planilha extra, sem caderno, sem WhatsApp Web em dez abas.</p>
-      </div>
+    <section id="recursos" className="scroll-mt-20 bg-muted/30">
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+        <Reveal className="mx-auto mb-10 max-w-2xl text-center">
+          <h2 className="text-2xl font-semibold sm:text-3xl">Tudo o que você precisa, num lugar só</h2>
+          <p className="mt-2 text-muted-foreground">Sem planilha extra, sem caderno, sem WhatsApp Web em dez abas.</p>
+        </Reveal>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {FEATURES.map(({ icon: Icon, title, description, wide }) => (
-          <div
-            key={title}
-            className={cn(
-              "flex flex-col gap-3 rounded-xl border border-border bg-card p-5",
-              wide && "sm:col-span-2"
-            )}
-          >
-            <div className="flex size-9 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-              <Icon className="size-4.5" aria-hidden="true" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <h3 className="text-sm font-semibold">{title}</h3>
-              <p className="text-sm text-muted-foreground">{description}</p>
-            </div>
-          </div>
-        ))}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {FEATURES.map(({ icon: Icon, title, description, wide }, index) => (
+            <Reveal
+              key={title}
+              delay={Math.min(index * 0.05, 0.3)}
+              className={cn(
+                "flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-md",
+                wide && "sm:col-span-2"
+              )}
+            >
+              <div className="flex size-9 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+                <Icon className="size-4.5" aria-hidden="true" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <h3 className="text-sm font-semibold">{title}</h3>
+                <p className="text-sm text-muted-foreground">{description}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
       </div>
     </section>
   )

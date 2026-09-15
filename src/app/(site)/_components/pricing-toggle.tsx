@@ -50,9 +50,11 @@ function PricingToggle({ monthlyCents, annualCents }: PricingToggleProps) {
         <p className="text-sm text-muted-foreground">7 dias grátis, sem cartão de crédito</p>
       </div>
 
-      <Button size="lg" nativeButton={false} render={<Link href="/app" prefetch={false} />} className="w-full">
-        Testar grátis por 7 dias
-      </Button>
+      <div className="w-full transition-transform duration-150 ease-out hover:-translate-y-0.5">
+        <Button size="lg" nativeButton={false} render={<Link href="/app" prefetch={false} />} className="w-full">
+          Testar grátis por 7 dias
+        </Button>
+      </div>
     </div>
   )
 }

@@ -4,6 +4,7 @@ import * as React from "react"
 import { AlertTriangleIcon, CheckCheckIcon } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { Reveal } from "@/components/ui/reveal"
 import {
   renderTemplate,
   extractTemplateVariables,
@@ -11,7 +12,7 @@ import {
 } from "@/lib/message-template"
 
 const DEFAULT_TEMPLATE =
-  "Oi {{nome}}, tudo bem? Aqui é a Angélica, do ATLAS 🙂 Sua parcela de {{valor_parcela}} vence em {{vencimento}}. Se já pagou, pode ignorar."
+  "Oi {{nome}}, tudo bem? Aqui é a Atena, do ATLAS 🙂 Sua parcela de {{valor_parcela}} vence em {{vencimento}}. Se já pagou, pode ignorar."
 
 const SAMPLE_DATA = {
   nome: "Carlos",
@@ -36,17 +37,18 @@ function MessageDemo() {
   const preview = renderTemplate(template, SAMPLE_DATA)
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto mb-10 max-w-2xl text-center">
-        <h2 className="text-2xl font-semibold sm:text-3xl">Escreva do seu jeito, com suas variáveis</h2>
-        <p className="mt-2 text-muted-foreground">
-          Apresentamos a <strong className="text-foreground">Angélica</strong> — é o nome que demos para a
-          cobrança automática, pra ficar mais simpático que uma mensagem de robô. Edite o modelo abaixo e veja,
-          ao lado, como o cliente recebe no WhatsApp.
-        </p>
-      </div>
+    <section className="bg-muted/30">
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+        <Reveal className="mx-auto mb-10 max-w-2xl text-center">
+          <h2 className="text-2xl font-semibold sm:text-3xl">Escreva do seu jeito, com suas variáveis</h2>
+          <p className="mt-2 text-muted-foreground">
+            Apresentamos a <strong className="text-foreground">Atena</strong> — é o nome que demos para a
+            cobrança automática, pra ficar mais simpático que uma mensagem de robô. Edite o modelo abaixo e veja,
+            ao lado, como o cliente recebe no WhatsApp.
+          </p>
+        </Reveal>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+        <Reveal delay={0.1} className="grid gap-6 lg:grid-cols-2">
         <div className="flex flex-col gap-2">
           <Label htmlFor="message-demo-editor">Modelo de mensagem</Label>
           <Textarea
@@ -86,6 +88,7 @@ function MessageDemo() {
             </div>
           </div>
         </div>
+        </Reveal>
       </div>
     </section>
   )

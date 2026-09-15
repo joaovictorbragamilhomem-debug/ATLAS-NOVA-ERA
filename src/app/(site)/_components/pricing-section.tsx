@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { CheckIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Reveal } from "@/components/ui/reveal"
 import { PricingToggle } from "./pricing-toggle"
 import { PRICING } from "@/lib/pricing"
 import { formatCentsToBRL } from "@/lib/masks"
@@ -12,15 +13,17 @@ async function PricingSection() {
 
   return (
     <section id="precos" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto mb-10 max-w-2xl text-center">
+      <Reveal className="mx-auto mb-10 max-w-2xl text-center">
         <h2 className="text-2xl font-semibold sm:text-3xl">Preços</h2>
         <p className="mt-2 text-muted-foreground">Todos os planos incluem 7 dias grátis, sem cartão de crédito.</p>
-      </div>
+      </Reveal>
 
       <div className="mx-auto grid max-w-3xl gap-6 sm:grid-cols-2">
-        <PricingToggle monthlyCents={PRICING.monthlyCents} annualCents={PRICING.annualCents} />
+        <Reveal>
+          <PricingToggle monthlyCents={PRICING.monthlyCents} annualCents={PRICING.annualCents} />
+        </Reveal>
 
-        <div className="flex flex-col gap-6 rounded-2xl border-2 border-primary bg-card p-6">
+        <Reveal delay={0.1} className="flex flex-col gap-6 rounded-2xl border-2 border-primary bg-card p-6 shadow-md">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold">Vitalício</span>
             <span className="rounded-4xl bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground">
@@ -51,10 +54,12 @@ async function PricingSection() {
             </li>
           </ul>
 
-          <Button size="lg" nativeButton={false} render={<Link href="/app" prefetch={false} />} className="w-full">
-            Testar grátis por 7 dias
-          </Button>
-        </div>
+          <div className="w-full transition-transform duration-150 ease-out hover:-translate-y-0.5">
+            <Button size="lg" nativeButton={false} render={<Link href="/app" prefetch={false} />} className="w-full">
+              Testar grátis por 7 dias
+            </Button>
+          </div>
+        </Reveal>
       </div>
     </section>
   )

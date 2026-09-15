@@ -1,4 +1,5 @@
 import { CheckCircle2Icon } from "lucide-react"
+import { Reveal } from "@/components/ui/reveal"
 
 function ProblemCopy() {
   return (
@@ -45,22 +46,26 @@ function AtlasPanelMock() {
 function BeforeAfter() {
   return (
     <section id="como-funciona" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto mb-10 max-w-2xl text-center">
+      <Reveal className="mx-auto mb-10 max-w-2xl text-center">
         <h2 className="text-2xl font-semibold sm:text-3xl">Chega de juntar as pontas</h2>
         <p className="mt-2 text-muted-foreground">
           Caderno, planilha e mensagens soltas viram um único painel — sem perder cliente no meio
           do caminho.
         </p>
-      </div>
+      </Reveal>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
-        <ProblemCopy />
+        <Reveal x={-24} className="h-full">
+          <ProblemCopy />
+        </Reveal>
 
-        <div className="hidden justify-center lg:flex">
+        <Reveal delay={0.15} className="hidden justify-center lg:flex">
           <span className="text-sm font-medium text-muted-foreground">→</span>
-        </div>
+        </Reveal>
 
-        <AtlasPanelMock />
+        <Reveal x={24} delay={0.25} className="h-full">
+          <AtlasPanelMock />
+        </Reveal>
       </div>
     </section>
   )

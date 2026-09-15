@@ -1,23 +1,47 @@
 "use client"
 
+import { CheckCheckIcon, MessageCircleReplyIcon, WalletIcon } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { formatCentsToBRL } from "@/lib/masks"
 import { Skeleton } from "@/components/ui/skeleton"
+import { AnimateIn } from "@/components/ui/animate-in"
+import { Reveal } from "@/components/ui/reveal"
+
+const NOTIFICATIONS = [
+  { icon: CheckCheckIcon, text: "Lembrete enviado para Ana Lima" },
+  { icon: MessageCircleReplyIcon, text: "Cliente respondeu no WhatsApp" },
+  { icon: WalletIcon, text: "Pagamento registrado — R$ 250,00" },
+]
 
 function PanelPreview() {
   return (
-    <div className="grid gap-3 sm:grid-cols-3">
-      {[
-        ["A receber no mês", formatCentsToBRL(1248000)],
-        ["Recebido no mês", formatCentsToBRL(860000)],
-        ["Em atraso", formatCentsToBRL(32000)],
-      ].map(([label, value]) => (
-        <div key={label} className="rounded-lg border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">{label}</p>
-          <p className="mt-1 text-lg font-semibold tabular-nums">{value}</p>
-        </div>
-      ))}
+    <div className="relative sm:pb-20">
+      <div className="grid gap-3 sm:grid-cols-3">
+        {[
+          ["A receber no mês", formatCentsToBRL(1248000)],
+          ["Recebido no mês", formatCentsToBRL(860000)],
+          ["Em atraso", formatCentsToBRL(32000)],
+        ].map(([label, value]) => (
+          <div key={label} className="rounded-lg border border-border bg-card p-4">
+            <p className="text-xs text-muted-foreground">{label}</p>
+            <p className="mt-1 text-lg font-semibold tabular-nums">{value}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-3 flex flex-col gap-2 sm:absolute sm:right-0 sm:bottom-0 sm:mt-0 sm:w-64">
+        {NOTIFICATIONS.map(({ icon: Icon, text }, index) => (
+          <AnimateIn
+            key={text}
+            delay={0.3 + index * 0.3}
+            className="flex items-center gap-2 rounded-lg border border-border bg-popover px-3 py-2 text-xs font-medium shadow-md"
+          >
+            <Icon className="size-4 shrink-0 text-primary" aria-hidden="true" />
+            {text}
+          </AnimateIn>
+        ))}
+      </div>
     </div>
   )
 }
@@ -78,28 +102,32 @@ const TABS = [
 function ProductTour() {
   return (
     <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto mb-8 max-w-2xl text-center">
+      <Reveal className="mx-auto mb-8 max-w-2xl text-center">
         <h2 className="text-2xl font-semibold sm:text-3xl">Conheça o painel</h2>
         <p className="mt-2 text-muted-foreground">
           Prévia ilustrativa das telas — capturas reais do sistema entram aqui assim que o produto
           estiver pronto.
         </p>
-      </div>
+      </Reveal>
 
-      <Tabs defaultValue="painel" className="mx-auto max-w-3xl">
-        <TabsList className="mx-auto">
+      <Reveal delay={0.1}>
+        <Tabs defaultValue="painel" className="mx-auto max-w-3xl">
+          <TabsList className="mx-auto">
+            {TABS.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value}>
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
           {TABS.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value}>
-              {tab.label}
-            </TabsTrigger>
+            <TabsContent key={tab.value} value={tab.value} className="rounded-xl border border-border bg-muted/40 p-4">
+              <AnimateIn>
+                <tab.content />
+              </AnimateIn>
+            </TabsContent>
           ))}
-        </TabsList>
-        {TABS.map((tab) => (
-          <TabsContent key={tab.value} value={tab.value} className="rounded-xl border border-border bg-muted/40 p-4">
-            <tab.content />
-          </TabsContent>
-        ))}
-      </Tabs>
+        </Tabs>
+      </Reveal>
     </section>
   )
 }
