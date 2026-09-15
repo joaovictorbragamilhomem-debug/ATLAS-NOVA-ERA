@@ -9,9 +9,67 @@ import { logAudit } from "@/lib/audit/log";
 import { getProviderForOrganization } from "@/lib/whatsapp/get-provider-for-organization";
 import { getConversationThread, getLastInboundAt } from "@/lib/whatsapp/get-conversation-thread";
 import { isWithinReplyWindow } from "@/lib/whatsapp/reply-window";
-import { e164BRToDigits } from "@/lib/masks";
+import { e164BRToDigits, formatCentsToBRL } from "@/lib/masks";
+import { calculateUpdatedAmountCents, calculateRemainingBalanceCents } from "@/lib/finance/installment-amount";
+import { todayInSaoPauloISODate } from "@/lib/finance/dates";
+import { buildPixCopiaCola } from "@/lib/pix/emv-br-code";
 
 export type ReplyActionState = { error: string | null };
+
+function unwrap<T>(value: T | T[] | null): T | null {
+  return Array.isArray(value) ? (value[0] ?? null) : value;
+}
+
+// Monta o texto pronto (com o código Pix já embutido) pra pessoa revisar
+// e mandar pela caixa de resposta — não envia nada sozinho.
+export async function generatePixMessageAction(installmentId: string): Promise<{ body: string } | { error: string }> {
+  const membership = await getCurrentMembership();
+  if (!membership) return { error: "Sessão expirada — entre novamente." };
+
+  const supabase = await getSupabaseServerClient();
+  const { data } = await supabase
+    .from("installments")
+    .select(
+      "due_date, amount_cents, paid_amount_cents, contracts(late_fee_percent, late_interest_monthly_percent, organizations(name, pix_key, pix_city))"
+    )
+    .eq("id", installmentId)
+    .maybeSingle();
+  if (!data) return { error: "Parcela não encontrada." };
+
+  const contract = unwrap(data.contracts);
+  const organization = contract ? unwrap(contract.organizations) : null;
+  if (!contract || !organization) return { error: "Parcela não encontrada." };
+
+  if (!organization.pix_key || !organization.pix_city) {
+    return { error: "Configure sua chave Pix e cidade em WhatsApp → Conexão antes de gerar o código." };
+  }
+
+  const today = todayInSaoPauloISODate();
+  const updatedAmountCents = calculateUpdatedAmountCents({
+    amountCents: data.amount_cents,
+    dueDate: data.due_date,
+    referenceDate: today,
+    lateFeePercent: contract.late_fee_percent,
+    lateInterestMonthlyPercent: contract.late_interest_monthly_percent,
+  });
+  const remainingCents = calculateRemainingBalanceCents(updatedAmountCents, data.paid_amount_cents);
+
+  let code: string;
+  try {
+    code = buildPixCopiaCola({
+      pixKey: organization.pix_key,
+      merchantName: organization.name,
+      merchantCity: organization.pix_city,
+      amountCents: remainingCents,
+    });
+  } catch {
+    return { error: "Não foi possível gerar o código Pix — confira a chave cadastrada." };
+  }
+
+  return {
+    body: `Segue o código Pix pra pagar (${formatCentsToBRL(remainingCents)}) — é só copiar e colar no seu banco:\n\n${code}`,
+  };
+}
 
 export async function sendReplyAction(
   customerId: string,

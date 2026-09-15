@@ -5,6 +5,7 @@ import { getCurrentMembership } from "@/lib/auth/current-user"
 import { getCustomerWithContracts } from "@/lib/customers/get-customer-with-contracts"
 import { getConversationThread, getLastInboundAt } from "@/lib/whatsapp/get-conversation-thread"
 import { isWithinReplyWindow } from "@/lib/whatsapp/reply-window"
+import { getOpenInstallmentsForCustomer } from "@/lib/installments/get-open-installments-for-customer"
 import { ThreadPanel } from "./_components/thread-panel"
 import { ReplyComposer } from "./_components/reply-composer"
 import { CustomerContextPanel } from "./_components/customer-context-panel"
@@ -15,9 +16,10 @@ export default async function ConversaDetalhePage({ params }: { params: Promise<
   const membership = await getCurrentMembership()
   if (!membership) redirect("/app/entrar")
 
-  const [{ customer, contracts }, messages] = await Promise.all([
+  const [{ customer, contracts }, messages, openInstallments] = await Promise.all([
     getCustomerWithContracts(customerId),
     getConversationThread(membership.organizationId, customerId),
+    getOpenInstallmentsForCustomer(customerId),
   ])
 
   if (!customer) notFound()
@@ -36,7 +38,7 @@ export default async function ConversaDetalhePage({ params }: { params: Promise<
           <div className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto rounded-lg border border-border bg-muted/30 p-3">
             <ThreadPanel messages={messages} />
           </div>
-          <ReplyComposer customerId={customerId} withinWindow={withinWindow} />
+          <ReplyComposer customerId={customerId} withinWindow={withinWindow} openInstallments={openInstallments} />
         </div>
 
         <CustomerContextPanel customerId={customer.id} customerName={customer.name} contracts={contracts} />
