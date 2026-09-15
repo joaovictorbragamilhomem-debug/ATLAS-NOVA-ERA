@@ -7,6 +7,7 @@ import {
   UsersIcon,
   FileBarChart2Icon,
   SmartphoneIcon,
+  QrCodeIcon,
   type LucideIcon,
 } from "lucide-react"
 import { cn } from "cn"
@@ -53,6 +54,11 @@ const FEATURES: { icon: LucideIcon; title: string; description: string; wide?: b
     icon: SmartphoneIcon,
     title: "App no celular",
     description: "Instala na tela inicial e funciona como um aplicativo de verdade.",
+  },
+  {
+    icon: QrCodeIcon,
+    title: "Pix direto na cobrança",
+    description: "O cliente paga sem sair da conversa — o código já vem com o valor certo, sem passar pelo ATLAS.",
   },
 ]
 
