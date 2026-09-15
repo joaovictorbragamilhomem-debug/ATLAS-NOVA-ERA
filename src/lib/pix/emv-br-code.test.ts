@@ -50,6 +50,11 @@ describe("buildPixCopiaCola", () => {
     expect(() => buildPixCopiaCola({ ...base, pixKey: "   " })).toThrow();
   });
 
+  it("recusa chave Pix maior que o máximo do padrão (77 caracteres)", () => {
+    expect(() => buildPixCopiaCola({ ...base, pixKey: "a".repeat(78) })).toThrow();
+    expect(() => buildPixCopiaCola({ ...base, pixKey: "a".repeat(77) })).not.toThrow();
+  });
+
   it("é determinístico — mesma entrada gera sempre o mesmo código", () => {
     expect(buildPixCopiaCola(base)).toBe(buildPixCopiaCola(base));
   });

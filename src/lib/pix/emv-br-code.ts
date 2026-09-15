@@ -40,9 +40,18 @@ function crc16ccitt(input: string): string {
   return crc.toString(16).toUpperCase().padStart(4, "0");
 }
 
+// Maior chave Pix possível no padrão do Banco Central é o tipo e-mail,
+// com até 77 caracteres. Rejeita em vez de cortar: cortar silenciosamente
+// uma chave de pagamento poderia gerar um código válido apontando pra
+// conta errada (ou nenhuma), o que é pior do que simplesmente falhar.
+const PIX_KEY_MAX_LENGTH = 77;
+
 export function buildPixCopiaCola(params: PixCopiaColaParams): string {
   const pixKey = params.pixKey.trim();
   if (!pixKey) throw new Error("Chave Pix vazia.");
+  if (pixKey.length > PIX_KEY_MAX_LENGTH) {
+    throw new Error(`Chave Pix maior que o permitido (máx. ${PIX_KEY_MAX_LENGTH} caracteres).`);
+  }
 
   const merchantName = sanitizeAsciiField(params.merchantName, 25, "RECEBEDOR");
   const merchantCity = sanitizeAsciiField(params.merchantCity, 15, "CIDADE");

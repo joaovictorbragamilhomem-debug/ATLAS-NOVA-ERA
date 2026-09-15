@@ -110,6 +110,7 @@ function ConnectionPanel({
                 value={pixInput}
                 onChange={(e) => setPixInput(e.target.value)}
                 placeholder="CPF, e-mail, telefone ou chave aleatória"
+                maxLength={77}
                 className="max-w-xs"
               />
             </div>
