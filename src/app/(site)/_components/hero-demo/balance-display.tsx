@@ -21,7 +21,7 @@ function BalanceDisplay({ settled }: { settled: boolean }) {
       <span className="relative flex h-5 min-w-24 items-center justify-end">
         <span
           className={cn(
-            "absolute right-0 text-sm font-bold tabular-nums text-[#B91C1C] transition-[opacity,transform] duration-[260ms] ease-out",
+            "absolute right-0 text-sm font-bold tabular-nums text-danger transition-[opacity,transform] duration-[260ms] ease-out",
             settled ? "scale-[0.9] opacity-0" : "scale-100 opacity-100"
           )}
         >
@@ -29,7 +29,7 @@ function BalanceDisplay({ settled }: { settled: boolean }) {
         </span>
         <span
           className={cn(
-            "absolute right-0 flex items-center gap-1 text-sm font-bold tabular-nums text-accent-foreground transition-[opacity,transform] duration-[380ms] ease-out",
+            "absolute right-0 flex items-center gap-1 text-sm font-bold tabular-nums text-success transition-[opacity,transform] duration-[380ms] ease-out",
             settled ? "scale-100 opacity-100" : "scale-[0.9] opacity-0"
           )}
           style={{ transitionDelay: settled ? "220ms" : "0ms" }}

@@ -39,7 +39,7 @@ export default async function AppHomePage() {
       </header>
 
       {subscription?.isReadOnly && (
-        <div className="flex flex-col items-start gap-3 rounded-lg bg-[#FEF3C7] px-4 py-3 text-sm text-[#B45309] sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col items-start gap-3 rounded-lg bg-warning-soft px-4 py-3 text-sm text-warning sm:flex-row sm:items-center sm:justify-between">
           <span>
             {subscription.status === "past_due"
               ? "O pagamento da sua assinatura não foi confirmado."
@@ -76,7 +76,7 @@ export default async function AppHomePage() {
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">Em atraso</p>
-          <p className="mt-1 text-lg font-semibold tabular-nums text-[#B91C1C]">
+          <p className="mt-1 text-lg font-semibold tabular-nums text-danger">
             {formatCentsToBRL(stats.overdueCents)}
           </p>
         </div>
@@ -127,7 +127,7 @@ export default async function AppHomePage() {
                   >
                     <div className="flex flex-col">
                       <span className="font-medium">{item.customerName}</span>
-                      <span className="text-xs text-[#B91C1C]">{item.daysLate} dia(s) de atraso</span>
+                      <span className="text-xs text-danger">{item.daysLate} dia(s) de atraso</span>
                     </div>
                     <span className="font-medium tabular-nums">{formatCentsToBRL(item.remainingCents)}</span>
                   </Link>

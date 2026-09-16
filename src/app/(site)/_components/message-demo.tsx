@@ -71,7 +71,7 @@ function MessageDemo() {
             ))}
           </div>
           {invalidVariables.length > 0 && (
-            <p className="flex items-center gap-1.5 text-xs text-[#B45309]">
+            <p className="flex items-center gap-1.5 text-xs text-warning">
               <AlertTriangleIcon className="size-3.5 shrink-0" aria-hidden="true" />
               Variável desconhecida: {invalidVariables.map((v) => `{{${v}}}`).join(", ")}
             </p>
@@ -79,7 +79,7 @@ function MessageDemo() {
         </div>
 
         <div className="flex flex-col justify-center">
-          <div className="mx-auto flex w-full max-w-xs flex-col gap-1 rounded-2xl border border-border bg-[#E7FCE3] p-4">
+          <div className="mx-auto flex w-full max-w-xs flex-col gap-1 rounded-2xl border border-border bg-success-soft p-4">
             <div className="ml-auto max-w-[85%] rounded-lg rounded-tr-sm bg-card px-3 py-2 text-sm shadow-sm">
               {preview}
               <div className="mt-1 flex items-center justify-end gap-1 text-[10px] text-muted-foreground">

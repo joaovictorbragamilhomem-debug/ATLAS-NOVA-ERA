@@ -29,12 +29,12 @@ const STATUS_CONFIG: Record<
   vence_hoje: {
     label: "Vence hoje",
     icon: ClockIcon,
-    className: "bg-[#FEF3C7] text-[#B45309]",
+    className: "bg-warning-soft text-warning",
   },
   atrasada: {
     label: "Atrasada",
     icon: AlertTriangleIcon,
-    className: "bg-[#FEE2E2] text-[#B91C1C]",
+    className: "bg-danger-soft text-danger",
   },
   a_vencer: {
     label: "A vencer",
@@ -44,12 +44,12 @@ const STATUS_CONFIG: Record<
   renegociada: {
     label: "Renegociada",
     icon: RefreshCcwIcon,
-    className: "bg-[#EDE9FE] text-[#6D28D9]",
+    className: "bg-purple-soft text-purple",
   },
   estornada: {
     label: "Estornada",
     icon: Undo2Icon,
-    className: "bg-[#F5F5F5] text-[#404040]",
+    className: "bg-muted text-muted-foreground",
   },
 }
 

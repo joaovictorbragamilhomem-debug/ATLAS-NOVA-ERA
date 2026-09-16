@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { CpfInput, PhoneInput, CurrencyInput } from "@/components/ui/masked-input"
@@ -84,7 +85,7 @@ function Swatch({ name, hex, on = "light" }: { name: string; hex: string; on?: "
     <div className="flex flex-col overflow-hidden rounded-lg border border-border">
       <div
         className="flex h-16 items-end p-2"
-        style={{ backgroundColor: hex, color: on === "dark" ? "#fff" : "#0B1210" }}
+        style={{ backgroundColor: hex, color: on === "dark" ? "#fff" : "#101827" }}
       >
         <span className="text-xs font-medium">{name}</span>
       </div>
@@ -137,8 +138,11 @@ export default function DesignPage() {
   return (
     <main className="mx-auto flex max-w-5xl flex-col px-4 py-10 sm:px-6 lg:px-8">
       <header className="flex flex-col gap-2 pb-10">
-        <p className="font-mono text-xs tracking-wide text-muted-foreground uppercase">/design</p>
-        <h1 className="text-3xl font-semibold">Design system — ATLAS NOVA ERA</h1>
+        <div className="flex items-start justify-between gap-4">
+          <p className="font-mono text-xs tracking-wide text-muted-foreground uppercase">/design</p>
+          <ThemeToggle />
+        </div>
+        <h1 className="text-3xl font-semibold">Design system — ATLAS OBSIDIAN</h1>
         <p className="max-w-2xl text-muted-foreground">
           Todos os componentes e estados usados no site e no sistema, em um só lugar. Esta página
           não faz parte do produto — é uma referência para manter tudo consistente.
@@ -146,18 +150,22 @@ export default function DesignPage() {
       </header>
 
       <Section
-        title="Cores"
-        description="Proposta de paleta — fintech calma e confiável. Contraste de texto verificado (AA)."
+        title="Cores — light"
+        description="Tokens do tema claro. Os valores reais ficam em globals.css (:root / .dark) — troque o tema no toggle do header pra ver a versão dark."
       >
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-          <Swatch name="Tinta" hex="#0B1210" on="dark" />
-          <Swatch name="Fundo" hex="#F7F7F4" />
-          <Swatch name="Superfície" hex="#FFFFFF" />
-          <Swatch name="Linha" hex="#E6E6E1" />
-          <Swatch name="Marca" hex="#047857" on="dark" />
-          <Swatch name="Marca viva" hex="#10B981" on="dark" />
-          <Swatch name="Marca suave" hex="#D1FAE5" />
-          <Swatch name="Destrutivo" hex="#B91C1C" on="dark" />
+          <Swatch name="Fundo" hex="#F7F8FA" />
+          <Swatch name="Fundo secundário" hex="#EEF1F5" />
+          <Swatch name="Superfície (card)" hex="#FFFFFF" />
+          <Swatch name="Texto" hex="#101827" on="dark" />
+          <Swatch name="Linha" hex="#E4E8ED" />
+          <Swatch name="Teal Atlas" hex="#2DD4A8" />
+          <Swatch name="Teal hover" hex="#20B889" on="dark" />
+          <Swatch name="Sucesso" hex="#0F7A5C" on="dark" />
+          <Swatch name="Atenção" hex="#B45309" on="dark" />
+          <Swatch name="Dívida" hex="#B91C1C" on="dark" />
+          <Swatch name="Info" hex="#1D4ED8" on="dark" />
+          <Swatch name="Roxo" hex="#6D28D9" on="dark" />
         </div>
       </Section>
 

@@ -37,7 +37,7 @@ async function PricingSection() {
           </div>
 
           {seatsRemaining !== null && (
-            <p className="text-center text-sm font-medium text-[#B45309]">
+            <p className="text-center text-sm font-medium text-warning">
               {seatsRemaining} vagas restantes
             </p>
           )}

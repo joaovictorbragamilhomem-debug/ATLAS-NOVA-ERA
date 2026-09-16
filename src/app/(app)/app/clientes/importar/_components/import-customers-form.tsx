@@ -62,7 +62,7 @@ function ImportCustomersForm() {
               <CheckCircle2Icon className="size-4" aria-hidden="true" /> {validCount} válida(s)
             </span>
             {invalidCount > 0 && (
-              <span className="flex items-center gap-1.5 text-[#B45309]">
+              <span className="flex items-center gap-1.5 text-warning">
                 <AlertTriangleIcon className="size-4" aria-hidden="true" /> {invalidCount} com erro
               </span>
             )}
@@ -81,7 +81,7 @@ function ImportCustomersForm() {
               </thead>
               <tbody>
                 {rows.map((row) => (
-                  <tr key={row.line} className={`border-t border-border ${row.error ? "bg-[#FEF3C7]/40" : ""}`}>
+                  <tr key={row.line} className={`border-t border-border ${row.error ? "bg-warning-soft/40" : ""}`}>
                     <td className="px-3 py-2 tabular-nums">{row.line}</td>
                     <td className="px-3 py-2">{row.name || "—"}</td>
                     <td className="px-3 py-2">{row.cpf ? formatCPF(row.cpf) : "—"}</td>
@@ -90,7 +90,7 @@ function ImportCustomersForm() {
                     </td>
                     <td className="px-3 py-2">
                       {row.error ? (
-                        <span className="text-[#B45309]">{row.error}</span>
+                        <span className="text-warning">{row.error}</span>
                       ) : (
                         <span className="text-primary">Pronta para importar</span>
                       )}

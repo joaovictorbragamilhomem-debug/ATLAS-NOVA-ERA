@@ -176,7 +176,7 @@ function InstallmentRow({
           <div className="text-right">
             <p className="text-sm font-semibold tabular-nums">{formatCentsToBRL(installment.amount_cents)}</p>
             {isPayable && isLate && (
-              <p className="text-xs text-[#B45309] tabular-nums">
+              <p className="text-xs text-warning tabular-nums">
                 atualizado: {formatCentsToBRL(updatedAmountCents)}
               </p>
             )}

@@ -38,7 +38,7 @@ function EntrarForm() {
       </div>
 
       {erroLink && (
-        <p className="rounded-lg bg-[#FEE2E2] px-3 py-2 text-sm text-[#B91C1C]">
+        <p className="rounded-lg bg-danger-soft px-3 py-2 text-sm text-danger">
           Esse link expirou ou já foi usado. Tente entrar de novo.
         </p>
       )}

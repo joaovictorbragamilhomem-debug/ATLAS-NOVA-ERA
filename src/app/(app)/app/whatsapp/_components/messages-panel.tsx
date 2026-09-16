@@ -15,8 +15,8 @@ const QUEUE_STATUS_BADGE: Record<string, { label: string; className: string }> =
   sent: { label: "Enviada", className: "bg-accent text-accent-foreground" },
   delivered: { label: "Entregue", className: "bg-accent text-accent-foreground" },
   read: { label: "Lida", className: "bg-accent text-accent-foreground" },
-  failed: { label: "Falhou", className: "bg-[#FEE2E2] text-[#B91C1C]" },
-  canceled: { label: "Cancelada", className: "bg-[#F5F5F5] text-[#404040]" },
+  failed: { label: "Falhou", className: "bg-danger-soft text-danger" },
+  canceled: { label: "Cancelada", className: "bg-muted text-muted-foreground" },
 }
 
 function QueueStatusBadge({ status }: { status: string }) {
@@ -56,7 +56,7 @@ function MessagesPanel({ messages }: { messages: MessageQueueRow[] }) {
           </p>
           <p className="text-sm">{m.renderedBody}</p>
           {m.lastError && (
-            <p className="text-xs text-[#B91C1C]">
+            <p className="text-xs text-danger">
               Erro: {m.lastError} {m.attempts > 0 && `(tentativa ${m.attempts})`}
             </p>
           )}

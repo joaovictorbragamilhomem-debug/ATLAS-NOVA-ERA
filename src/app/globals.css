@@ -6,6 +6,7 @@
 
 @theme inline {
   --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -14,11 +15,13 @@
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
+  --color-foreground-subtle: var(--foreground-subtle);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
@@ -29,6 +32,21 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-card-hover: var(--card-hover);
+
+  /* Semânticas financeiras — ver AGENTS de design (Atlas Obsidian) */
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-purple: var(--purple);
+  --color-purple-soft: var(--purple-soft);
+  --color-amber: var(--amber);
+  --color-cyan: var(--cyan);
 
   /* Raios: 8 / 12 / 16 — ver /design */
   --radius: 16px;
@@ -60,11 +78,11 @@
   --text-5xl: 4rem;
   --text-5xl--line-height: 4.1rem;
 
-  /* Sombras sutis em duas camadas, tingidas com a cor de tinta (não preto puro) */
-  --shadow-color: 152 20% 5%;
-  --shadow-sm: 0 1px 2px hsl(var(--shadow-color) / 0.04), 0 1px 1px hsl(var(--shadow-color) / 0.03);
-  --shadow-md: 0 6px 16px hsl(var(--shadow-color) / 0.07), 0 2px 6px hsl(var(--shadow-color) / 0.05);
-  --shadow-lg: 0 16px 32px hsl(var(--shadow-color) / 0.10), 0 4px 10px hsl(var(--shadow-color) / 0.06);
+  /* Sombras sutis em duas camadas — valores reais em :root/.dark (ver abaixo),
+     dark precisa de mais peso (superfícies não se distinguem só por sombra). */
+  --shadow-sm: var(--shadow-sm-value);
+  --shadow-md: var(--shadow-md-value);
+  --shadow-lg: var(--shadow-lg-value);
 
   --animate-fade-in: fade-in 200ms ease-out;
 
@@ -81,34 +99,116 @@
 }
 
 :root {
-  /* Paleta ATLAS NOVA ERA — ver /design */
-  --background: #f7f7f4; /* fundo */
-  --foreground: #0b1210; /* tinta */
+  color-scheme: light;
 
-  --card: #ffffff; /* superfície */
-  --card-foreground: #0b1210;
+  /* Paleta ATLAS OBSIDIAN — light. Adaptação sofisticada do dark-first, não
+     um inverso ingênuo (ver AGENTS.md da reforma visual). */
+  --background: #f7f8fa;
+  --background-secondary: #eef1f5;
+  --foreground: #101827; /* navy/grafite, não preto puro */
+
+  --card: #ffffff;
+  --card-foreground: #101827;
+  --card-hover: #f3f5f8;
   --popover: #ffffff;
-  --popover-foreground: #0b1210;
+  --popover-foreground: #101827;
 
-  --primary: #047857; /* marca */
-  --primary-foreground: #ffffff;
-  --primary-vivid: #10b981; /* marca viva — só gráficos, ícones e destaques grandes */
+  --primary: #2dd4a8; /* teal Atlas — igual em light e dark, é a marca */
+  --primary-foreground: #06231b; /* texto escuro sobre o teal claro: contraste melhor que branco */
+  --primary-vivid: #20b889; /* hover / destaques grandes */
 
-  --secondary: #eeeee8;
-  --secondary-foreground: #0b1210;
+  --secondary: #eef1f5;
+  --secondary-foreground: #101827;
 
-  --muted: #eeeee8;
-  --muted-foreground: #5c5c55;
+  --muted: #eef1f5;
+  --muted-foreground: #5b6472;
+  --foreground-subtle: #8d97a3; /* terceiro nível — ver "texto sutil" no Atlas Obsidian */
 
-  --accent: #d1fae5; /* marca suave */
-  --accent-foreground: #065f46;
+  --accent: #e3fbf3; /* marca suave */
+  --accent-foreground: #0f6a52;
+
+  --success: #0f7a5c;
+  --success-soft: #dff7ec;
+  --warning: #b45309;
+  --warning-soft: #fef3c7;
+  --danger: #b91c1c;
+  --danger-soft: #fee2e2;
+  --info: #1d4ed8;
+  --info-soft: #dbeafe;
+  --purple: #6d28d9;
+  --purple-soft: #ede9fe;
+  --amber: #b45309; /* auxiliar — só com justificativa (charts/destaques pontuais) */
+  --cyan: #0e7490;
 
   --destructive: #b91c1c;
   --destructive-foreground: #ffffff;
 
-  --border: #e6e6e1; /* linha */
-  --input: #e6e6e1;
-  --ring: #10b981;
+  --border: #e4e8ed;
+  --border-hover: #d3d9e0;
+  --input: #e4e8ed;
+  --ring: #2dd4a8;
+
+  --shadow-sm-value: 0 1px 2px rgba(16, 24, 39, 0.04), 0 1px 1px rgba(16, 24, 39, 0.03);
+  --shadow-md-value: 0 6px 16px rgba(16, 24, 39, 0.07), 0 2px 6px rgba(16, 24, 39, 0.05);
+  --shadow-lg-value: 0 16px 32px rgba(16, 24, 39, 0.1), 0 4px 10px rgba(16, 24, 39, 0.06);
+}
+
+.dark {
+  color-scheme: dark;
+
+  /* Paleta ATLAS OBSIDIAN — dark (identidade principal do produto). */
+  --background: #090e17;
+  --background-secondary: #0d1421;
+  --foreground: #f4f7fb;
+
+  --card: #111827;
+  --card-foreground: #f4f7fb;
+  --card-hover: #162033;
+  --popover: #111827;
+  --popover-foreground: #f4f7fb;
+
+  --primary: #2dd4a8;
+  --primary-foreground: #06231b;
+  --primary-vivid: #20b889;
+
+  --secondary: #162033;
+  --secondary-foreground: #f4f7fb;
+
+  --muted: #162033;
+  --muted-foreground: #98a4b3;
+  --foreground-subtle: #6b7280;
+
+  --accent: rgba(45, 212, 168, 0.12);
+  --accent-foreground: #2dd4a8;
+
+  --success: #3ddc97;
+  --success-soft: rgba(61, 220, 151, 0.14);
+  --warning: #facc15;
+  --warning-soft: rgba(250, 204, 21, 0.12);
+  --danger: #ff626d;
+  --danger-soft: rgba(255, 98, 109, 0.14);
+  --info: #3b82f6;
+  --info-soft: rgba(59, 130, 246, 0.14);
+  --purple: #8b5cf6;
+  --purple-soft: rgba(139, 92, 246, 0.14);
+  --amber: #f59e0b;
+  --cyan: #06b6d4;
+
+  /* Preenchimento sólido (botões/dialogs) precisa de mais peso que o tom
+     "danger" de texto/badge pra manter texto branco legível em cima. */
+  --destructive: #c4394a;
+  --destructive-foreground: #ffffff;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.16);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: #2dd4a8;
+
+  /* Mais peso que no light: no escuro as superfícies se distinguem por
+     background + border + sombra, não só por uma sombra discreta. */
+  --shadow-sm-value: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 1px rgba(0, 0, 0, 0.2);
+  --shadow-md-value: 0 10px 30px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg-value: 0 16px 40px rgba(0, 0, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 @layer base {

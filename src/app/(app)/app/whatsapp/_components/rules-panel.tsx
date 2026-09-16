@@ -214,7 +214,7 @@ function RulesPanel({
         </div>
       )}
       {templates.length === 0 && (
-        <p className="text-sm text-[#B45309]">Crie um modelo de mensagem antes de configurar as regras.</p>
+        <p className="text-sm text-warning">Crie um modelo de mensagem antes de configurar as regras.</p>
       )}
       {rules.length === 0 ? (
         <p className="text-sm text-muted-foreground">Nenhuma regra configurada ainda.</p>

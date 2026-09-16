@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: "Termos de Uso" }
 export default function TermosPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mb-8 rounded-lg border border-[#FEF3C7] bg-[#FEF3C7] px-4 py-3 text-sm text-[#B45309]">
+      <div className="mb-8 rounded-lg border border-warning-soft bg-warning-soft px-4 py-3 text-sm text-warning">
         Rascunho — este texto ainda precisa ser revisado por um advogado antes de valer como termo
         oficial.
       </div>

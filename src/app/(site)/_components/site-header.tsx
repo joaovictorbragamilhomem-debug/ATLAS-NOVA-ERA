@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "cn"
 
 const NAV_LINKS = [
@@ -47,6 +48,7 @@ function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle className="hidden sm:inline-flex" />
           <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/app" prefetch={false} />} className="hidden sm:inline-flex">
             Entrar
           </Button>

@@ -26,7 +26,7 @@ function TransactionRow({ icon: Icon, label, meta, amount, tone, active, delayMs
       <span
         className={cn(
           "flex size-7 shrink-0 items-center justify-center rounded-full",
-          tone === "debit" ? "bg-[#FEE2E2] text-[#B91C1C]" : "bg-accent text-accent-foreground"
+          tone === "debit" ? "bg-danger-soft text-danger" : "bg-accent text-accent-foreground"
         )}
       >
         <Icon className="size-3.5" aria-hidden="true" />
@@ -38,7 +38,7 @@ function TransactionRow({ icon: Icon, label, meta, amount, tone, active, delayMs
       <span
         className={cn(
           "text-xs font-semibold tabular-nums",
-          tone === "debit" ? "text-[#B91C1C]" : "text-accent-foreground"
+          tone === "debit" ? "text-danger" : "text-accent-foreground"
         )}
       >
         {amount}
