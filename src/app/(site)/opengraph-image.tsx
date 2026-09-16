@@ -16,8 +16,8 @@ export default function Image() {
           justifyContent: "center",
           gap: 24,
           padding: 96,
-          background: "#0B1210",
-          color: "#F7F7F4",
+          background: "#090E17",
+          color: "#F4F7FB",
         }}
       >
         <div
@@ -26,7 +26,7 @@ export default function Image() {
             alignItems: "center",
             gap: 12,
             fontSize: 32,
-            color: "#10B981",
+            color: "#2DD4A8",
             fontWeight: 600,
           }}
         >
@@ -35,7 +35,7 @@ export default function Image() {
         <div style={{ display: "flex", fontSize: 64, fontWeight: 600, lineHeight: 1.15 }}>
           Cobrança no automático, direto no WhatsApp
         </div>
-        <div style={{ display: "flex", fontSize: 30, color: "#D1FAE5" }}>
+        <div style={{ display: "flex", fontSize: 30, color: "#98A4B3" }}>
           Clientes, contratos e parcelas organizados num só lugar.
         </div>
       </div>

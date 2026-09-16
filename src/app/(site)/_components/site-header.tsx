@@ -32,7 +32,7 @@ function SiteHeader() {
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" prefetch={false} className="text-base font-semibold tracking-tight">
-          ATLAS <span className="text-primary">NOVA ERA</span>
+          ATLAS <span className="text-primary hidden sm:inline">NOVA ERA</span>
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex" aria-label="Navegação principal">
@@ -48,7 +48,7 @@ function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <ThemeToggle className="hidden sm:inline-flex" />
+          <ThemeToggle />
           <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/app" prefetch={false} />} className="hidden sm:inline-flex">
             Entrar
           </Button>
