@@ -21,7 +21,7 @@ function Hero() {
         <div className="flex flex-col gap-6">
           <AnimateIn>
             <span className="w-fit rounded-4xl bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">
-              Feito pra quem começou no caderno — não pra banco
+              Do caderno pro WhatsApp, sem complicação
             </span>
           </AnimateIn>
           <AnimateIn delay={0.06}>
