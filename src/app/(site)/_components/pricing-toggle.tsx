@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { CheckIcon } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -12,6 +13,15 @@ type PricingToggleProps = {
   monthlyCents: number | null
   annualCents: number | null
 }
+
+const INCLUDED_FEATURES = [
+  "Contratos e parcelas gerados automaticamente",
+  "Cobrança automática pelo WhatsApp",
+  "Pix direto na cobrança",
+  "Clientes, contratos e histórico num só lugar",
+  "Equipe com permissões (dono, gestor, operador)",
+  "Relatórios em PDF e CSV",
+]
 
 function PricingToggle({ monthlyCents, annualCents }: PricingToggleProps) {
   const [annual, setAnnual] = React.useState(false)
@@ -49,6 +59,15 @@ function PricingToggle({ monthlyCents, annualCents }: PricingToggleProps) {
         )}
         <p className="text-sm text-muted-foreground">7 dias grátis, sem cartão de crédito</p>
       </div>
+
+      <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
+        {INCLUDED_FEATURES.map((feature) => (
+          <li key={feature} className="flex items-center gap-2">
+            <CheckIcon className="size-4 shrink-0 text-primary" aria-hidden="true" />
+            {feature}
+          </li>
+        ))}
+      </ul>
 
       <div className="w-full transition-transform duration-150 ease-out hover:-translate-y-0.5">
         <Button size="lg" nativeButton={false} render={<Link href="/app" prefetch={false} />} className="w-full">

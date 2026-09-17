@@ -22,8 +22,12 @@ function SiteFooter() {
             <Link href="/privacidade" className="text-muted-foreground hover:text-foreground">
               Política de Privacidade
             </Link>
-            {/* TODO: e-mail/telefone de contato reais */}
-            <span className="text-muted-foreground">contato@[SEUDOMINIO].com.br</span>
+            <a
+              href="mailto:contato@atlasnovaera.com.br"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              contato@atlasnovaera.com.br
+            </a>
           </div>
         </div>
 

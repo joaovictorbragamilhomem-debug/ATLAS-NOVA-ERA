@@ -15,7 +15,10 @@ async function PricingSection() {
     <section id="precos" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
       <Reveal className="mx-auto mb-10 max-w-2xl text-center">
         <h2 className="text-2xl font-semibold sm:text-3xl">Preços</h2>
-        <p className="mt-2 text-muted-foreground">Todos os planos incluem 7 dias grátis, sem cartão de crédito.</p>
+        <p className="mt-2 text-muted-foreground">
+          O mesmo sistema completo em qualquer plano — você só escolhe como paga. 7 dias grátis, sem
+          cartão de crédito.
+        </p>
       </Reveal>
 
       <div className="mx-auto grid max-w-3xl gap-6 sm:grid-cols-2">
