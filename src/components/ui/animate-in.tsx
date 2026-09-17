@@ -1,6 +1,31 @@
 "use client"
 
-import { motion, useReducedMotion } from "motion/react"
+import * as React from "react"
+import { motion } from "motion/react"
+
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)"
+
+// Ver o comentário equivalente em ui/reveal.tsx: o hook useReducedMotion()
+// da lib "motion" causa mismatch de hidratação que deixa o conteúdo
+// invisível para sempre em quem tem reduced-motion ativado no SO.
+function subscribeToReducedMotion(onChange: () => void) {
+  const query = window.matchMedia(REDUCED_MOTION_QUERY)
+  query.addEventListener("change", onChange)
+  return () => query.removeEventListener("change", onChange)
+}
+function getReducedMotionSnapshot() {
+  return window.matchMedia(REDUCED_MOTION_QUERY).matches
+}
+function getReducedMotionServerSnapshot() {
+  return false
+}
+function useReducedMotionSafe(): boolean {
+  return React.useSyncExternalStore(
+    subscribeToReducedMotion,
+    getReducedMotionSnapshot,
+    getReducedMotionServerSnapshot
+  )
+}
 
 type AnimateInProps = {
   children: React.ReactNode
@@ -11,7 +36,7 @@ type AnimateInProps = {
 // Entrada leve e curta (150–250ms, ease-out), desligada para quem prefere
 // menos movimento no sistema operacional.
 function AnimateIn({ children, delay = 0, className }: AnimateInProps) {
-  const reduceMotion = useReducedMotion()
+  const reduceMotion = useReducedMotionSafe()
 
   if (reduceMotion) {
     return <div className={className}>{children}</div>
