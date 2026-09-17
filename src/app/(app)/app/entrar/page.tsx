@@ -23,7 +23,9 @@ export default function EntrarPage() {
 function EntrarForm() {
   const searchParams = useSearchParams()
   const next = searchParams.get("proximo") ?? "/app"
-  const erroLink = searchParams.get("erro") === "link_invalido"
+  const erro = searchParams.get("erro")
+  const erroLink = erro === "link_invalido"
+  const erroSemOrganizacao = erro === "sem_organizacao"
   const [mode, setMode] = React.useState<"senha" | "magico">("senha")
 
   const [passwordState, passwordAction, passwordPending] = useActionState(signInWithPasswordAction, initialState)
@@ -40,6 +42,13 @@ function EntrarForm() {
       {erroLink && (
         <p className="rounded-lg bg-danger-soft px-3 py-2 text-sm text-danger">
           Esse link expirou ou já foi usado. Tente entrar de novo.
+        </p>
+      )}
+
+      {erroSemOrganizacao && (
+        <p className="rounded-lg bg-danger-soft px-3 py-2 text-sm text-danger">
+          Sua conta não está vinculada a nenhuma empresa no momento. Fale com quem administra sua
+          organização no ATLAS.
         </p>
       )}
 

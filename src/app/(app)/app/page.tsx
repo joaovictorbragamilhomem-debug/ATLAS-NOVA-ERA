@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { getCurrentMembership } from "@/lib/auth/current-user"
 import { getSubscriptionStatus } from "@/lib/auth/subscription-status"
 import { signOutAction } from "@/lib/auth/actions"
+import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { getDashboardStats } from "@/lib/dashboard/get-dashboard-stats"
@@ -17,7 +18,15 @@ const ROLE_LABEL: Record<string, string> = {
 
 export default async function AppHomePage() {
   const membership = await getCurrentMembership()
-  if (!membership) redirect("/app/entrar")
+  if (!membership) {
+    // Sessão válida mas sem vínculo ativo (ex.: removido da equipe). Sem
+    // encerrar a sessão aqui, o proxy via a pessoa como "logada" e mandava
+    // de volta pra /app assim que ela caísse em /app/entrar — loop infinito
+    // entre as duas rotas até limpar os cookies do site na mão.
+    const supabase = await getSupabaseServerClient()
+    await supabase.auth.signOut()
+    redirect("/app/entrar?erro=sem_organizacao")
+  }
 
   const subscription = await getSubscriptionStatus(membership.organizationId)
   const stats = await getDashboardStats(membership.organizationId)
