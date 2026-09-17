@@ -1,14 +1,12 @@
-import { redirect } from "next/navigation"
 import { MessageSquareTextIcon } from "lucide-react"
-import { getCurrentMembership } from "@/lib/auth/current-user"
+import { requireMembership } from "@/lib/auth/current-user"
 import { getConversations } from "@/lib/whatsapp/get-conversations"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ConversationList } from "./_components/conversation-list"
 import { AutoRefresh } from "./_components/auto-refresh"
 
 export default async function ConversasPage() {
-  const membership = await getCurrentMembership()
-  if (!membership) redirect("/app/entrar")
+  const membership = await requireMembership()
 
   const conversations = await getConversations(membership.organizationId)
 

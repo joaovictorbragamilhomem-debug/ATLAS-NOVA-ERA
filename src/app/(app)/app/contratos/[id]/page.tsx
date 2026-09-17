@@ -1,7 +1,7 @@
 import Link from "next/link"
-import { notFound, redirect } from "next/navigation"
+import { notFound } from "next/navigation"
 import { RefreshCcwIcon } from "lucide-react"
-import { getCurrentMembership } from "@/lib/auth/current-user"
+import { requireMembership } from "@/lib/auth/current-user"
 import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import { formatCentsToBRL } from "@/lib/masks"
@@ -25,8 +25,7 @@ const OPEN_INSTALLMENT_STATUSES = ["pending", "partially_paid", "reversed"]
 
 export default async function ContratoDetalhePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const membership = await getCurrentMembership()
-  if (!membership) redirect("/app/entrar")
+  const membership = await requireMembership()
 
   const supabase = await getSupabaseServerClient()
   const { data: contract } = await supabase

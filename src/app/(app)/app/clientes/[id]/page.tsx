@@ -1,7 +1,7 @@
 import Link from "next/link"
-import { notFound, redirect } from "next/navigation"
+import { notFound } from "next/navigation"
 import { PencilIcon, PlusIcon, FileTextIcon } from "lucide-react"
-import { getCurrentMembership } from "@/lib/auth/current-user"
+import { requireMembership } from "@/lib/auth/current-user"
 import { getCustomerWithContracts } from "@/lib/customers/get-customer-with-contracts"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -22,8 +22,7 @@ const CONTRACT_STATUS_LABEL: Record<string, string> = {
 
 export default async function ClienteDetalhePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const membership = await getCurrentMembership()
-  if (!membership) redirect("/app/entrar")
+  const membership = await requireMembership()
 
   const { customer, contracts } = await getCustomerWithContracts(id)
 

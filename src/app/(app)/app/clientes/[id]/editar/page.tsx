@@ -1,13 +1,12 @@
-import { notFound, redirect } from "next/navigation"
-import { getCurrentMembership } from "@/lib/auth/current-user"
+import { notFound } from "next/navigation"
+import { requireMembership } from "@/lib/auth/current-user"
 import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { updateCustomerAction, type CustomerActionState } from "@/lib/customers/actions"
 import { CustomerForm } from "../../_components/customer-form"
 
 export default async function EditarClientePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const membership = await getCurrentMembership()
-  if (!membership) redirect("/app/entrar")
+  await requireMembership()
 
   const supabase = await getSupabaseServerClient()
   const { data: customer } = await supabase.from("customers").select("*").eq("id", id).maybeSingle()

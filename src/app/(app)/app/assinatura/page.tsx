@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation"
-import { getCurrentMembership } from "@/lib/auth/current-user"
+import { requireMembership } from "@/lib/auth/current-user"
 import { getSubscriptionStatus } from "@/lib/auth/subscription-status"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { CheckoutForm } from "./_components/checkout-form"
@@ -20,8 +19,7 @@ const PLAN_LABEL: Record<string, string> = {
 }
 
 export default async function AssinaturaPage() {
-  const membership = await getCurrentMembership()
-  if (!membership) redirect("/app/entrar")
+  const membership = await requireMembership()
 
   const subscription = await getSubscriptionStatus(membership.organizationId)
 

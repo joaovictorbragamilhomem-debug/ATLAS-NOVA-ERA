@@ -1,15 +1,13 @@
 import Link from "next/link"
-import { redirect } from "next/navigation"
 import { PlusIcon, UsersIcon, UploadIcon } from "lucide-react"
-import { getCurrentMembership } from "@/lib/auth/current-user"
+import { requireMembership } from "@/lib/auth/current-user"
 import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { CustomersTable, type CustomerRow } from "./_components/customers-table"
 
 export default async function ClientesPage() {
-  const membership = await getCurrentMembership()
-  if (!membership) redirect("/app/entrar")
+  const membership = await requireMembership()
 
   const supabase = await getSupabaseServerClient()
   const { data } = await supabase

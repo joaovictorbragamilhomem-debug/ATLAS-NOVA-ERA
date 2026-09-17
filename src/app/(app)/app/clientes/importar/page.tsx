@@ -1,10 +1,8 @@
-import { redirect } from "next/navigation"
-import { getCurrentMembership } from "@/lib/auth/current-user"
+import { requireMembership } from "@/lib/auth/current-user"
 import { ImportCustomersForm } from "./_components/import-customers-form"
 
 export default async function ImportarClientesPage() {
-  const membership = await getCurrentMembership()
-  if (!membership) redirect("/app/entrar")
+  await requireMembership()
 
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 px-4 py-10">

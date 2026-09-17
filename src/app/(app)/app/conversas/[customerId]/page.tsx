@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { ArrowLeftIcon } from "lucide-react"
-import { notFound, redirect } from "next/navigation"
-import { getCurrentMembership } from "@/lib/auth/current-user"
+import { notFound } from "next/navigation"
+import { requireMembership } from "@/lib/auth/current-user"
 import { getCustomerWithContracts } from "@/lib/customers/get-customer-with-contracts"
 import { getConversationThread, getLastInboundAt } from "@/lib/whatsapp/get-conversation-thread"
 import { isWithinReplyWindow } from "@/lib/whatsapp/reply-window"
@@ -13,8 +13,7 @@ import { AutoRefresh } from "../_components/auto-refresh"
 
 export default async function ConversaDetalhePage({ params }: { params: Promise<{ customerId: string }> }) {
   const { customerId } = await params
-  const membership = await getCurrentMembership()
-  if (!membership) redirect("/app/entrar")
+  const membership = await requireMembership()
 
   const [{ customer, contracts }, messages, openInstallments] = await Promise.all([
     getCustomerWithContracts(customerId),

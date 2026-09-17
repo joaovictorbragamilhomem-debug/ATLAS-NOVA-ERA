@@ -1,7 +1,6 @@
 import Link from "next/link"
-import { redirect } from "next/navigation"
 import { DownloadIcon, FileBarChart2Icon } from "lucide-react"
-import { getCurrentMembership } from "@/lib/auth/current-user"
+import { requireMembership } from "@/lib/auth/current-user"
 import { getPaymentsReport } from "@/lib/reports/get-payments-report"
 import { todayInSaoPauloISODate } from "@/lib/finance/dates"
 import { formatCentsToBRL } from "@/lib/masks"
@@ -27,8 +26,7 @@ export default async function RelatoriosPage({
 }: {
   searchParams: Promise<{ de?: string; ate?: string }>
 }) {
-  const membership = await getCurrentMembership()
-  if (!membership) redirect("/app/entrar")
+  const membership = await requireMembership()
 
   const { de, ate } = await searchParams
   const today = todayInSaoPauloISODate()

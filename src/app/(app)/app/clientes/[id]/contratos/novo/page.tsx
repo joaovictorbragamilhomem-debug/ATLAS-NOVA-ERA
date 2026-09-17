@@ -1,13 +1,12 @@
 import { notFound, redirect } from "next/navigation"
-import { getCurrentMembership } from "@/lib/auth/current-user"
+import { requireMembership } from "@/lib/auth/current-user"
 import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { createContractAction, type ContractActionState } from "@/lib/contracts/actions"
 import { ContractForm } from "../_components/contract-form"
 
 export default async function NovoContratoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const membership = await getCurrentMembership()
-  if (!membership) redirect("/app/entrar")
+  const membership = await requireMembership()
   if (membership.role === "operator") redirect(`/app/clientes/${id}`)
 
   const supabase = await getSupabaseServerClient()

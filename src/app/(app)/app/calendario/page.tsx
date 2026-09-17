@@ -1,8 +1,7 @@
 import Link from "next/link"
-import { redirect } from "next/navigation"
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 import { cn } from "cn"
-import { getCurrentMembership } from "@/lib/auth/current-user"
+import { requireMembership } from "@/lib/auth/current-user"
 import { getReceivablesCalendar } from "@/lib/calendar/get-receivables-calendar"
 import { daysInMonth, todayInSaoPauloISODate, weekdayOfISODate, addMonthsToYearMonth } from "@/lib/finance/dates"
 import { formatCentsToBRL, formatISODateToBR } from "@/lib/masks"
@@ -24,8 +23,7 @@ export default async function CalendarioPage({
 }: {
   searchParams: Promise<{ mes?: string; dia?: string }>
 }) {
-  const membership = await getCurrentMembership()
-  if (!membership) redirect("/app/entrar")
+  const membership = await requireMembership()
 
   const { mes, dia } = await searchParams
   const today = todayInSaoPauloISODate()

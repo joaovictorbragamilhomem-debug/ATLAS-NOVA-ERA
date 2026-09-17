@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation"
-import { getCurrentMembership } from "@/lib/auth/current-user"
+import { requireMembership } from "@/lib/auth/current-user"
 import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ConnectionPanel } from "./_components/connection-panel"
@@ -9,8 +8,7 @@ import { MessagesPanel } from "./_components/messages-panel"
 import { getMessageQueue } from "@/lib/whatsapp/get-message-queue"
 
 export default async function WhatsAppPage() {
-  const membership = await getCurrentMembership()
-  if (!membership) redirect("/app/entrar")
+  const membership = await requireMembership()
 
   const supabase = await getSupabaseServerClient()
 

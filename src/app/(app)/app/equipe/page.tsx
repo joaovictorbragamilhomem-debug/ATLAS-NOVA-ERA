@@ -1,11 +1,9 @@
-import { redirect } from "next/navigation"
-import { getCurrentMembership } from "@/lib/auth/current-user"
+import { requireMembership } from "@/lib/auth/current-user"
 import { getTeamMembers } from "@/lib/team/get-team-members"
 import { TeamManager } from "./_components/team-manager"
 
 export default async function EquipePage() {
-  const membership = await getCurrentMembership()
-  if (!membership) redirect("/app/entrar")
+  const membership = await requireMembership()
 
   const members = await getTeamMembers(membership.organizationId)
 

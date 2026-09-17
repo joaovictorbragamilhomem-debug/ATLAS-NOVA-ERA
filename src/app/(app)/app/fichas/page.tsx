@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation"
-import { getCurrentMembership } from "@/lib/auth/current-user"
+import { requireMembership } from "@/lib/auth/current-user"
 import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { SITE_URL } from "@/lib/site"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -8,8 +7,7 @@ import { IntakeSlugForm } from "./_components/intake-slug-form"
 import { IntakeFormsList, type IntakeFormRow } from "./_components/intake-forms-list"
 
 export default async function FichasPage() {
-  const membership = await getCurrentMembership()
-  if (!membership) redirect("/app/entrar")
+  const membership = await requireMembership()
 
   const supabase = await getSupabaseServerClient()
 

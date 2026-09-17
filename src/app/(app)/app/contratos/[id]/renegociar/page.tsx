@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation"
-import { getCurrentMembership } from "@/lib/auth/current-user"
+import { requireMembership } from "@/lib/auth/current-user"
 import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { renegotiateContractAction, type ContractActionState } from "@/lib/contracts/actions"
 import { todayInSaoPauloISODate } from "@/lib/finance/dates"
@@ -11,8 +11,7 @@ const OPEN_STATUSES = ["pending", "partially_paid", "reversed"]
 
 export default async function RenegociarContratoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const membership = await getCurrentMembership()
-  if (!membership) redirect("/app/entrar")
+  const membership = await requireMembership()
   if (membership.role === "operator") redirect(`/app/contratos/${id}`)
 
   const supabase = await getSupabaseServerClient()
