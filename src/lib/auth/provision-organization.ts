@@ -57,6 +57,7 @@ export async function provisionOrganizationForNewUser(params: {
     // o usuário recém-criado no Auth ainda não estiver visível pra esta
     // conexão (ex.: e-mail de confirmação falhou por limite de envio) —
     // nesse caso, a pessoa só precisa tentar o cadastro de novo.
+    console.error("[provisionOrganizationForNewUser] membershipError", membershipError)
     await supabase.from("organizations").delete().eq("id", org.id);
     return { error: "Não foi possível concluir o cadastro. Tente novamente em alguns instantes." };
   }

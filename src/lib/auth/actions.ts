@@ -41,6 +41,15 @@ export async function signUpAction(_prev: ActionState, formData: FormData): Prom
   if (!data.user) {
     return { error: "Não foi possível criar a conta. Tente novamente." }
   }
+  // E-mail já pertence a um usuário confirmado: por segurança (evitar
+  // enumeração de e-mails), o Supabase não retorna erro nesse caso — devolve
+  // um "usuário" com id que não existe de verdade em auth.users e
+  // identities vazio. Sem esse checa, o código seguia e tentava provisionar
+  // a organização com esse id fantasma, o que sempre falhava (violação de
+  // FK) com uma mensagem genérica que não ajudava ninguém a se recuperar.
+  if (data.user.identities?.length === 0) {
+    return { error: "Este e-mail já tem uma conta. Entre ou recupere sua senha." }
+  }
 
   const provisioned = await provisionOrganizationForNewUser({
     userId: data.user.id,
