@@ -21,6 +21,8 @@ export default function CadastroPage() {
   const [fullName, setFullName] = React.useState("")
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
+  const [confirmPassword, setConfirmPassword] = React.useState("")
+  const [confirmError, setConfirmError] = React.useState("")
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-4 py-16">
@@ -29,7 +31,18 @@ export default function CadastroPage() {
         <p className="text-sm text-muted-foreground">Sem cartão de crédito, cancele quando quiser.</p>
       </div>
 
-      <form action={action} className="flex flex-col gap-4">
+      <form
+        action={action}
+        onSubmit={(e) => {
+          if (password !== confirmPassword) {
+            e.preventDefault()
+            setConfirmError("As senhas não coincidem.")
+            return
+          }
+          setConfirmError("")
+        }}
+        className="flex flex-col gap-4"
+      >
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="organizationName">Nome da empresa</Label>
           <Input
@@ -77,6 +90,19 @@ export default function CadastroPage() {
           />
           <p className="text-xs text-muted-foreground">Pelo menos 8 caracteres.</p>
         </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="confirmPassword">Confirmar senha</Label>
+          <PasswordInput
+            id="confirmPassword"
+            name="confirmPassword"
+            autoComplete="new-password"
+            minLength={8}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+        </div>
+        {confirmError && <p className="text-sm text-destructive">{confirmError}</p>}
         {state.error && <p className="text-sm text-destructive">{state.error}</p>}
         <Button type="submit" loading={pending} className="w-full">
           Criar minha conta
