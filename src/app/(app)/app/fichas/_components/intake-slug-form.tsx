@@ -1,12 +1,16 @@
 "use client"
 
 import * as React from "react"
-import { CopyIcon } from "lucide-react"
+import { CopyIcon, MessageCircleIcon } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { updateIntakeSlugAction } from "@/lib/intake/actions"
+
+function buildIntakeMessage(publicUrl: string) {
+  return `Olá! Pra eu fazer seu cadastro, preenche seus dados nesse link: ${publicUrl}`
+}
 
 function IntakeSlugForm({
   currentSlug,
@@ -25,8 +29,14 @@ function IntakeSlugForm({
 
   async function copyLink() {
     if (!publicUrl) return
-    await navigator.clipboard.writeText(publicUrl)
-    toast.success("Link copiado.")
+    await navigator.clipboard.writeText(buildIntakeMessage(publicUrl))
+    toast.success("Mensagem copiada.")
+  }
+
+  function openWhatsApp() {
+    if (!publicUrl) return
+    const url = `https://wa.me/?text=${encodeURIComponent(buildIntakeMessage(publicUrl))}`
+    window.open(url, "_blank", "noopener,noreferrer")
   }
 
   async function handleSave() {
@@ -54,7 +64,10 @@ function IntakeSlugForm({
         <div className="flex flex-wrap items-center gap-2">
           <code className="rounded-md bg-muted px-2 py-1 text-sm">{publicUrl}</code>
           <Button type="button" size="sm" variant="secondary" onClick={copyLink}>
-            <CopyIcon /> Copiar
+            <CopyIcon /> Copiar mensagem
+          </Button>
+          <Button type="button" size="sm" variant="secondary" onClick={openWhatsApp}>
+            <MessageCircleIcon /> Enviar pelo WhatsApp
           </Button>
           {canEdit && (
             <Button type="button" size="sm" variant="ghost" onClick={() => setEditing(true)}>
