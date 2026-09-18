@@ -7,6 +7,7 @@ import { findOrCreateAsaasCustomer, createAsaasSubscription, createAsaasPayment,
 import { PRICING } from "@/lib/pricing"
 import { onlyDigits } from "@/lib/masks"
 import { isValidCPF } from "@/lib/validators"
+import { getLifetimeSeatsRemaining } from "@/lib/lifetime-seats"
 
 export type CheckoutState = { error: string | null }
 
@@ -44,6 +45,13 @@ export async function subscribeAction(_prev: CheckoutState, formData: FormData):
   const priceCents = PLAN_CENTS[plan]
   if (priceCents === null) {
     return { error: "Os preços ainda não foram configurados. Tente novamente mais tarde." }
+  }
+
+  if (plan === "lifetime") {
+    const seatsRemaining = await getLifetimeSeatsRemaining()
+    if (seatsRemaining !== null && seatsRemaining <= 0) {
+      return { error: "As vagas do plano Vitalício se esgotaram. Escolha o plano Mensal ou Anual." }
+    }
   }
 
   const supabase = await getSupabaseServerClient()
