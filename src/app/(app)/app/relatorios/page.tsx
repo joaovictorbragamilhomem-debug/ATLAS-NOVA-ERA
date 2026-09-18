@@ -64,6 +64,22 @@ export default async function RelatoriosPage({
         <PrintButton />
       </form>
 
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 print:hidden">
+        <p className="text-sm font-medium">Exportação completa (sem filtro de período)</p>
+        <Button size="sm" variant="secondary" nativeButton={false} render={<Link href="/api/reports/full-export?tabela=clientes" />}>
+          <DownloadIcon /> Clientes
+        </Button>
+        <Button size="sm" variant="secondary" nativeButton={false} render={<Link href="/api/reports/full-export?tabela=contratos" />}>
+          <DownloadIcon /> Contratos
+        </Button>
+        <Button size="sm" variant="secondary" nativeButton={false} render={<Link href="/api/reports/full-export?tabela=parcelas" />}>
+          <DownloadIcon /> Parcelas
+        </Button>
+        <Button size="sm" variant="secondary" nativeButton={false} render={<Link href="/api/reports/full-export?tabela=pagamentos" />}>
+          <DownloadIcon /> Pagamentos
+        </Button>
+      </div>
+
       <div className="rounded-lg border border-border bg-card p-4">
         <p className="text-xs text-muted-foreground">Total recebido no período</p>
         <p className="mt-1 text-lg font-semibold tabular-nums">{formatCentsToBRL(report.totalReceivedCents)}</p>
