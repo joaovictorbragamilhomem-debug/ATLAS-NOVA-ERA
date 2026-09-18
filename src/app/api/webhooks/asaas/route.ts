@@ -1,8 +1,19 @@
+import { timingSafeEqual } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/resend";
 import { paymentConfirmedEmail, paymentFailedEmail } from "@/lib/email/templates";
 import type { SupabaseClient } from "@supabase/supabase-js";
+
+function isValidWebhookToken(receivedToken: string | null): boolean {
+  const expectedToken = process.env.ASAAS_WEBHOOK_SECRET;
+  if (!expectedToken || !receivedToken) return false;
+
+  const expectedBuffer = Buffer.from(expectedToken);
+  const receivedBuffer = Buffer.from(receivedToken);
+  if (expectedBuffer.length !== receivedBuffer.length) return false;
+  return timingSafeEqual(expectedBuffer, receivedBuffer);
+}
 
 async function getOwnerEmail(admin: SupabaseClient, organizationId: string): Promise<string | null> {
   const { data: owner } = await admin
@@ -26,7 +37,7 @@ const CANCELED_EVENTS = new Set(["PAYMENT_DELETED", "PAYMENT_REFUNDED", "SUBSCRI
 
 export async function POST(request: NextRequest) {
   const token = request.headers.get("asaas-access-token");
-  if (!token || token !== process.env.ASAAS_WEBHOOK_SECRET) {
+  if (!isValidWebhookToken(token)) {
     return NextResponse.json({ error: "token inválido" }, { status: 401 });
   }
 
