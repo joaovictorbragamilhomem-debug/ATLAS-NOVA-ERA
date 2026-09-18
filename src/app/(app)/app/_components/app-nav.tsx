@@ -17,12 +17,12 @@ function AppNav() {
   return (
     <nav className="border-b border-border bg-card print:hidden">
       <div className="mx-auto flex max-w-4xl items-center justify-between gap-2 px-4">
-        <div className="flex items-center gap-1 overflow-x-auto">
+        <div className="flex items-center gap-1 overflow-x-auto sm:gap-4">
           {LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="whitespace-nowrap px-3 py-3 text-sm font-medium text-muted-foreground hover:text-foreground"
+              className="whitespace-nowrap px-3 py-3 text-sm font-medium text-muted-foreground hover:text-foreground sm:px-4"
             >
               {link.label}
             </Link>
