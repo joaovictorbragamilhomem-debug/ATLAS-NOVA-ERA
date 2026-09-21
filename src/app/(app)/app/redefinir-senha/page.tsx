@@ -5,6 +5,7 @@ import { useActionState } from "react"
 import { Button } from "@/components/ui/button"
 import { PasswordInput } from "@/components/ui/password-input"
 import { Label } from "@/components/ui/label"
+import { FormError } from "@/components/ui/form-error"
 import { updatePasswordAction, type ActionState } from "@/lib/auth/actions"
 
 const initialState: ActionState = { error: null }
@@ -59,8 +60,8 @@ export default function RedefinirSenhaPage() {
             required
           />
         </div>
-        {confirmError && <p className="text-sm text-destructive">{confirmError}</p>}
-        {state.error && <p className="text-sm text-destructive">{state.error}</p>}
+        <FormError message={confirmError} />
+        <FormError message={state.error} />
         <Button type="submit" loading={pending} className="w-full">
           Salvar nova senha
         </Button>

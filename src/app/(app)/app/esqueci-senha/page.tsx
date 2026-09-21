@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { FormError } from "@/components/ui/form-error"
 import { requestPasswordResetAction, type ActionState } from "@/lib/auth/actions"
 
 const initialState: ActionState = { error: null }
@@ -30,7 +31,7 @@ export default function EsqueciSenhaPage() {
             <Label htmlFor="email">E-mail</Label>
             <Input id="email" name="email" type="email" autoComplete="email" required />
           </div>
-          {state.error && <p className="text-sm text-destructive">{state.error}</p>}
+          <FormError message={state.error} />
           <Button type="submit" loading={pending} className="w-full">
             Enviar link
           </Button>

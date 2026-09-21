@@ -6,6 +6,7 @@ import { PlusIcon, TrashIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { FormError } from "@/components/ui/form-error"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
@@ -137,7 +138,7 @@ function NewRuleDialog({ templates }: { templates: TemplateRow[] }) {
             Não mandar aos domingos
           </label>
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          <FormError message={error} />
 
           <DialogFooter>
             <DialogClose render={<Button type="button" variant="outline" />}>Cancelar</DialogClose>

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PasswordInput } from "@/components/ui/password-input"
 import { Label } from "@/components/ui/label"
+import { FormError } from "@/components/ui/form-error"
 import { signInWithPasswordAction, signInWithMagicLinkAction, type ActionState } from "@/lib/auth/actions"
 
 const initialState: ActionState = { error: null }
@@ -71,7 +72,7 @@ function EntrarForm() {
             </div>
             <PasswordInput id="password" name="password" autoComplete="current-password" required />
           </div>
-          {passwordState.error && <p className="text-sm text-destructive">{passwordState.error}</p>}
+          <FormError message={passwordState.error} />
           <Button type="submit" loading={passwordPending} className="w-full">
             Entrar
           </Button>
@@ -101,7 +102,7 @@ function EntrarForm() {
                 <Label htmlFor="magic-email">E-mail</Label>
                 <Input id="magic-email" name="email" type="email" autoComplete="email" required />
               </div>
-              {magicState.error && <p className="text-sm text-destructive">{magicState.error}</p>}
+              <FormError message={magicState.error} />
               <Button type="submit" loading={magicPending} className="w-full">
                 Enviar link
               </Button>

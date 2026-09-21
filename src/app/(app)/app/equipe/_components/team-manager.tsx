@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { FormError } from "@/components/ui/form-error"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   inviteTeamMemberAction,
@@ -57,7 +58,7 @@ function InviteForm() {
       <Button type="submit" loading={pending}>
         Convidar
       </Button>
-      {state.error && <p className="text-sm text-destructive sm:basis-full">{state.error}</p>}
+      <FormError message={state.error} className="sm:basis-full" />
     </form>
   )
 }

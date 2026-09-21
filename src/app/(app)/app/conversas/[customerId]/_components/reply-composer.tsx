@@ -4,6 +4,7 @@ import * as React from "react"
 import { useActionState } from "react"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
+import { FormError } from "@/components/ui/form-error"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { formatCentsToBRL, formatISODateToBR } from "@/lib/masks"
 import { sendReplyAction, generatePixMessageAction, type ReplyActionState } from "@/lib/whatsapp/reply-actions"
@@ -96,7 +97,7 @@ function ReplyComposer({
           </Button>
         </div>
       )}
-      {pixError && <p className="text-sm text-destructive">{pixError}</p>}
+      <FormError message={pixError} />
 
       <Textarea
         name="body"
@@ -106,7 +107,7 @@ function ReplyComposer({
         value={body}
         onChange={(e) => setBody(e.target.value)}
       />
-      {state.error && <p className="text-sm text-destructive">{state.error}</p>}
+      <FormError message={state.error} />
       <Button type="submit" loading={pending} className="w-fit self-end">
         Enviar
       </Button>

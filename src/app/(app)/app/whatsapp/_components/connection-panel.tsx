@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PasswordInput } from "@/components/ui/password-input"
 import { Label } from "@/components/ui/label"
+import { FormError } from "@/components/ui/form-error"
 import {
   connectWhatsAppAction,
   disconnectWhatsAppAction,
@@ -86,7 +87,7 @@ function ConnectionPanel({
                 <Label htmlFor="accessToken">Token de acesso</Label>
                 <PasswordInput id="accessToken" name="accessToken" required />
               </div>
-              {state.error && <p className="text-sm text-destructive">{state.error}</p>}
+              <FormError message={state.error} />
               <Button type="submit" loading={pending} className="w-full sm:w-auto">
                 Conectar
               </Button>

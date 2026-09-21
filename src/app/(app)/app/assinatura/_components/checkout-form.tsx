@@ -5,6 +5,7 @@ import { useActionState } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import { FormError } from "@/components/ui/form-error"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { subscribeAction, type CheckoutState } from "@/lib/asaas/checkout-actions"
 import { onlyDigits } from "@/lib/masks"
@@ -71,7 +72,7 @@ function CheckoutForm({ hasPricing }: { hasPricing: boolean }) {
           required
         />
       </div>
-      {state.error && <p className="text-sm text-destructive">{state.error}</p>}
+      <FormError message={state.error} />
       <Button type="submit" loading={pending}>
         Ir para o pagamento
       </Button>

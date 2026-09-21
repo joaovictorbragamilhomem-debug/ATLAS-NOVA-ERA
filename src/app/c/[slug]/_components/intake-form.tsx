@@ -5,6 +5,7 @@ import { useActionState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { FormError } from "@/components/ui/form-error"
 import { CpfInput, PhoneInput } from "@/components/ui/masked-input"
 import { isValidCPF } from "@/lib/validators"
 import { lookupCep } from "@/lib/viacep"
@@ -196,7 +197,7 @@ function IntakeForm({ action }: IntakeFormProps) {
         Autorizo o uso dos meus dados para análise e contato sobre este cadastro.
       </label>
 
-      {state.error && <p className="text-sm text-destructive">{state.error}</p>}
+      <FormError message={state.error} />
 
       <Button type="submit" loading={pending} className="w-full">
         Enviar cadastro

@@ -5,6 +5,7 @@ import { useActionState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { FormError } from "@/components/ui/form-error"
 import { Textarea } from "@/components/ui/textarea"
 import { CurrencyInput } from "@/components/ui/masked-input"
 import { DatePicker } from "@/components/ui/date-picker"
@@ -190,7 +191,7 @@ function ContractForm({ action, initialPrincipalAmountCents, submitLabel }: Cont
         </div>
       </div>
 
-      {state.error && <p className="text-sm text-destructive">{state.error}</p>}
+      <FormError message={state.error} />
 
       <Button type="submit" loading={pending} className="w-full sm:w-auto">
         {submitLabel ?? "Criar contrato e gerar carnê"}
