@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentMembership } from "@/lib/auth/current-user";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { assertOrganizationIsWritable } from "@/lib/subscription/assert-writable";
 import { logAudit } from "@/lib/audit/log";
 import { encryptToken } from "@/lib/whatsapp/token-crypto";
@@ -55,6 +56,23 @@ export async function connectWhatsAppAction(
 
   const verification = await verifyMetaCredentials(phoneNumberId, accessToken);
   if (!verification.ok) return { error: verification.error };
+
+  // Checked only after the credentials are proven valid, so nobody can probe
+  // which numbers are in use. RLS hides other organizations' rows, hence admin.
+  const admin = getSupabaseAdminClient();
+  if (admin) {
+    const { data: holder } = await admin
+      .from("whatsapp_connections")
+      .select("organization_id")
+      .eq("provider_account_id", phoneNumberId)
+      .eq("status", "connected")
+      .neq("organization_id", membership.organizationId)
+      .limit(1)
+      .maybeSingle();
+    if (holder) {
+      return { error: "Esse número do WhatsApp já está conectado a outra conta do ATLAS. Cada número só pode ficar em uma conta." };
+    }
+  }
 
   const supabase = await getSupabaseServerClient();
   const { error } = await supabase.from("whatsapp_connections").upsert(

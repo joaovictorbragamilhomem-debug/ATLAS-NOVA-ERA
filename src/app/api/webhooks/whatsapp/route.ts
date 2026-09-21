@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { matchesWhatsAppNumber } from "@/lib/whatsapp/phone-match";
+import { pickConnectionOwner } from "@/lib/whatsapp/pick-connection-owner";
 import { onlyDigits } from "@/lib/masks";
 
 // Handshake de verificação que a Meta faz uma vez, ao configurar o webhook
@@ -89,12 +90,11 @@ export async function POST(request: NextRequest) {
     if (!phoneNumberId || messages.length === 0) continue;
 
     if (!orgIdByPhoneNumberId.has(phoneNumberId)) {
-      const { data: connection } = await admin
+      const { data: connections } = await admin
         .from("whatsapp_connections")
-        .select("organization_id")
-        .eq("provider_account_id", phoneNumberId)
-        .maybeSingle();
-      orgIdByPhoneNumberId.set(phoneNumberId, connection?.organization_id ?? null);
+        .select("organization_id, status")
+        .eq("provider_account_id", phoneNumberId);
+      orgIdByPhoneNumberId.set(phoneNumberId, pickConnectionOwner(connections));
     }
     const organizationId = orgIdByPhoneNumberId.get(phoneNumberId);
     if (!organizationId) continue;
