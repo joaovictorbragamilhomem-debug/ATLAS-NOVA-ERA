@@ -4,7 +4,7 @@ import { onlyDigits, e164BRToDigits } from "@/lib/masks";
 // manda o número com ele, às vezes sem — comparar dígito a dígito perderia
 // cliente de verdade. Aqui a gente compara só DDD + últimos 8 dígitos
 // (ignora um "9" opcional logo depois do DDD).
-function normalizeForMatch(digits: string): string {
+export function normalizeForMatch(digits: string): string {
   const ddd = digits.slice(0, 2);
   const rest = digits.slice(2);
   const last8 = rest.length > 8 ? rest.slice(-8) : rest;

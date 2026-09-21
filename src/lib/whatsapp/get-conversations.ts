@@ -1,4 +1,5 @@
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { groupUnknownMessages, type UnknownConversationRow } from "./unknown-conversations";
 
 export type ConversationRow = {
   customerId: string;
@@ -41,4 +42,20 @@ export async function getConversations(organizationId: string, limit = 300): Pro
   }
 
   return Array.from(byCustomer.values());
+}
+
+// Mensagens de números que ainda não são clientes (customer_id nulo) — sem
+// isso, um contato novo que escreve pro WhatsApp da empresa passaria batido.
+export async function getUnknownConversations(organizationId: string, limit = 300): Promise<UnknownConversationRow[]> {
+  const supabase = await getSupabaseServerClient();
+
+  const { data } = await supabase
+    .from("whatsapp_messages")
+    .select("customer_phone_digits, body, occurred_at")
+    .eq("organization_id", organizationId)
+    .is("customer_id", null)
+    .order("occurred_at", { ascending: false })
+    .limit(limit);
+
+  return groupUnknownMessages(data ?? []);
 }
