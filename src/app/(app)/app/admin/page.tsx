@@ -2,10 +2,12 @@ import { redirect } from "next/navigation"
 import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { isSuperAdmin } from "@/lib/admin/is-super-admin"
 import { getAccountsOverview } from "@/lib/admin/get-accounts-overview"
+import { getActivationFunnel } from "@/lib/admin/get-activation-funnel"
 import { getLifetimeSeatsRemaining } from "@/lib/lifetime-seats"
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { formatCentsToBRL } from "@/lib/masks"
 import { AccountActions } from "./_components/account-actions"
+import { ActivationFunnel } from "./_components/activation-funnel"
 
 const STATUS_LABEL: Record<string, string> = {
   trialing: "Em teste",
@@ -24,9 +26,10 @@ export default async function AdminPage() {
   if (!user) redirect("/app/entrar")
   if (!isSuperAdmin(user.email)) redirect("/app")
 
-  const [{ accounts, mrrCents, trialsEndingSoon }, lifetimeSeatsRemaining] = await Promise.all([
+  const [{ accounts, mrrCents, trialsEndingSoon }, lifetimeSeatsRemaining, activationStages] = await Promise.all([
     getAccountsOverview(),
     getLifetimeSeatsRemaining(),
+    getActivationFunnel(),
   ])
 
   return (
@@ -55,6 +58,8 @@ export default async function AdminPage() {
           </CardHeader>
         </Card>
       </div>
+
+      {activationStages && <ActivationFunnel stages={activationStages} />}
 
       <div className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">Contas</h2>
