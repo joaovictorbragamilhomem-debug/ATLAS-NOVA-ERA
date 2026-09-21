@@ -2,26 +2,47 @@ import Link from "next/link"
 import { PlusIcon, UsersIcon, UploadIcon } from "lucide-react"
 import { requireMembership } from "@/lib/auth/current-user"
 import { getSupabaseServerClient } from "@/lib/supabase/server"
+import { todayInSaoPauloISODate } from "@/lib/finance/dates"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { CustomersTable, type CustomerRow } from "./_components/customers-table"
+
+const OPEN_INSTALLMENT_STATUSES = ["pending", "partially_paid", "reversed"]
 
 export default async function ClientesPage() {
   const membership = await requireMembership()
 
   const supabase = await getSupabaseServerClient()
-  const { data } = await supabase
-    .from("customers")
-    .select("id, name, cpf, whatsapp, address_city")
-    .eq("organization_id", membership.organizationId)
-    .order("name")
+  const today = todayInSaoPauloISODate()
 
-  const customers: CustomerRow[] = (data ?? []).map((c) => ({
+  const [{ data: customersData }, { data: overdueData }] = await Promise.all([
+    supabase
+      .from("customers")
+      .select("id, name, cpf, whatsapp, address_city")
+      .eq("organization_id", membership.organizationId)
+      .order("name"),
+    supabase
+      .from("installments")
+      .select("contracts(customer_id)")
+      .eq("organization_id", membership.organizationId)
+      .in("status", OPEN_INSTALLMENT_STATUSES)
+      .lt("due_date", today),
+  ])
+
+  const overdueCustomerIds = new Set(
+    (overdueData ?? []).flatMap((row) => {
+      const contract = Array.isArray(row.contracts) ? row.contracts[0] : row.contracts
+      return contract ? [contract.customer_id] : []
+    })
+  )
+
+  const customers: CustomerRow[] = (customersData ?? []).map((c) => ({
     id: c.id,
     name: c.name,
     cpf: c.cpf,
     whatsapp: c.whatsapp,
     city: c.address_city,
+    overdue: overdueCustomerIds.has(c.id),
   }))
 
   return (
