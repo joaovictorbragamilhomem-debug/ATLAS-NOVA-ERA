@@ -6,8 +6,6 @@ import { Undo2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { CurrencyInput } from "@/components/ui/masked-input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Dialog,
   DialogClose,
@@ -22,7 +20,8 @@ import { StatusBadge } from "@/components/ui/status-badge"
 import { formatCentsToBRL, formatISODateToBR } from "@/lib/masks"
 import { calculateUpdatedAmountCents, calculateRemainingBalanceCents } from "@/lib/finance/installment-amount"
 import { getInstallmentVisualStatus, type InstallmentDbStatus } from "@/lib/installments/visual-status"
-import { registerInstallmentPaymentAction, reverseInstallmentPaymentAction } from "@/lib/installments/actions"
+import { reverseInstallmentPaymentAction } from "@/lib/installments/actions"
+import { RegisterPaymentDialog, PAYMENT_METHOD_LABEL, type PaymentMethod } from "../../../_components/register-payment-dialog"
 
 export type InstallmentRowData = {
   id: string
@@ -37,17 +36,10 @@ export type PaymentRowData = {
   id: string
   installment_id: string
   amount_cents: number
-  method: "pix" | "dinheiro" | "transferencia" | "cartao"
+  method: PaymentMethod
   paid_at: string
   reversed_at: string | null
   reversed_reason: string | null
-}
-
-const METHOD_LABEL: Record<PaymentRowData["method"], string> = {
-  pix: "Pix",
-  dinheiro: "Dinheiro",
-  transferencia: "Transferência",
-  cartao: "Cartão",
 }
 
 const PAYABLE_STATUSES: InstallmentDbStatus[] = ["pending", "partially_paid", "reversed"]
@@ -73,7 +65,7 @@ function PaymentHistoryItem({ payment, canReverse }: { payment: PaymentRowData; 
   return (
     <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
       <span className={payment.reversed_at ? "line-through" : undefined}>
-        {formatCentsToBRL(payment.amount_cents)} · {METHOD_LABEL[payment.method]} ·{" "}
+        {formatCentsToBRL(payment.amount_cents)} · {PAYMENT_METHOD_LABEL[payment.method]} ·{" "}
         {new Date(payment.paid_at).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}
         {payment.reversed_at && " · estornado"}
       </span>
@@ -139,28 +131,6 @@ function InstallmentRow({
   })
   const suggestedAmountCents = calculateRemainingBalanceCents(updatedAmountCents, installment.paid_amount_cents)
 
-  const [open, setOpen] = React.useState(false)
-  const [amountCents, setAmountCents] = React.useState(suggestedAmountCents)
-  const [method, setMethod] = React.useState<PaymentRowData["method"]>("pix")
-  const [busy, setBusy] = React.useState(false)
-
-  function handleOpenChange(next: boolean) {
-    setOpen(next)
-    if (next) setAmountCents(suggestedAmountCents)
-  }
-
-  async function handleConfirm() {
-    setBusy(true)
-    const result = await registerInstallmentPaymentAction(installment.id, amountCents, method)
-    setBusy(false)
-    if (result.error) {
-      toast.error(result.error)
-      return
-    }
-    toast.success("Baixa registrada.")
-    setOpen(false)
-  }
-
   const isPayable = PAYABLE_STATUSES.includes(installment.status)
   const isLate = updatedAmountCents > installment.amount_cents
 
@@ -182,41 +152,11 @@ function InstallmentRow({
             )}
           </div>
           {isPayable && (
-            <Dialog open={open} onOpenChange={handleOpenChange}>
-              <DialogTrigger render={<Button size="sm" />}>Dar baixa</DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Dar baixa — parcela {installment.number}</DialogTitle>
-                  <DialogDescription>Confirme o valor recebido e a forma de pagamento.</DialogDescription>
-                </DialogHeader>
-                <div className="flex flex-col gap-3">
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor={`amount-${installment.id}`}>Valor recebido</Label>
-                    <CurrencyInput id={`amount-${installment.id}`} value={amountCents} onValueChange={setAmountCents} />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor={`method-${installment.id}`}>Forma de pagamento</Label>
-                    <Select value={method} onValueChange={(v) => setMethod(v as PaymentRowData["method"])}>
-                      <SelectTrigger id={`method-${installment.id}`} className="w-full">
-                        <SelectValue>{(value: PaymentRowData["method"]) => METHOD_LABEL[value]}</SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pix">Pix</SelectItem>
-                        <SelectItem value="dinheiro">Dinheiro</SelectItem>
-                        <SelectItem value="transferencia">Transferência</SelectItem>
-                        <SelectItem value="cartao">Cartão</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <DialogClose render={<Button variant="outline" />}>Cancelar</DialogClose>
-                  <Button loading={busy} disabled={amountCents <= 0} onClick={handleConfirm}>
-                    Confirmar baixa
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <RegisterPaymentDialog
+              installmentId={installment.id}
+              installmentNumber={installment.number}
+              suggestedAmountCents={suggestedAmountCents}
+            />
           )}
         </div>
       </div>
