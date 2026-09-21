@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { SearchIcon } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 const LINKS = [
@@ -28,6 +29,17 @@ function AppNav() {
             </Link>
           ))}
         </div>
+        <form action="/app/clientes" className="hidden shrink-0 sm:block">
+          <label className="relative block">
+            <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="search"
+              name="busca"
+              placeholder="Buscar cliente…"
+              className="h-9 w-44 rounded-lg border border-input bg-transparent pl-8 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+            />
+          </label>
+        </form>
         <ThemeToggle className="shrink-0" />
       </div>
     </nav>

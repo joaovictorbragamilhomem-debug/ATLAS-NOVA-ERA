@@ -52,9 +52,9 @@ const columns: ResponsiveTableColumn<CustomerRow>[] = [
   { key: "city", header: "Cidade", render: (c) => c.city ?? "—", hideOnMobile: true },
 ]
 
-function CustomersTable({ rows }: { rows: CustomerRow[] }) {
+function CustomersTable({ rows, initialSearch = "" }: { rows: CustomerRow[]; initialSearch?: string }) {
   const router = useRouter()
-  const [search, setSearch] = React.useState("")
+  const [search, setSearch] = React.useState(initialSearch)
   const [status, setStatus] = React.useState<StatusFilter>("all")
 
   const filtered = React.useMemo(() => {

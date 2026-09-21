@@ -9,8 +9,13 @@ import { CustomersTable, type CustomerRow } from "./_components/customers-table"
 
 const OPEN_INSTALLMENT_STATUSES = ["pending", "partially_paid", "reversed"]
 
-export default async function ClientesPage() {
+export default async function ClientesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ busca?: string }>
+}) {
   const membership = await requireMembership()
+  const { busca } = await searchParams
 
   const supabase = await getSupabaseServerClient()
   const today = todayInSaoPauloISODate()
@@ -71,7 +76,7 @@ export default async function ClientesPage() {
           }
         />
       ) : (
-        <CustomersTable rows={customers} />
+        <CustomersTable rows={customers} initialSearch={busca ?? ""} />
       )}
     </main>
   )
