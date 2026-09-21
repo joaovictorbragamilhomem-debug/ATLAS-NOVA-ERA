@@ -1,6 +1,7 @@
 import { MessageSquareTextIcon } from "lucide-react"
 import { requireMembership } from "@/lib/auth/current-user"
 import { getConversations, getUnknownConversations } from "@/lib/whatsapp/get-conversations"
+import { linkOrphanMessages } from "@/lib/whatsapp/link-orphan-messages"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ConversationList } from "./_components/conversation-list"
 import { UnknownNumberList } from "./_components/unknown-number-list"
@@ -8,6 +9,8 @@ import { AutoRefresh } from "./_components/auto-refresh"
 
 export default async function ConversasPage() {
   const membership = await requireMembership()
+
+  await linkOrphanMessages(membership.organizationId)
 
   const [conversations, unknownConversations] = await Promise.all([
     getConversations(membership.organizationId),
