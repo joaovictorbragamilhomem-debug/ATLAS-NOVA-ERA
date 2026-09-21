@@ -4,6 +4,7 @@ import { getSubscriptionStatus } from "@/lib/auth/subscription-status"
 import { signOutAction } from "@/lib/auth/actions"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
+import { Stagger, StaggerItem } from "@/components/ui/stagger"
 import { getDashboardStats } from "@/lib/dashboard/get-dashboard-stats"
 import { formatCentsToBRL, formatISODateToBR } from "@/lib/masks"
 import { CalendarCheck2Icon } from "lucide-react"
@@ -59,32 +60,32 @@ export default async function AppHomePage() {
         </p>
       )}
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg border border-border bg-card p-4">
+      <Stagger className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <StaggerItem className="rounded-lg border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">A receber no mês</p>
           <p className="mt-1 text-lg font-semibold tabular-nums">
             {formatCentsToBRL(stats.receivableThisMonthCents)}
           </p>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4">
+        </StaggerItem>
+        <StaggerItem className="rounded-lg border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">Recebido no mês</p>
           <p className="mt-1 text-lg font-semibold tabular-nums">
             {formatCentsToBRL(stats.receivedThisMonthCents)}
           </p>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4">
+        </StaggerItem>
+        <StaggerItem className="rounded-lg border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">Em atraso</p>
           <p className="mt-1 text-lg font-semibold tabular-nums text-danger">
             {formatCentsToBRL(stats.overdueCents)}
           </p>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4">
+        </StaggerItem>
+        <StaggerItem className="rounded-lg border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">Carteira ativa</p>
           <p className="mt-1 text-lg font-semibold tabular-nums">
             {formatCentsToBRL(stats.activePortfolioCents)}
           </p>
-        </div>
-      </div>
+        </StaggerItem>
+      </Stagger>
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
@@ -92,9 +93,9 @@ export default async function AppHomePage() {
           {stats.upcoming.length === 0 ? (
             <EmptyState icon={CalendarCheck2Icon} title="Nada vencendo em breve" />
           ) : (
-            <ul className="flex flex-col gap-2">
+            <Stagger as="ul" delay={0.1} step={0.04} className="flex flex-col gap-2">
               {stats.upcoming.map((item) => (
-                <li key={item.installmentId}>
+                <StaggerItem as="li" key={item.installmentId}>
                   <Link
                     href={`/app/contratos/${item.contractId}`}
                     className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 text-sm transition-colors hover:bg-muted/50"
@@ -105,9 +106,9 @@ export default async function AppHomePage() {
                     </div>
                     <span className="font-medium tabular-nums">{formatCentsToBRL(item.remainingCents)}</span>
                   </Link>
-                </li>
+                </StaggerItem>
               ))}
-            </ul>
+            </Stagger>
           )}
         </div>
 
@@ -116,9 +117,9 @@ export default async function AppHomePage() {
           {stats.biggestOverdue.length === 0 ? (
             <EmptyState icon={CalendarCheck2Icon} title="Nenhuma parcela atrasada" />
           ) : (
-            <ul className="flex flex-col gap-2">
+            <Stagger as="ul" delay={0.1} step={0.04} className="flex flex-col gap-2">
               {stats.biggestOverdue.map((item) => (
-                <li key={item.installmentId}>
+                <StaggerItem as="li" key={item.installmentId}>
                   <Link
                     href={`/app/contratos/${item.contractId}`}
                     className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 text-sm transition-colors hover:bg-muted/50"
@@ -129,9 +130,9 @@ export default async function AppHomePage() {
                     </div>
                     <span className="font-medium tabular-nums">{formatCentsToBRL(item.remainingCents)}</span>
                   </Link>
-                </li>
+                </StaggerItem>
               ))}
-            </ul>
+            </Stagger>
           )}
         </div>
       </div>

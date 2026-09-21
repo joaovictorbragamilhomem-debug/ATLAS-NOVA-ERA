@@ -23,7 +23,7 @@ function AppNav() {
             <Link
               key={link.href}
               href={link.href}
-              className="whitespace-nowrap px-3 py-3 text-sm font-medium text-muted-foreground hover:text-foreground sm:px-4"
+              className="whitespace-nowrap px-3 py-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:px-4"
             >
               {link.label}
             </Link>
