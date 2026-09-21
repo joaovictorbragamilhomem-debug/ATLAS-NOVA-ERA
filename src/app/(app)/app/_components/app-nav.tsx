@@ -17,8 +17,8 @@ const LINKS = [
 function AppNav() {
   return (
     <nav className="border-b border-border bg-card print:hidden">
-      <div className="mx-auto flex max-w-4xl items-center justify-between gap-2 px-4">
-        <div className="flex items-center gap-1 overflow-x-auto sm:gap-4">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4">
+        <div className="flex items-center gap-1 overflow-x-auto">
           {LINKS.map((link) => (
             <Link
               key={link.href}
@@ -29,7 +29,7 @@ function AppNav() {
             </Link>
           ))}
         </div>
-        <form action="/app/clientes" className="hidden shrink-0 sm:block">
+        <form action="/app/clientes" className="hidden shrink-0 xl:block">
           <label className="relative block">
             <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
             <input
