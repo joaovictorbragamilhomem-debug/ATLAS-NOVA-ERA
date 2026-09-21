@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Stagger, StaggerItem } from "@/components/ui/stagger"
 import { getDashboardStats } from "@/lib/dashboard/get-dashboard-stats"
+import { getOnboardingSteps } from "@/lib/onboarding/get-onboarding-steps"
+import { OnboardingChecklist } from "./_components/onboarding-checklist"
 import { formatCentsToBRL, formatISODateToBR } from "@/lib/masks"
 import { CalendarCheck2Icon } from "lucide-react"
 
@@ -20,6 +22,8 @@ export default async function AppHomePage() {
 
   const subscription = await getSubscriptionStatus(membership.organizationId)
   const stats = await getDashboardStats(membership.organizationId)
+  // Em modo somente leitura a pessoa não consegue criar nada, então o checklist só atrapalharia.
+  const onboardingSteps = subscription?.isReadOnly ? [] : await getOnboardingSteps(membership.organizationId, membership.role)
 
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-4 py-10">
@@ -59,6 +63,8 @@ export default async function AppHomePage() {
           </Link>
         </p>
       )}
+
+      <OnboardingChecklist steps={onboardingSteps} />
 
       <Stagger className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StaggerItem className="rounded-lg border border-border bg-card p-4">
