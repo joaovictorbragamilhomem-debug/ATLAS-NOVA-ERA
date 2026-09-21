@@ -34,7 +34,7 @@ function InviteForm() {
   const [state, action, pending] = useActionState(inviteTeamMemberAction, initialInviteState)
 
   return (
-    <form action={action} className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-end">
+    <form action={action} className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 sm:flex-row sm:flex-wrap sm:items-end">
       <div className="flex flex-1 flex-col gap-1.5">
         <Label htmlFor="invite-email">E-mail</Label>
         <Input id="invite-email" name="email" type="email" required />
