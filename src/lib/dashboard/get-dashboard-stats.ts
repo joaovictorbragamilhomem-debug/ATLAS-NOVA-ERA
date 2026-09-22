@@ -4,6 +4,7 @@ import { calculateUpdatedAmountCents, calculateRemainingBalanceCents } from "@/l
 
 export type UpcomingInstallment = {
   installmentId: string;
+  installmentNumber: number;
   contractId: string;
   customerId: string;
   customerName: string;
@@ -35,7 +36,7 @@ export async function getDashboardStats(organizationId: string): Promise<Dashboa
   const { data: openInstallments } = await supabase
     .from("installments")
     .select(
-      "id, contract_id, due_date, amount_cents, paid_amount_cents, contracts(customer_id, late_fee_percent, late_interest_monthly_percent, customers(id, name))"
+      "id, number, contract_id, due_date, amount_cents, paid_amount_cents, contracts(customer_id, late_fee_percent, late_interest_monthly_percent, customers(id, name))"
     )
     .eq("organization_id", organizationId)
     .in("status", OPEN_STATUSES);
@@ -71,6 +72,7 @@ export async function getDashboardStats(organizationId: string): Promise<Dashboa
 
     const item: UpcomingInstallment = {
       installmentId: row.id,
+      installmentNumber: row.number,
       contractId: row.contract_id,
       customerId: customer.id,
       customerName: customer.name,

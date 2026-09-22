@@ -8,6 +8,7 @@ import { Stagger, StaggerItem } from "@/components/ui/stagger"
 import { getDashboardStats } from "@/lib/dashboard/get-dashboard-stats"
 import { getOnboardingSteps } from "@/lib/onboarding/get-onboarding-steps"
 import { OnboardingChecklist } from "./_components/onboarding-checklist"
+import { AttentionRow } from "./_components/attention-row"
 import { formatCentsToBRL, formatISODateToBR } from "@/lib/masks"
 import { CalendarCheck2Icon } from "lucide-react"
 
@@ -102,16 +103,15 @@ export default async function AppHomePage() {
             <Stagger as="ul" delay={0.1} step={0.04} className="flex flex-col gap-2">
               {stats.upcoming.map((item) => (
                 <StaggerItem as="li" key={item.installmentId}>
-                  <Link
-                    href={`/app/contratos/${item.contractId}`}
-                    className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 text-sm transition-colors hover:bg-muted/50"
-                  >
-                    <div className="flex flex-col">
-                      <span className="font-medium">{item.customerName}</span>
-                      <span className="text-xs text-muted-foreground">{formatISODateToBR(item.dueDate)}</span>
-                    </div>
-                    <span className="font-medium tabular-nums">{formatCentsToBRL(item.remainingCents)}</span>
-                  </Link>
+                  <AttentionRow
+                    contractId={item.contractId}
+                    customerId={item.customerId}
+                    customerName={item.customerName}
+                    installmentId={item.installmentId}
+                    installmentNumber={item.installmentNumber}
+                    remainingCents={item.remainingCents}
+                    subtitle={<span className="text-xs text-muted-foreground">{formatISODateToBR(item.dueDate)}</span>}
+                  />
                 </StaggerItem>
               ))}
             </Stagger>
@@ -126,16 +126,15 @@ export default async function AppHomePage() {
             <Stagger as="ul" delay={0.1} step={0.04} className="flex flex-col gap-2">
               {stats.biggestOverdue.map((item) => (
                 <StaggerItem as="li" key={item.installmentId}>
-                  <Link
-                    href={`/app/contratos/${item.contractId}`}
-                    className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 text-sm transition-colors hover:bg-muted/50"
-                  >
-                    <div className="flex flex-col">
-                      <span className="font-medium">{item.customerName}</span>
-                      <span className="text-xs text-danger">{item.daysLate} dia(s) de atraso</span>
-                    </div>
-                    <span className="font-medium tabular-nums">{formatCentsToBRL(item.remainingCents)}</span>
-                  </Link>
+                  <AttentionRow
+                    contractId={item.contractId}
+                    customerId={item.customerId}
+                    customerName={item.customerName}
+                    installmentId={item.installmentId}
+                    installmentNumber={item.installmentNumber}
+                    remainingCents={item.remainingCents}
+                    subtitle={<span className="text-xs text-danger">{item.daysLate} dia(s) de atraso</span>}
+                  />
                 </StaggerItem>
               ))}
             </Stagger>
