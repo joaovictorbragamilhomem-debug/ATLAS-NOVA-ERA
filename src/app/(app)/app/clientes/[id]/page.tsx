@@ -1,11 +1,14 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { PencilIcon, PlusIcon, FileTextIcon } from "lucide-react"
+import { PencilIcon, PlusIcon, FileTextIcon, BellIcon, MessageSquareTextIcon } from "lucide-react"
 import { requireMembership } from "@/lib/auth/current-user"
 import { getCustomerWithContracts } from "@/lib/customers/get-customer-with-contracts"
+import { getOpenInstallmentsForCustomer } from "@/lib/installments/get-open-installments-for-customer"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
-import { formatCPF, formatPhoneBR, e164BRToDigits, formatCentsToBRL } from "@/lib/masks"
+import { RegisterPaymentDialog } from "../../_components/register-payment-dialog"
+import { formatCPF, formatPhoneBR, e164BRToDigits, formatCentsToBRL, formatISODateToBR } from "@/lib/masks"
+import { todayInSaoPauloISODate } from "@/lib/finance/dates"
 
 const PERIODICITY_LABEL: Record<string, string> = {
   weekly: "Semanal",
@@ -29,6 +32,12 @@ export default async function ClienteDetalhePage({ params }: { params: Promise<{
   if (!customer) notFound()
 
   const canCreateContract = membership.role !== "operator"
+
+  const openInstallments = await getOpenInstallmentsForCustomer(id)
+  // Já vem ordenada por vencimento — a primeira é a mais urgente (atrasada
+  // ou a próxima a vencer).
+  const nextInstallment = openInstallments[0] ?? null
+  const isOverdue = nextInstallment !== null && nextInstallment.dueDate < todayInSaoPauloISODate()
 
   const address = [customer.address_street, customer.address_number, customer.address_district, customer.address_city, customer.address_state]
     .filter(Boolean)
@@ -75,6 +84,45 @@ export default async function ClienteDetalhePage({ params }: { params: Promise<{
             <span>{customer.notes}</span>
           </div>
         )}
+      </div>
+
+      <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
+        <div>
+          {nextInstallment ? (
+            <>
+              <p className="text-sm text-muted-foreground">
+                {isOverdue ? "Parcela em atraso" : "Próximo vencimento"} · {formatISODateToBR(nextInstallment.dueDate)}
+              </p>
+              <p className={isOverdue ? "text-lg font-semibold tabular-nums text-danger" : "text-lg font-semibold tabular-nums"}>
+                {formatCentsToBRL(nextInstallment.remainingCents)}
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">Sem parcelas em aberto.</p>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {nextInstallment && (
+            <RegisterPaymentDialog
+              installmentId={nextInstallment.id}
+              installmentNumber={nextInstallment.number}
+              suggestedAmountCents={nextInstallment.remainingCents}
+            />
+          )}
+          {nextInstallment && (
+            <Button
+              size="sm"
+              variant="secondary"
+              nativeButton={false}
+              render={<Link href={`/app/conversas/${id}?lembrete=${nextInstallment.id}`} />}
+            >
+              <BellIcon /> Enviar lembrete
+            </Button>
+          )}
+          <Button size="sm" variant="secondary" nativeButton={false} render={<Link href={`/app/conversas/${id}`} />}>
+            <MessageSquareTextIcon /> Abrir conversa
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col gap-2">

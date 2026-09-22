@@ -6,6 +6,7 @@ const OPEN_STATUSES = ["pending", "partially_paid", "reversed"];
 
 export type OpenInstallmentOption = {
   id: string;
+  number: number;
   dueDate: string;
   remainingCents: number;
 };
@@ -22,7 +23,7 @@ export async function getOpenInstallmentsForCustomer(customerId: string): Promis
   const { data } = await supabase
     .from("installments")
     .select(
-      "id, due_date, amount_cents, paid_amount_cents, status, contracts!inner(customer_id, late_fee_percent, late_interest_monthly_percent)"
+      "id, number, due_date, amount_cents, paid_amount_cents, status, contracts!inner(customer_id, late_fee_percent, late_interest_monthly_percent)"
     )
     .eq("contracts.customer_id", customerId)
     .in("status", OPEN_STATUSES)
@@ -41,6 +42,7 @@ export async function getOpenInstallmentsForCustomer(customerId: string): Promis
     });
     return {
       id: row.id,
+      number: row.number,
       dueDate: row.due_date,
       remainingCents: calculateRemainingBalanceCents(updatedAmountCents, row.paid_amount_cents),
     };

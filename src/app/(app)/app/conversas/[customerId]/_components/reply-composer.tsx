@@ -14,17 +14,19 @@ function ReplyComposer({
   customerId,
   withinWindow,
   openInstallments,
+  initialBody,
 }: {
   customerId: string
   withinWindow: boolean
   openInstallments: OpenInstallmentOption[]
+  initialBody?: string
 }) {
   const boundAction = sendReplyAction.bind(null, customerId) as (
     state: ReplyActionState,
     formData: FormData
   ) => Promise<ReplyActionState>
   const [state, formAction, pending] = useActionState(boundAction, { error: null } as ReplyActionState)
-  const [body, setBody] = React.useState("")
+  const [body, setBody] = React.useState(initialBody ?? "")
   const [selectedInstallment, setSelectedInstallment] = React.useState("")
   const [generatingPix, setGeneratingPix] = React.useState(false)
   const [pixError, setPixError] = React.useState<string | null>(null)
