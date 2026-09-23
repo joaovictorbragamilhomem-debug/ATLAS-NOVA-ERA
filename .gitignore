@@ -49,3 +49,9 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# local MCP config and browser automation output/screenshots
+.mcp.json
+.playwright-mcp/
+*.png
+!public/**/*.png
