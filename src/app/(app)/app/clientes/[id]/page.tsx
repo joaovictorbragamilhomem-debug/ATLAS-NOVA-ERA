@@ -4,9 +4,11 @@ import { PencilIcon, PlusIcon, FileTextIcon, BellIcon, MessageSquareTextIcon } f
 import { requireMembership } from "@/lib/auth/current-user"
 import { getCustomerWithContracts } from "@/lib/customers/get-customer-with-contracts"
 import { getOpenInstallmentsForCustomer } from "@/lib/installments/get-open-installments-for-customer"
+import { getCustomerTimeline } from "@/lib/customers/get-customer-timeline"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { RegisterPaymentDialog } from "../../_components/register-payment-dialog"
+import { CustomerTimeline } from "./_components/customer-timeline"
 import { formatCPF, formatPhoneBR, e164BRToDigits, formatCentsToBRL, formatISODateToBR } from "@/lib/masks"
 import { todayInSaoPauloISODate } from "@/lib/finance/dates"
 
@@ -33,7 +35,10 @@ export default async function ClienteDetalhePage({ params }: { params: Promise<{
 
   const canCreateContract = membership.role !== "operator"
 
-  const openInstallments = await getOpenInstallmentsForCustomer(id)
+  const [openInstallments, timelineEvents] = await Promise.all([
+    getOpenInstallmentsForCustomer(id),
+    getCustomerTimeline(id),
+  ])
   // Já vem ordenada por vencimento — a primeira é a mais urgente (atrasada
   // ou a próxima a vencer).
   const nextInstallment = openInstallments[0] ?? null
@@ -167,6 +172,11 @@ export default async function ClienteDetalhePage({ params }: { params: Promise<{
             ))}
           </ul>
         )}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <h2 className="text-lg font-semibold">Histórico</h2>
+        <CustomerTimeline events={timelineEvents} />
       </div>
     </main>
   )
