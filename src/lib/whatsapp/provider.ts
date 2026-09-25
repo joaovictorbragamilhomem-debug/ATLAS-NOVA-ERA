@@ -3,13 +3,27 @@
 // automação) fala só com essa interface — trocar de provedor no futuro não
 // deveria exigir mexer em mais nada além de um novo arquivo aqui dentro.
 
+import type { PixKeyType } from "@/lib/pix/pix-key";
+
 export type WhatsAppTemplateParam = string;
+
+// Filled into the "Review and pay" button of an order details template.
+export type PixOrderDetails = {
+  referenceId: string;
+  itemName: string;
+  amountCents: number;
+  pixCode: string;
+  merchantName: string;
+  pixKey: string;
+  pixKeyType: PixKeyType;
+};
 
 export type SendTemplateMessageParams = {
   to: string; // E.164, ex.: +5511999998888
   templateName: string;
   templateLanguage: string; // ex.: "pt_BR"
   bodyParams: WhatsAppTemplateParam[]; // valores posicionais, na ordem do modelo
+  pixOrderDetails?: PixOrderDetails;
 };
 
 export type SendTextMessageParams = {

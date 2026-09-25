@@ -23,6 +23,7 @@ export async function createMessageTemplateAction(
   const body = String(formData.get("body") ?? "").trim();
   const metaTemplateName = String(formData.get("metaTemplateName") ?? "").trim() || null;
   const metaTemplateLanguage = String(formData.get("metaTemplateLanguage") ?? "pt_BR").trim() || "pt_BR";
+  const pixPaymentButton = formData.get("pixPaymentButton") === "on";
 
   if (!name) return { error: "Dê um nome para o modelo." };
   if (!body) return { error: "Escreva o texto da mensagem." };
@@ -36,6 +37,7 @@ export async function createMessageTemplateAction(
       body,
       meta_template_name: metaTemplateName,
       meta_template_language: metaTemplateLanguage,
+      pix_payment_button: pixPaymentButton,
     })
     .select("id")
     .single();
@@ -71,6 +73,7 @@ export async function updateMessageTemplateAction(
   const body = String(formData.get("body") ?? "").trim();
   const metaTemplateName = String(formData.get("metaTemplateName") ?? "").trim() || null;
   const metaTemplateLanguage = String(formData.get("metaTemplateLanguage") ?? "pt_BR").trim() || "pt_BR";
+  const pixPaymentButton = formData.get("pixPaymentButton") === "on";
 
   if (!name) return { error: "Dê um nome para o modelo." };
   if (!body) return { error: "Escreva o texto da mensagem." };
@@ -78,7 +81,13 @@ export async function updateMessageTemplateAction(
   const supabase = await getSupabaseServerClient();
   const { error } = await supabase
     .from("message_templates")
-    .update({ name, body, meta_template_name: metaTemplateName, meta_template_language: metaTemplateLanguage })
+    .update({
+      name,
+      body,
+      meta_template_name: metaTemplateName,
+      meta_template_language: metaTemplateLanguage,
+      pix_payment_button: pixPaymentButton,
+    })
     .eq("id", templateId);
 
   if (error) return { error: "Não foi possível salvar o modelo." };

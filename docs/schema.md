@@ -231,6 +231,8 @@ Cada baixa (inclusive parciais) vira uma linha aqui — é o "extrato" da parcel
 | name | text | |
 | body | text | com variáveis `{{nome}}`, `{{valor_parcela}}`, etc. |
 | active | boolean | |
+| meta_template_name / meta_template_language | text | approved template mirrored in WhatsApp Manager |
+| pix_payment_button | boolean | template is an "Order details" one: the send attaches the Pix code and remaining amount to its "Review and pay" button |
 | created_at / updated_at | timestamptz | |
 
 ### `automation_rules`

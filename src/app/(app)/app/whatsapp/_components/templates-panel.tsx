@@ -35,6 +35,7 @@ export type TemplateRow = {
   active: boolean
   metaTemplateName: string | null
   metaTemplateLanguage: string
+  pixPaymentButton: boolean
 }
 
 const initialState: TemplateActionState = { error: null }
@@ -84,6 +85,21 @@ function TemplateFormFields({ defaultValues }: { defaultValues?: TemplateRow }) 
           name="metaTemplateLanguage"
           defaultValue={defaultValues?.metaTemplateLanguage ?? "pt_BR"}
         />
+      </div>
+      <div className="flex flex-col gap-1">
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            name="pixPaymentButton"
+            defaultChecked={defaultValues?.pixPaymentButton ?? false}
+            className="size-4"
+          />
+          Botão de pagamento Pix
+        </label>
+        <p className="text-xs text-muted-foreground">
+          Marque só se o modelo foi criado na Meta como &quot;Detalhes do pedido&quot;. O cliente recebe um botão para
+          ver o valor da parcela e copiar o código Pix. Precisa da chave Pix e da cidade salvas na aba Conexão.
+        </p>
       </div>
     </div>
   )
@@ -203,6 +219,7 @@ function TemplateItem({ template, canEdit }: { template: TemplateRow; canEdit: b
           {template.metaTemplateName && (
             <p className="mt-1 text-xs text-muted-foreground">
               Modelo Meta: <code className="rounded bg-muted px-1">{template.metaTemplateName}</code>
+              {template.pixPaymentButton && " · com botão de pagamento Pix"}
             </p>
           )}
         </div>

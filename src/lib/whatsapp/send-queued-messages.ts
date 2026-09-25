@@ -2,7 +2,8 @@ import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { todayInSaoPauloISODate } from "@/lib/finance/dates";
 import { renderTemplateToPositionalParams } from "@/lib/message-template";
 import { getProviderForOrganization } from "@/lib/whatsapp/get-provider-for-organization";
-import { fetchInstallmentContext, buildVariables } from "@/lib/whatsapp/enqueue";
+import { fetchInstallmentContext, buildVariables, buildPixPayment } from "@/lib/whatsapp/enqueue";
+import type { PixOrderDetails } from "@/lib/whatsapp/provider";
 
 const MAX_ATTEMPTS = 3;
 
@@ -36,7 +37,7 @@ export async function sendQueuedMessages(): Promise<{ sent: number; failed: numb
   const { data: queued } = await admin
     .from("message_queue")
     .select(
-      "id, organization_id, customer_id, installment_id, attempts, automation_rules(send_window_start, send_window_end, skip_sunday), message_templates(body, meta_template_name, meta_template_language), customers(whatsapp)"
+      "id, organization_id, customer_id, installment_id, attempts, automation_rules(send_window_start, send_window_end, skip_sunday), message_templates(body, meta_template_name, meta_template_language, pix_payment_button), customers(whatsapp)"
     )
     .eq("status", "scheduled")
     .lte("scheduled_for", new Date().toISOString())
@@ -48,6 +49,17 @@ export async function sendQueuedMessages(): Promise<{ sent: number; failed: numb
   let sent = 0;
   let failed = 0;
   let heldForWindow = 0;
+
+  const failWithoutRetry = async (item: { id: string; organization_id: string }, error: string) => {
+    await admin.from("message_queue").update({ status: "failed", last_error: error }).eq("id", item.id);
+    await admin.from("message_logs").insert({
+      organization_id: item.organization_id,
+      queue_id: item.id,
+      status: "failed",
+      error,
+    });
+    failed++;
+  };
 
   for (const item of queued ?? []) {
     const rule = unwrap(item.automation_rules);
@@ -66,17 +78,7 @@ export async function sendQueuedMessages(): Promise<{ sent: number; failed: numb
     }
 
     if (!template?.meta_template_name || !customer?.whatsapp) {
-      await admin
-        .from("message_queue")
-        .update({ status: "failed", last_error: "Modelo sem nome aprovado na Meta, ou cliente sem WhatsApp." })
-        .eq("id", item.id);
-      await admin.from("message_logs").insert({
-        organization_id: item.organization_id,
-        queue_id: item.id,
-        status: "failed",
-        error: "Modelo sem nome aprovado na Meta, ou cliente sem WhatsApp.",
-      });
-      failed++;
+      await failWithoutRetry(item, "Modelo sem nome aprovado na Meta, ou cliente sem WhatsApp.");
       continue;
     }
 
@@ -95,11 +97,34 @@ export async function sendQueuedMessages(): Promise<{ sent: number; failed: numb
       ? renderTemplateToPositionalParams(template.body, buildVariables(ctx, today))
       : renderTemplateToPositionalParams(template.body, {});
 
+    let pixOrderDetails: PixOrderDetails | undefined;
+    if (template.pix_payment_button) {
+      const pix = ctx ? buildPixPayment(ctx, today) : null;
+      if (!ctx || !pix?.parsedKey) {
+        await failWithoutRetry(
+          item,
+          "Modelo com botão de pagamento Pix, mas a chave Pix e a cidade não estão configuradas (ou o tipo da chave não foi reconhecido)."
+        );
+        continue;
+      }
+      pixOrderDetails = {
+        // Meta accepts letters, digits, dots, dashes and underscores, up to 35 chars.
+        referenceId: item.id.replaceAll("-", ""),
+        itemName: `Parcela ${ctx.installmentNumber}/${ctx.installmentsCount}`,
+        amountCents: pix.amountCents,
+        pixCode: pix.code,
+        merchantName: ctx.organizationName,
+        pixKey: pix.parsedKey.key,
+        pixKeyType: pix.parsedKey.type,
+      };
+    }
+
     const result = await providerInfo.provider.sendTemplateMessage({
       to: customer.whatsapp,
       templateName: template.meta_template_name,
       templateLanguage: template.meta_template_language,
       bodyParams,
+      pixOrderDetails,
     });
 
     if ("error" in result && result.error) {

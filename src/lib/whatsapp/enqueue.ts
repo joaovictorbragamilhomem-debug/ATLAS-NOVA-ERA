@@ -9,6 +9,7 @@ import {
 import { renderTemplate } from "@/lib/message-template";
 import { formatCentsToBRL, formatISODateToBR } from "@/lib/masks";
 import { buildPixCopiaCola } from "@/lib/pix/emv-br-code";
+import { parsePixKey, type ParsedPixKey } from "@/lib/pix/pix-key";
 
 type InstallmentContext = {
   installmentId: string;
@@ -71,7 +72,7 @@ async function fetchInstallmentContext(
   };
 }
 
-function buildVariables(ctx: InstallmentContext, today: string): Record<string, string> {
+function calculateAmounts(ctx: InstallmentContext, today: string) {
   const updatedAmountCents = calculateUpdatedAmountCents({
     amountCents: ctx.amountCents,
     dueDate: ctx.dueDate,
@@ -79,23 +80,46 @@ function buildVariables(ctx: InstallmentContext, today: string): Record<string, 
     lateFeePercent: ctx.lateFeePercent,
     lateInterestMonthlyPercent: ctx.lateInterestMonthlyPercent,
   });
+  return {
+    updatedAmountCents,
+    remainingCents: calculateRemainingBalanceCents(updatedAmountCents, ctx.paidAmountCents),
+  };
+}
 
-  // Só monta o código Pix quando a organização já configurou chave e
-  // cidade — sem isso, a variável fica vazia (a mensagem continua
-  // funcionando normal, só sem o código de pagamento).
-  let pixCopiaCola = "";
-  if (ctx.pixKey && ctx.pixCity) {
-    try {
-      pixCopiaCola = buildPixCopiaCola({
-        pixKey: ctx.pixKey,
-        merchantName: ctx.organizationName,
-        merchantCity: ctx.pixCity,
-        amountCents: updatedAmountCents,
-      });
-    } catch (err) {
-      console.error("[whatsapp pix_copia_cola]", err);
-    }
+type PixPayment = {
+  code: string;
+  amountCents: number;
+  // null when the key type can't be identified — the code still works (it
+  // uses the key as typed), but the order details button needs the type.
+  parsedKey: ParsedPixKey | null;
+};
+
+// Charges what is still owed (updated amount minus partial payments), the
+// same amount the manual Pix message in Conversas uses.
+function buildPixPayment(ctx: InstallmentContext, today: string): PixPayment | null {
+  if (!ctx.pixKey || !ctx.pixCity) return null;
+
+  const { remainingCents } = calculateAmounts(ctx, today);
+  if (remainingCents <= 0) return null;
+
+  const parsedKey = parsePixKey(ctx.pixKey);
+  try {
+    const code = buildPixCopiaCola({
+      pixKey: parsedKey?.key ?? ctx.pixKey,
+      merchantName: ctx.organizationName,
+      merchantCity: ctx.pixCity,
+      amountCents: remainingCents,
+    });
+    return { code, amountCents: remainingCents, parsedKey };
+  } catch (err) {
+    console.error("[whatsapp pix_copia_cola]", err);
+    return null;
   }
+}
+
+function buildVariables(ctx: InstallmentContext, today: string): Record<string, string> {
+  const { updatedAmountCents, remainingCents } = calculateAmounts(ctx, today);
+  const pixCopiaCola = buildPixPayment(ctx, today)?.code ?? "";
 
   return {
     nome: ctx.customerName,
@@ -105,7 +129,7 @@ function buildVariables(ctx: InstallmentContext, today: string): Record<string, 
     vencimento: formatISODateToBR(ctx.dueDate),
     dias_atraso: String(calculateDaysLate(ctx.dueDate, today)),
     valor_atualizado: formatCentsToBRL(updatedAmountCents),
-    saldo_restante: formatCentsToBRL(calculateRemainingBalanceCents(updatedAmountCents, ctx.paidAmountCents)),
+    saldo_restante: formatCentsToBRL(remainingCents),
     // Só faz sentido pra lembrete antes do vencimento — parcela já vencida
     // fica em 0, não em número negativo.
     dias_para_vencer: String(Math.max(0, daysBetweenISODates(today, ctx.dueDate))),
@@ -227,5 +251,5 @@ export async function enqueuePaymentConfirmationMessage(installmentId: string): 
   });
 }
 
-export { buildVariables, fetchInstallmentContext, findActiveRule, enqueue };
+export { buildVariables, buildPixPayment, fetchInstallmentContext, findActiveRule, enqueue };
 export type { InstallmentContext };

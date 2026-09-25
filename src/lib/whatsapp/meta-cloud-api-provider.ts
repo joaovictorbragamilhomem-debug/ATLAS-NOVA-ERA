@@ -1,4 +1,5 @@
 import type {
+  PixOrderDetails,
   SendMessageResult,
   SendTemplateMessageParams,
   SendTextMessageParams,
@@ -17,6 +18,57 @@ export type MetaCloudApiConfig = {
 // A Meta espera o número sem "+" nem zeros à esquerda depois do DDI.
 function toMetaPhoneFormat(e164: string): string {
   return e164.replace(/^\+/, "");
+}
+
+function metaMoney(cents: number) {
+  return { value: cents, offset: 100 };
+}
+
+// Payload format: developers.facebook.com/documentation/business-messaging/whatsapp/payments/payments-br/orderdetailstemplate
+function buildOrderDetailsButton(order: PixOrderDetails) {
+  return {
+    type: "button",
+    sub_type: "order_details",
+    index: 0,
+    parameters: [
+      {
+        type: "action",
+        action: {
+          order_details: {
+            reference_id: order.referenceId,
+            type: "digital-goods",
+            payment_type: "br",
+            payment_settings: [
+              {
+                type: "pix_dynamic_code",
+                pix_dynamic_code: {
+                  code: order.pixCode,
+                  merchant_name: order.merchantName,
+                  key: order.pixKey,
+                  key_type: order.pixKeyType,
+                },
+              },
+            ],
+            currency: "BRL",
+            total_amount: metaMoney(order.amountCents),
+            order: {
+              status: "pending",
+              tax: metaMoney(0),
+              items: [
+                {
+                  retailer_id: order.referenceId,
+                  name: order.itemName,
+                  amount: metaMoney(order.amountCents),
+                  quantity: 1,
+                },
+              ],
+              subtotal: metaMoney(order.amountCents),
+            },
+          },
+        },
+      },
+    ],
+  };
 }
 
 export function createMetaCloudApiProvider(config: MetaCloudApiConfig): WhatsAppProvider {
@@ -50,7 +102,13 @@ export function createMetaCloudApiProvider(config: MetaCloudApiConfig): WhatsApp
   }
 
   return {
-    async sendTemplateMessage({ to, templateName, templateLanguage, bodyParams }: SendTemplateMessageParams) {
+    async sendTemplateMessage({ to, templateName, templateLanguage, bodyParams, pixOrderDetails }: SendTemplateMessageParams) {
+      const components: unknown[] = [];
+      if (bodyParams.length > 0) {
+        components.push({ type: "body", parameters: bodyParams.map((text) => ({ type: "text", text })) });
+      }
+      if (pixOrderDetails) components.push(buildOrderDetailsButton(pixOrderDetails));
+
       return callMetaApi({
         messaging_product: "whatsapp",
         to: toMetaPhoneFormat(to),
@@ -58,10 +116,7 @@ export function createMetaCloudApiProvider(config: MetaCloudApiConfig): WhatsApp
         template: {
           name: templateName,
           language: { code: templateLanguage },
-          components:
-            bodyParams.length > 0
-              ? [{ type: "body", parameters: bodyParams.map((text) => ({ type: "text", text })) }]
-              : undefined,
+          components: components.length > 0 ? components : undefined,
         },
       });
     },

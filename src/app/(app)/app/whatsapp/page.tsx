@@ -21,7 +21,7 @@ export default async function WhatsAppPage() {
       .maybeSingle(),
     supabase
       .from("message_templates")
-      .select("id, name, body, active, meta_template_name, meta_template_language")
+      .select("id, name, body, active, meta_template_name, meta_template_language, pix_payment_button")
       .eq("organization_id", membership.organizationId)
       .order("name"),
     supabase
@@ -39,6 +39,7 @@ export default async function WhatsAppPage() {
     active: t.active,
     metaTemplateName: t.meta_template_name,
     metaTemplateLanguage: t.meta_template_language,
+    pixPaymentButton: t.pix_payment_button,
   }))
 
   const ruleRows: AutomationRuleRow[] = (rules ?? []).map((r) => {
