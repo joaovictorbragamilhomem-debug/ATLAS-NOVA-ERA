@@ -254,8 +254,8 @@ A fila: o que está agendado para ser enviado.
 | organization_id | uuid → organizations | |
 | customer_id | uuid → customers | |
 | installment_id | uuid → installments, nulo | nulo em gatilhos que não são de parcela |
-| automation_rule_id | uuid → automation_rules | |
-| template_id | uuid → message_templates | |
+| automation_rule_id | uuid → automation_rules, nulo | set to null when the rule is deleted (history is kept) |
+| template_id | uuid → message_templates, nulo | set to null when the template is deleted (history is kept) |
 | trigger_type | text | |
 | scheduled_for | timestamptz | |
 | rendered_body | text | mensagem já com as variáveis preenchidas (uma "foto" do texto no momento do agendamento) |
@@ -266,6 +266,11 @@ A fila: o que está agendado para ser enviado.
 `(installment_id, trigger_type, data do dia agendado)`. Ou seja, é fisicamente
 impossível a mesma parcela receber o mesmo tipo de cobrança duas vezes no
 mesmo dia — mesmo que o robô rode duas vezes por engano.
+
+**Deleting a rule or template:** messages still `scheduled` for it are
+switched to `canceled` before the delete, so nothing is sent for a rule or
+template that no longer exists. A template still used by a rule cannot be
+deleted — delete the rule first.
 
 ### `message_logs`
 Histórico de cada mudança de status de uma mensagem (uma linha por evento).

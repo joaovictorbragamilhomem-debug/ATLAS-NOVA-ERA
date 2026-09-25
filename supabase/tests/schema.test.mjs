@@ -202,6 +202,64 @@ try {
   check("bloqueia a mesma parcela recebendo o mesmo gatilho 2x no mesmo dia", true);
 }
 
+// --- Deleting rules/templates that already have queue history ------------
+const templateR = (await db.query(
+  `insert into message_templates (organization_id, name, body) values ($1, 'Atraso', 'Oi {{nome}}') returning id`,
+  [orgA]
+)).rows[0].id;
+const ruleR = (await db.query(
+  `insert into automation_rules (organization_id, trigger_type, days_offset, template_id) values ($1, 'overdue_after', 1, $2) returning id`,
+  [orgA, templateR]
+)).rows[0].id;
+const sentFromRule = (await db.query(
+  `insert into message_queue (organization_id, customer_id, automation_rule_id, template_id, trigger_type, scheduled_for, rendered_body, status)
+   values ($1, $2, $3, $4, 'overdue_after', now(), 'Oi Cliente A', 'sent') returning id`,
+  [orgA, customerA, ruleR, templateR]
+)).rows[0].id;
+const scheduledFromRule = (await db.query(
+  `insert into message_queue (organization_id, customer_id, automation_rule_id, template_id, trigger_type, scheduled_for, rendered_body)
+   values ($1, $2, $3, $4, 'overdue_after', now(), 'Oi Cliente A') returning id`,
+  [orgA, customerA, ruleR, templateR]
+)).rows[0].id;
+
+await asUser(userA, async () => {
+  try {
+    await db.query(`delete from message_templates where id = $1`, [templateR]);
+    check("template still used by a rule cannot be deleted (should have been blocked)", false);
+  } catch {
+    check("template still used by a rule cannot be deleted", true);
+  }
+});
+
+const afterBlockedDelete = (await db.query(`select status from message_queue where id = $1`, [scheduledFromRule])).rows[0];
+check("blocked template delete leaves scheduled messages untouched", afterBlockedDelete.status === "scheduled");
+
+await asUser(userA, async () => {
+  try {
+    await db.query(`delete from automation_rules where id = $1`, [ruleR]);
+    check("owner can delete a rule that already has queue history", true);
+  } catch (err) {
+    check(`owner can delete a rule that already has queue history (error: ${err.message})`, false);
+  }
+});
+
+const sentRow = (await db.query(`select status, automation_rule_id from message_queue where id = $1`, [sentFromRule])).rows[0];
+const scheduledRow = (await db.query(`select status, automation_rule_id from message_queue where id = $1`, [scheduledFromRule])).rows[0];
+check("sent history is kept after deleting its rule", sentRow?.status === "sent" && sentRow.automation_rule_id === null);
+check("scheduled message of a deleted rule is canceled", scheduledRow?.status === "canceled");
+
+await asUser(userA, async () => {
+  try {
+    await db.query(`delete from message_templates where id = $1`, [templateR]);
+    check("owner can delete a template that only has queue history", true);
+  } catch (err) {
+    check(`owner can delete a template that only has queue history (error: ${err.message})`, false);
+  }
+});
+
+const historyAfterTemplateDelete = (await db.query(`select template_id from message_queue where id = $1`, [sentFromRule])).rows[0];
+check("sent history is kept after deleting its template", historyAfterTemplateDelete?.template_id === null);
+
 // --- Renegociação de contrato --------------------------------------------
 // Reproduz, direto no banco, a mesma sequência de operações que
 // renegotiateContractAction (src/lib/contracts/actions.ts) faz: cria o
