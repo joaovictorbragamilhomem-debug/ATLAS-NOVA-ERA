@@ -108,8 +108,9 @@ export async function sendQueuedMessages(): Promise<{ sent: number; failed: numb
         continue;
       }
       pixOrderDetails = {
-        // Meta accepts letters, digits, dots, dashes and underscores, up to 35 chars.
-        referenceId: item.id.replaceAll("-", ""),
+        // Shown to the customer as the charge number. Meta accepts letters,
+        // digits, dots, dashes and underscores, up to 35 chars.
+        referenceId: `${ctx.installmentNumber}-${ctx.installmentsCount}-${item.id.slice(0, 8).toUpperCase()}`,
         itemName: `Parcela ${ctx.installmentNumber}/${ctx.installmentsCount}`,
         amountCents: pix.amountCents,
         pixCode: pix.code,
