@@ -4,6 +4,7 @@ import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { matchesWhatsAppNumber } from "@/lib/whatsapp/phone-match";
 import { pickConnectionOwner } from "@/lib/whatsapp/pick-connection-owner";
 import { onlyDigits } from "@/lib/masks";
+import { describeStatusErrors, type MetaStatusError } from "@/lib/whatsapp/status-errors";
 
 // Handshake de verificação que a Meta faz uma vez, ao configurar o webhook
 // no painel de desenvolvedor.
@@ -30,7 +31,7 @@ function isValidSignature(rawBody: string, signatureHeader: string | null): bool
   return timingSafeEqual(expectedBuffer, receivedBuffer);
 }
 
-type MetaStatusEntry = { id: string; status: string };
+type MetaStatusEntry = { id: string; status: string; errors?: MetaStatusError[] };
 type MetaInboundMessage = { id: string; from: string; timestamp: string; type: string; text?: { body: string } };
 type MetaChange = {
   value?: {
@@ -67,12 +68,17 @@ export async function POST(request: NextRequest) {
 
       if (!log) continue;
 
-      await admin.from("message_queue").update({ status: statusUpdate.status }).eq("id", log.queue_id);
+      const error = describeStatusErrors(statusUpdate.errors);
+      await admin
+        .from("message_queue")
+        .update(error ? { status: statusUpdate.status, last_error: error } : { status: statusUpdate.status })
+        .eq("id", log.queue_id);
       await admin.from("message_logs").insert({
         organization_id: log.organization_id,
         queue_id: log.queue_id,
         status: statusUpdate.status,
         provider_message_id: statusUpdate.id,
+        error,
       });
     }
   }
