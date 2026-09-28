@@ -26,7 +26,7 @@ export default async function WhatsAppPage() {
       .order("name"),
     supabase
       .from("automation_rules")
-      .select("id, trigger_type, days_offset, active, send_window_start, send_window_end, skip_sunday, template_id, message_templates(name)")
+      .select("id, trigger_type, days_offset, active, skip_sunday, template_id, message_templates(name)")
       .eq("organization_id", membership.organizationId)
       .order("trigger_type"),
     getMessageQueue(membership.organizationId),
@@ -49,8 +49,6 @@ export default async function WhatsAppPage() {
       triggerType: r.trigger_type,
       daysOffset: r.days_offset,
       active: r.active,
-      sendWindowStart: r.send_window_start,
-      sendWindowEnd: r.send_window_end,
       skipSunday: r.skip_sunday,
       templateId: r.template_id,
       templateName: template?.name ?? "—",

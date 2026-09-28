@@ -109,13 +109,14 @@ devem — o ATLAS nunca guarda ou movimenta esse dinheiro.
    [sandbox.asaas.com](https://sandbox.asaas.com).
 3. Em **Integrações → API Key**, copie a chave e cole em `ASAAS_API_KEY`.
    Deixe `ASAAS_ENV=sandbox` por enquanto.
-4. Em **Integrações → Webhooks**, você vai cadastrar a URL
-   `https://SEUDOMINIO/api/webhooks/asaas` — faremos isso juntos na Fase 3,
-   quando essa rota existir. Nessa mesma tela você define um token; cole-o
-   em `ASAAS_WEBHOOK_SECRET`.
-5. Quando tudo estiver testado, trocamos para a chave de produção e
+4. Em **Integrações → Webhooks**, cadastre a URL
+   `https://www.atlasnovaera.com.br/api/webhooks/asaas` (com `www`). Nessa
+   mesma tela você define um token; cole-o em `ASAAS_WEBHOOK_SECRET`.
+5. Quando tudo estiver testado, troque para a chave de produção e
    `ASAAS_ENV=production`.
-   (valores dos planos Mensal, Anual e Vitalício já definidos e em produção)
+
+(já feito — conta de produção aprovada, `ASAAS_ENV=production` na Vercel,
+webhook ativo e planos Mensal, Anual e Vitalício em produção)
 
 ## 5. Resend (envio de e-mails)
 
@@ -129,11 +130,37 @@ devem — o ATLAS nunca guarda ou movimenta esse dinheiro.
 
 1. Domínio já comprado: `atlasnovaera.com.br` (registro.br).
 2. Na Vercel, vá em **Project Settings → Domains** e adicione o domínio.
-   (já feito — falta só cadastrar os registros DNS abaixo)
 3. A Vercel vai te mostrar registros DNS (tipo `A` ou `CNAME`) para colocar
    no painel de onde você comprou o domínio (Registro.br, etc.).
 4. Para o Resend enviar e-mail pelo seu domínio, adicione também os
    registros `DKIM`/`SPF` que o Resend mostrar na tela de verificação.
+
+(já feito — site no ar com HTTPS em `atlasnovaera.com.br` e `www`, domínio
+verificado na Resend e na Meta)
+
+## 7. WhatsApp (API oficial da Meta)
+
+Cobrança automática e Central de conversas usam a WhatsApp Cloud API. Os
+passos que não têm botão em nenhuma tela da Meta (e por isso são fáceis de
+esquecer):
+
+1. **Usuário do sistema** no Business Suite com acesso total à conta do
+   WhatsApp; gere o token permanente por ele (nunca pelo seu usuário pessoal).
+2. **Inscrever o app na conta do WhatsApp** (`POST /{id-da-conta}/subscribed_apps`)
+   — sem isso o webhook nunca recebe mensagens reais.
+3. **Registrar o número** (`POST /{phone-number-id}/register` com um PIN de 6
+   dígitos) — sem isso ele fica "Pendente" para sempre.
+4. **Forma de pagamento** na conta do WhatsApp (Cobrança e pagamentos → aba
+   "Contas do WhatsApp Business"), moeda BRL.
+5. **Modelos de mensagem**: categoria **Utilidade**, idioma **Portuguese (BR)**,
+   tipo de variável **Número**, sem mídia. Texto factual de cobrança (sem
+   saudação nem "é só responder"), senão a Meta reclassifica como Marketing.
+   Para o botão de Pix, use o tipo **Detalhes do pedido**.
+6. No ATLAS (**WhatsApp → Modelos de mensagem**), cada modelo precisa das
+   mesmas variáveis **na mesma ordem** do modelo aprovado na Meta.
+
+A cobrança automática roda **uma vez por dia, entre 9h e 10h** (horário de
+Brasília) — limite do plano gratuito da Vercel.
 
 ---
 
@@ -158,13 +185,12 @@ e em qual fase ela passa a ser usada.
 - [x] Fase 0 — Preparação
 - [x] Fase 1 — Identidade visual e design system (veja `/design` rodando o projeto)
 - [x] Fase 2 — Site de vendas
-- [x] Fase 3 — Contas, equipe e assinatura (login/cadastro, convite de equipe e Asaas prontos;
-      falta só o envio de e-mail pelo Resend funcionar de verdade — depende do domínio
-      próprio estar com DNS configurado, ver seção 6)
+- [x] Fase 3 — Contas, equipe e assinatura (login/cadastro, convite de equipe, Asaas em
+      produção e e-mails pelo Resend com o domínio próprio)
 - [x] Fase 4 — Clientes, contratos e parcelas (inclui dashboard, calendário, relatórios,
       ficha pública de captação, importação por CSV e renegociação de contrato)
-- [x] Fase 5 — WhatsApp e cobrança automática (API oficial da Meta; falta concluir a
-      verificação da empresa na Meta para as mensagens saírem do modo de teste)
+- [x] Fase 5 — WhatsApp e cobrança automática (API oficial da Meta, empresa verificada,
+      número conectado, modelos aprovados e botão de pagamento Pix — ver seção 7)
 - [x] Fase 6 — Central de conversas (`/app/conversas`; mensagens recebidas + resposta
       livre respeitando a janela de 24h da Meta, com o contrato do cliente do lado)
 - [x] Fase 7 — App instalável no celular (manifesto + ícones; "acabamento" visual

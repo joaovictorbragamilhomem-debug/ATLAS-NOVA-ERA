@@ -18,23 +18,22 @@ const TRIGGER_TYPES = [
 
 const TRIGGERS_WITH_DAYS_OFFSET = new Set(["reminder_before", "overdue_after", "renegotiation_offer"]);
 
-export async function createAutomationRuleAction(
-  _prev: AutomationRuleActionState,
-  formData: FormData
-): Promise<AutomationRuleActionState> {
-  const membership = await getCurrentMembership();
-  if (!membership) return { error: "Sessão expirada — entre novamente." };
-  if (membership.role === "operator") return { error: "Só Dono ou Gestor podem configurar a cobrança automática." };
+// The cron runs once a day between 09:00 and 10:00 (America/Sao_Paulo), so a
+// custom send window could only ever block messages for good. Rules keep the
+// wide default window; the form no longer asks for it.
+const DEFAULT_SEND_WINDOW = { send_window_start: "08:00", send_window_end: "20:00" };
 
-  const blocked = await assertOrganizationIsWritable(membership.organizationId);
-  if (blocked) return { error: blocked };
+type RuleFields = {
+  trigger_type: string;
+  days_offset: number | null;
+  template_id: string;
+  skip_sunday: boolean;
+};
 
+function parseRuleForm(formData: FormData): { error: string } | { fields: RuleFields } {
   const triggerType = String(formData.get("triggerType") ?? "");
   const templateId = String(formData.get("templateId") ?? "");
   const daysOffsetRaw = String(formData.get("daysOffset") ?? "").trim();
-  const sendWindowStart = String(formData.get("sendWindowStart") ?? "08:00");
-  const sendWindowEnd = String(formData.get("sendWindowEnd") ?? "20:00");
-  const skipSunday = formData.get("skipSunday") === "on";
 
   if (!TRIGGER_TYPES.includes(triggerType as (typeof TRIGGER_TYPES)[number])) {
     return { error: "Escolha um tipo de gatilho válido." };
@@ -47,20 +46,72 @@ export async function createAutomationRuleAction(
     return { error: "Informe quantos dias antes/depois esse gatilho dispara." };
   }
 
+  return {
+    fields: {
+      trigger_type: triggerType,
+      days_offset: daysOffset,
+      template_id: templateId,
+      skip_sunday: formData.get("skipSunday") === "on",
+    },
+  };
+}
+
+const DUPLICATE_RULE_ERROR = "Já existe uma regra igual a essa (mesmo gatilho e mesmos dias).";
+
+export async function createAutomationRuleAction(
+  _prev: AutomationRuleActionState,
+  formData: FormData
+): Promise<AutomationRuleActionState> {
+  const membership = await getCurrentMembership();
+  if (!membership) return { error: "Sessão expirada — entre novamente." };
+  if (membership.role === "operator") return { error: "Só Dono ou Gestor podem configurar a cobrança automática." };
+
+  const blocked = await assertOrganizationIsWritable(membership.organizationId);
+  if (blocked) return { error: blocked };
+
+  const parsed = parseRuleForm(formData);
+  if ("error" in parsed) return { error: parsed.error };
+
   const supabase = await getSupabaseServerClient();
   const { error } = await supabase.from("automation_rules").insert({
     organization_id: membership.organizationId,
-    trigger_type: triggerType,
-    days_offset: daysOffset,
-    template_id: templateId,
-    send_window_start: sendWindowStart,
-    send_window_end: sendWindowEnd,
-    skip_sunday: skipSunday,
+    ...parsed.fields,
+    ...DEFAULT_SEND_WINDOW,
   });
 
   if (error) {
-    if (error.code === "23505") return { error: "Já existe uma regra igual a essa (mesmo gatilho e mesmos dias)." };
+    if (error.code === "23505") return { error: DUPLICATE_RULE_ERROR };
     return { error: "Não foi possível criar a regra." };
+  }
+
+  revalidatePath("/app/whatsapp");
+  return { error: null };
+}
+
+export async function updateAutomationRuleAction(
+  ruleId: string,
+  _prev: AutomationRuleActionState,
+  formData: FormData
+): Promise<AutomationRuleActionState> {
+  const membership = await getCurrentMembership();
+  if (!membership) return { error: "Sessão expirada — entre novamente." };
+  if (membership.role === "operator") return { error: "Só Dono ou Gestor podem configurar a cobrança automática." };
+
+  const blocked = await assertOrganizationIsWritable(membership.organizationId);
+  if (blocked) return { error: blocked };
+
+  const parsed = parseRuleForm(formData);
+  if ("error" in parsed) return { error: parsed.error };
+
+  const supabase = await getSupabaseServerClient();
+  const { error } = await supabase
+    .from("automation_rules")
+    .update({ ...parsed.fields, ...DEFAULT_SEND_WINDOW })
+    .eq("id", ruleId);
+
+  if (error) {
+    if (error.code === "23505") return { error: DUPLICATE_RULE_ERROR };
+    return { error: "Não foi possível salvar a regra." };
   }
 
   revalidatePath("/app/whatsapp");
