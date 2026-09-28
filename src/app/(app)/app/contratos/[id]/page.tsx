@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { formatCentsToBRL } from "@/lib/masks"
 import { todayInSaoPauloISODate } from "@/lib/finance/dates"
 import { InstallmentsList } from "./_components/installments-list"
+import { getChargeLinks } from "@/lib/whatsapp/get-charge-links"
 
 const PERIODICITY_LABEL: Record<string, string> = {
   weekly: "Semanal",
@@ -47,6 +48,10 @@ export default async function ContratoDetalhePage({ params }: { params: Promise<
     installmentIds.length > 0
       ? await supabase.from("payments").select("*").in("installment_id", installmentIds).order("paid_at")
       : { data: [] }
+
+  const chargeLinks = await getChargeLinks(
+    (installments ?? []).filter((i) => OPEN_INSTALLMENT_STATUSES.includes(i.status)).map((i) => i.id)
+  )
 
   const totalReceivedCents = (installments ?? []).reduce((sum, i) => sum + i.paid_amount_cents, 0)
   const hasOpenInstallments = (installments ?? []).some((i) => OPEN_INSTALLMENT_STATUSES.includes(i.status))
@@ -118,6 +123,7 @@ export default async function ContratoDetalhePage({ params }: { params: Promise<
           }}
           installments={installments ?? []}
           payments={payments ?? []}
+          chargeLinks={chargeLinks}
           todayISODate={todayInSaoPauloISODate()}
           canReverse={membership.role !== "operator"}
         />

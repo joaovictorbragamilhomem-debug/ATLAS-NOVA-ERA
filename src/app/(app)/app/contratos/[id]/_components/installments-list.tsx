@@ -22,6 +22,8 @@ import { calculateUpdatedAmountCents, calculateRemainingBalanceCents } from "@/l
 import { getInstallmentVisualStatus, type InstallmentDbStatus } from "@/lib/installments/visual-status"
 import { reverseInstallmentPaymentAction } from "@/lib/installments/actions"
 import { RegisterPaymentDialog, PAYMENT_METHOD_LABEL, type PaymentMethod } from "../../../_components/register-payment-dialog"
+import { WhatsAppChargeDialog } from "../../../_components/whatsapp-charge-dialog"
+import type { ChargeLinks } from "@/lib/whatsapp/get-charge-links"
 
 export type InstallmentRowData = {
   id: string
@@ -110,6 +112,7 @@ function PaymentHistoryItem({ payment, canReverse }: { payment: PaymentRowData; 
 function InstallmentRow({
   installment,
   payments,
+  chargeLinks,
   lateFeePercent,
   lateInterestMonthlyPercent,
   todayISODate,
@@ -117,6 +120,7 @@ function InstallmentRow({
 }: {
   installment: InstallmentRowData
   payments: PaymentRowData[]
+  chargeLinks?: ChargeLinks
   lateFeePercent: number
   lateInterestMonthlyPercent: number
   todayISODate: string
@@ -151,6 +155,7 @@ function InstallmentRow({
               </p>
             )}
           </div>
+          {isPayable && chargeLinks && <WhatsAppChargeDialog links={chargeLinks} compact />}
           {isPayable && (
             <RegisterPaymentDialog
               installmentId={installment.id}
@@ -176,11 +181,12 @@ type InstallmentsListProps = {
   contract: { id: string; lateFeePercent: number; lateInterestMonthlyPercent: number }
   installments: InstallmentRowData[]
   payments: PaymentRowData[]
+  chargeLinks: Record<string, ChargeLinks>
   todayISODate: string
   canReverse: boolean
 }
 
-function InstallmentsList({ contract, installments, payments, todayISODate, canReverse }: InstallmentsListProps) {
+function InstallmentsList({ contract, installments, payments, chargeLinks, todayISODate, canReverse }: InstallmentsListProps) {
   return (
     <ul className="flex flex-col gap-2">
       {installments.map((installment) => (
@@ -188,6 +194,7 @@ function InstallmentsList({ contract, installments, payments, todayISODate, canR
           key={installment.id}
           installment={installment}
           payments={payments.filter((p) => p.installment_id === installment.id)}
+          chargeLinks={chargeLinks[installment.id]}
           lateFeePercent={contract.lateFeePercent}
           lateInterestMonthlyPercent={contract.lateInterestMonthlyPercent}
           todayISODate={todayISODate}

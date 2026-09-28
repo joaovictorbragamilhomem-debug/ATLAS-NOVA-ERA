@@ -2,7 +2,9 @@ import Link from "next/link"
 import { BellIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { RegisterPaymentDialog } from "./register-payment-dialog"
+import { WhatsAppChargeDialog } from "./whatsapp-charge-dialog"
 import { formatCentsToBRL } from "@/lib/masks"
+import type { ChargeLinks } from "@/lib/whatsapp/get-charge-links"
 
 type AttentionRowProps = {
   contractId: string
@@ -11,6 +13,7 @@ type AttentionRowProps = {
   installmentId: string
   installmentNumber: number
   remainingCents: number
+  chargeLinks?: ChargeLinks
   subtitle: React.ReactNode
 }
 
@@ -23,6 +26,7 @@ function AttentionRow({
   installmentId,
   installmentNumber,
   remainingCents,
+  chargeLinks,
   subtitle,
 }: AttentionRowProps) {
   return (
@@ -39,6 +43,7 @@ function AttentionRow({
           suggestedAmountCents={remainingCents}
           triggerVariant="secondary"
         />
+        {chargeLinks && <WhatsAppChargeDialog links={chargeLinks} compact />}
         <Button
           size="icon-sm"
           variant="ghost"

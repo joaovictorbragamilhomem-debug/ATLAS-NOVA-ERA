@@ -8,6 +8,8 @@ import { getCustomerTimeline } from "@/lib/customers/get-customer-timeline"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { RegisterPaymentDialog } from "../../_components/register-payment-dialog"
+import { WhatsAppChargeDialog } from "../../_components/whatsapp-charge-dialog"
+import { getChargeLinks } from "@/lib/whatsapp/get-charge-links"
 import { CustomerTimeline } from "./_components/customer-timeline"
 import { formatCPF, formatPhoneBR, e164BRToDigits, formatCentsToBRL, formatISODateToBR } from "@/lib/masks"
 import { todayInSaoPauloISODate } from "@/lib/finance/dates"
@@ -43,6 +45,7 @@ export default async function ClienteDetalhePage({ params }: { params: Promise<{
   // ou a próxima a vencer).
   const nextInstallment = openInstallments[0] ?? null
   const isOverdue = nextInstallment !== null && nextInstallment.dueDate < todayInSaoPauloISODate()
+  const nextChargeLinks = nextInstallment ? (await getChargeLinks([nextInstallment.id]))[nextInstallment.id] : undefined
 
   const address = [customer.address_street, customer.address_number, customer.address_district, customer.address_city, customer.address_state]
     .filter(Boolean)
@@ -114,6 +117,7 @@ export default async function ClienteDetalhePage({ params }: { params: Promise<{
               suggestedAmountCents={nextInstallment.remainingCents}
             />
           )}
+          {nextChargeLinks && <WhatsAppChargeDialog links={nextChargeLinks} />}
           {nextInstallment && (
             <Button
               size="sm"

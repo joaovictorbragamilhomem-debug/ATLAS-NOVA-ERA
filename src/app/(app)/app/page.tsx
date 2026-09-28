@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Stagger, StaggerItem } from "@/components/ui/stagger"
 import { getDashboardStats } from "@/lib/dashboard/get-dashboard-stats"
+import { getChargeLinks } from "@/lib/whatsapp/get-charge-links"
 import { getOnboardingSteps } from "@/lib/onboarding/get-onboarding-steps"
 import { OnboardingChecklist } from "./_components/onboarding-checklist"
 import { AttentionRow } from "./_components/attention-row"
@@ -23,6 +24,7 @@ export default async function AppHomePage() {
 
   const subscription = await getSubscriptionStatus(membership.organizationId)
   const stats = await getDashboardStats(membership.organizationId)
+  const chargeLinks = await getChargeLinks([...stats.upcoming, ...stats.biggestOverdue].map((i) => i.installmentId))
   // Em modo somente leitura a pessoa não consegue criar nada, então o checklist só atrapalharia.
   const onboardingSteps = subscription?.isReadOnly ? [] : await getOnboardingSteps(membership.organizationId, membership.role)
 
@@ -110,6 +112,7 @@ export default async function AppHomePage() {
                     installmentId={item.installmentId}
                     installmentNumber={item.installmentNumber}
                     remainingCents={item.remainingCents}
+                    chargeLinks={chargeLinks[item.installmentId]}
                     subtitle={<span className="text-xs text-muted-foreground">{formatISODateToBR(item.dueDate)}</span>}
                   />
                 </StaggerItem>
@@ -133,6 +136,7 @@ export default async function AppHomePage() {
                     installmentId={item.installmentId}
                     installmentNumber={item.installmentNumber}
                     remainingCents={item.remainingCents}
+                    chargeLinks={chargeLinks[item.installmentId]}
                     subtitle={<span className="text-xs text-danger">{item.daysLate} dia(s) de atraso</span>}
                   />
                 </StaggerItem>
