@@ -1,36 +1,15 @@
-import Link from "next/link"
 import { SearchIcon } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
-
-const LINKS = [
-  { href: "/app", label: "Início" },
-  { href: "/app/clientes", label: "Clientes" },
-  { href: "/app/fichas", label: "Fichas" },
-  { href: "/app/calendario", label: "Calendário" },
-  { href: "/app/relatorios", label: "Relatórios" },
-  { href: "/app/whatsapp", label: "WhatsApp" },
-  { href: "/app/conversas", label: "Conversas" },
-  { href: "/app/equipe", label: "Equipe" },
-  { href: "/app/assinatura", label: "Assinatura" },
-]
+import { AppNavLinks } from "./app-nav-links"
 
 function AppNav() {
   return (
-    <nav className="border-b border-border bg-card print:hidden">
+    <nav aria-label="Menu principal" className="border-b border-border bg-card print:hidden">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4">
-        <div className="flex items-center gap-1 overflow-x-auto">
-          {LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="whitespace-nowrap px-3 py-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:px-4"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
+        <AppNavLinks />
         <form action="/app/clientes" className="hidden shrink-0 xl:block">
           <label className="relative block">
+            <span className="sr-only">Buscar cliente</span>
             <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="search"

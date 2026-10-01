@@ -11,7 +11,7 @@ import { getOnboardingSteps } from "@/lib/onboarding/get-onboarding-steps"
 import { OnboardingChecklist } from "./_components/onboarding-checklist"
 import { AttentionRow } from "./_components/attention-row"
 import { formatCentsToBRL, formatISODateToBR } from "@/lib/masks"
-import { CalendarCheck2Icon } from "lucide-react"
+import { CalendarCheck2Icon, PlusIcon, UsersIcon } from "lucide-react"
 
 const ROLE_LABEL: Record<string, string> = {
   owner: "Dono",
@@ -65,7 +65,7 @@ export default async function AppHomePage() {
 
       {subscription?.status === "trialing" && !subscription.isReadOnly && (
         <p className="text-sm text-muted-foreground">
-          Teste grátis: {subscription.trialDaysLeft} dia(s) restante(s).{" "}
+          Teste grátis: {subscription.trialDaysLeft === 1 ? "falta 1 dia" : `faltam ${subscription.trialDaysLeft} dias`}.{" "}
           <Link href="/app/assinatura" className="font-medium text-foreground underline-offset-4 hover:underline">
             Ver planos
           </Link>
@@ -74,27 +74,38 @@ export default async function AppHomePage() {
 
       <OnboardingChecklist steps={onboardingSteps} />
 
+      {!subscription?.isReadOnly && (
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <Button size="lg" nativeButton={false} render={<Link href="/app/clientes/novo" />}>
+            <PlusIcon aria-hidden="true" /> Cadastrar cliente
+          </Button>
+          <Button size="lg" variant="secondary" nativeButton={false} render={<Link href="/app/clientes" />}>
+            <UsersIcon aria-hidden="true" /> Ver meus clientes
+          </Button>
+        </div>
+      )}
+
       <Stagger className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StaggerItem className="rounded-lg border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">A receber no mês</p>
+          <p className="text-xs text-muted-foreground">Para receber este mês</p>
           <p className="mt-1 text-lg font-semibold tabular-nums">
             {formatCentsToBRL(stats.receivableThisMonthCents)}
           </p>
         </StaggerItem>
         <StaggerItem className="rounded-lg border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">Recebido no mês</p>
+          <p className="text-xs text-muted-foreground">Já recebido este mês</p>
           <p className="mt-1 text-lg font-semibold tabular-nums">
             {formatCentsToBRL(stats.receivedThisMonthCents)}
           </p>
         </StaggerItem>
         <StaggerItem className="rounded-lg border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">Em atraso</p>
+          <p className="text-xs text-muted-foreground">Atrasado (total)</p>
           <p className="mt-1 text-lg font-semibold tabular-nums text-danger">
             {formatCentsToBRL(stats.overdueCents)}
           </p>
         </StaggerItem>
         <StaggerItem className="rounded-lg border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">Carteira ativa</p>
+          <p className="text-xs text-muted-foreground">Falta receber (todos os contratos)</p>
           <p className="mt-1 text-lg font-semibold tabular-nums">
             {formatCentsToBRL(stats.activePortfolioCents)}
           </p>
@@ -105,7 +116,11 @@ export default async function AppHomePage() {
         <div className="flex flex-col gap-2">
           <h2 className="text-lg font-semibold">Próximos vencimentos</h2>
           {stats.upcoming.length === 0 ? (
-            <EmptyState icon={CalendarCheck2Icon} title="Nada vencendo em breve" />
+            <EmptyState
+              icon={CalendarCheck2Icon}
+              title="Nada vencendo em breve"
+              description="Quando você criar um contrato, as próximas parcelas aparecem aqui."
+            />
           ) : (
             <Stagger as="ul" delay={0.1} step={0.04} className="flex flex-col gap-2">
               {stats.upcoming.map((item) => (
@@ -127,9 +142,13 @@ export default async function AppHomePage() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <h2 className="text-lg font-semibold">Maiores atrasos</h2>
+          <h2 className="text-lg font-semibold">Clientes atrasados</h2>
           {stats.biggestOverdue.length === 0 ? (
-            <EmptyState icon={CalendarCheck2Icon} title="Nenhuma parcela atrasada" />
+            <EmptyState
+              icon={CalendarCheck2Icon}
+              title="Ninguém atrasado"
+              description="Todas as parcelas vencidas já foram pagas."
+            />
           ) : (
             <Stagger as="ul" delay={0.1} step={0.04} className="flex flex-col gap-2">
               {stats.biggestOverdue.map((item) => (
@@ -142,7 +161,7 @@ export default async function AppHomePage() {
                     installmentNumber={item.installmentNumber}
                     remainingCents={item.remainingCents}
                     chargeLinks={chargeLinks[item.installmentId]}
-                    subtitle={<span className="text-xs text-danger">{item.daysLate} dia(s) de atraso</span>}
+                    subtitle={<span className="text-xs text-danger">{item.daysLate === 1 ? "1 dia de atraso" : `${item.daysLate} dias de atraso`}</span>}
                   />
                 </StaggerItem>
               ))}

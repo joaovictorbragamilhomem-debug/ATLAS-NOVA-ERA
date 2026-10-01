@@ -77,7 +77,8 @@ export async function createCustomerAction(_prev: CustomerActionState, formData:
 
   if (error) {
     if (error.code === "23505") return { error: "Já existe um cliente com esse CPF nesta conta." }
-    return { error: error.message }
+    console.error("customer save failed", error)
+    return { error: "Não foi possível salvar o cliente. Confira os dados e tente de novo." }
   }
 
   await logAudit({
@@ -115,7 +116,8 @@ export async function updateCustomerAction(
 
   if (error) {
     if (error.code === "23505") return { error: "Já existe um cliente com esse CPF nesta conta." }
-    return { error: error.message }
+    console.error("customer save failed", error)
+    return { error: "Não foi possível salvar o cliente. Confira os dados e tente de novo." }
   }
 
   await logAudit({
