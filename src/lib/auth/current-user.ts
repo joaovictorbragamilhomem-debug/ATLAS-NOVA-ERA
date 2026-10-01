@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -12,7 +13,10 @@ export type CurrentMembership = {
 // A organização "atual" do usuário logado — por enquanto, uma pessoa
 // pertence a uma única organização (o convite de equipe reusa o mesmo
 // vínculo). Devolve `null` se não estiver logado ou não tiver organização.
-export async function getCurrentMembership(): Promise<CurrentMembership | null> {
+// Wrapped in React cache(): the layout and the page both ask for it on the
+// same request, and without dedupe each call paid for its own getUser()
+// round-trip to Supabase Auth plus the memberships query.
+export const getCurrentMembership = cache(async (): Promise<CurrentMembership | null> => {
   const supabase = await getSupabaseServerClient();
   const {
     data: { user },
@@ -40,7 +44,7 @@ export async function getCurrentMembership(): Promise<CurrentMembership | null> 
     organizationName: org.name,
     role: data.role as CurrentMembership["role"],
   };
-}
+});
 
 // Use no lugar de `if (!membership) redirect("/app/entrar")` em toda página
 // que exige organização. Sessão válida sem vínculo ativo (ex.: removido da
