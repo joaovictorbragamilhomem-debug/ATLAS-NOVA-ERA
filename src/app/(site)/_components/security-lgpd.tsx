@@ -21,7 +21,7 @@ const ITEMS = [
   {
     icon: LandmarkIcon,
     title: "Não somos um banco",
-    description: "O ATLAS registra, calcula e ajuda a cobrar. Não empresta nem movimenta dinheiro de ninguém.",
+    description: "O ATLAS registra, calcula e ajuda a cobrar. Não guarda nem movimenta dinheiro de ninguém.",
   },
 ]
 

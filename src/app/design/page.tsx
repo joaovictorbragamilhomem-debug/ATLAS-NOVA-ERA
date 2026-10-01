@@ -289,7 +289,7 @@ export default function DesignPage() {
           </CardHeader>
           <CardContent className="flex flex-col gap-1 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Valor emprestado</span>
+              <span className="text-muted-foreground">Valor total</span>
               <span className="tabular-nums">{formatCentsToBRL(300000)}</span>
             </div>
             <div className="flex justify-between">

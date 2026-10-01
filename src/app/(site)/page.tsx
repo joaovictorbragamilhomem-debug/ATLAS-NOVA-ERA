@@ -60,7 +60,7 @@ export default function HomePage() {
     operatingSystem: "Web",
     url: SITE_URL,
     description:
-      "Painel para gestão de empréstimos, parcelas e cobrança automática pelo WhatsApp.",
+      "Painel para gestão de crediário, fiado, parcelas e cobrança pelo WhatsApp.",
     ...(offers.length > 0 ? { offers } : {}),
   }
 

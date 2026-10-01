@@ -14,8 +14,8 @@ function SiteFooter() {
               </span>
             </span>
             <p className="max-w-sm text-sm text-muted-foreground">
-              Gestão de empréstimos, parcelas e cobrança automática pelo WhatsApp. Não somos um
-              banco: não emprestamos, não guardamos e não movimentamos dinheiro de ninguém.
+              Gestão de crediário, fiado e parcelas, com cobrança pelo WhatsApp. Não somos banco
+              nem financeira: não guardamos e não movimentamos dinheiro de ninguém.
             </p>
           </div>
 

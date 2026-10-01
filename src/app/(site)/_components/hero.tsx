@@ -33,8 +33,8 @@ function Hero() {
             </AnimateIn>
             <AnimateIn delay={0.12}>
               <p className="max-w-md text-lg text-pretty text-muted-foreground">
-                Organize clientes, contratos e parcelas num só lugar — e deixe o WhatsApp lembrar,
-                cobrar e confirmar pagamento no horário certo, sozinho.
+                Organize o crediário e o fiado num só lugar — veja quem vence hoje e mande a cobrança
+                pronta no WhatsApp, educada, com o valor certo e o Pix.
               </p>
             </AnimateIn>
 

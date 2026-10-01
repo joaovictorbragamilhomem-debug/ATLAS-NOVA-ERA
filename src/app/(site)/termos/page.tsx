@@ -22,8 +22,8 @@ export default function TermosPage() {
             WhatsApp.
           </p>
           <p>
-            O ATLAS <strong>não é uma instituição financeira</strong>: não empresta, não guarda e
-            não movimenta dinheiro de clientes de ninguém. O sistema apenas registra, calcula e
+            O ATLAS <strong>não é uma instituição financeira</strong>: não guarda e não movimenta
+            dinheiro de clientes de ninguém. O sistema apenas registra, calcula e
             ajuda a cobrar valores que já existem em contratos criados pelo próprio assinante.
           </p>
         </section>
