@@ -22,11 +22,16 @@ const ROLE_LABEL: Record<string, string> = {
 export default async function AppHomePage() {
   const membership = await requireMembership()
 
-  const subscription = await getSubscriptionStatus(membership.organizationId)
-  const stats = await getDashboardStats(membership.organizationId)
+  // Independent queries run together instead of one after the other — each
+  // await is a full round-trip to Supabase.
+  const [subscription, stats, allOnboardingSteps] = await Promise.all([
+    getSubscriptionStatus(membership.organizationId),
+    getDashboardStats(membership.organizationId),
+    getOnboardingSteps(membership.organizationId, membership.role),
+  ])
   const chargeLinks = await getChargeLinks([...stats.upcoming, ...stats.biggestOverdue].map((i) => i.installmentId))
   // Em modo somente leitura a pessoa não consegue criar nada, então o checklist só atrapalharia.
-  const onboardingSteps = subscription?.isReadOnly ? [] : await getOnboardingSteps(membership.organizationId, membership.role)
+  const onboardingSteps = subscription?.isReadOnly ? [] : allOnboardingSteps
 
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-4 py-10">

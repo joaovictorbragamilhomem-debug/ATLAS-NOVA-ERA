@@ -26,41 +26,35 @@ const OPEN_INSTALLMENT_STATUSES = ["pending", "partially_paid", "reversed"]
 
 export default async function ContratoDetalhePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const membership = await requireMembership()
-
   const supabase = await getSupabaseServerClient()
-  const { data: contract } = await supabase
-    .from("contracts")
-    .select("*, customers(id, name)")
-    .eq("id", id)
-    .maybeSingle()
+
+  // Everything that only needs the contract id runs together; payments and
+  // charge links wait for the installment ids. Each await used to be its own
+  // sequential round-trip to Supabase.
+  const [membership, { data: contract }, { data: installments }, { data: successor }] = await Promise.all([
+    requireMembership(),
+    supabase.from("contracts").select("*, customers(id, name)").eq("id", id).maybeSingle(),
+    supabase.from("installments").select("*").eq("contract_id", id).order("number"),
+    supabase.from("contracts").select("id").eq("renegotiated_from_contract_id", id).maybeSingle(),
+  ])
 
   if (!contract) notFound()
 
-  const { data: installments } = await supabase
-    .from("installments")
-    .select("*")
-    .eq("contract_id", id)
-    .order("number")
-
   const installmentIds = (installments ?? []).map((i) => i.id)
-  const { data: payments } =
+  const [{ data: payments }, chargeLinks] = await Promise.all([
     installmentIds.length > 0
-      ? await supabase.from("payments").select("*").in("installment_id", installmentIds).order("paid_at")
-      : { data: [] }
-
-  const chargeLinks = await getChargeLinks(
-    (installments ?? []).filter((i) => OPEN_INSTALLMENT_STATUSES.includes(i.status)).map((i) => i.id)
-  )
+      ? supabase.from("payments").select("*").in("installment_id", installmentIds).order("paid_at")
+      : Promise.resolve({ data: [] }),
+    getChargeLinks(
+      (installments ?? []).filter((i) => OPEN_INSTALLMENT_STATUSES.includes(i.status)).map((i) => i.id)
+    ),
+  ])
 
   const totalReceivedCents = (installments ?? []).reduce((sum, i) => sum + i.paid_amount_cents, 0)
   const hasOpenInstallments = (installments ?? []).some((i) => OPEN_INSTALLMENT_STATUSES.includes(i.status))
   const canRenegotiate = membership.role !== "operator" && contract.status === "active" && hasOpenInstallments
 
-  const { data: renegotiatedInto } =
-    contract.status === "renegotiated"
-      ? await supabase.from("contracts").select("id").eq("renegotiated_from_contract_id", id).maybeSingle()
-      : { data: null }
+  const renegotiatedInto = contract.status === "renegotiated" ? successor : null
 
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 px-4 py-10">

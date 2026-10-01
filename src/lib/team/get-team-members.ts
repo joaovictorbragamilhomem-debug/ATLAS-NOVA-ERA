@@ -24,14 +24,15 @@ export async function getTeamMembers(organizationId: string): Promise<TeamMember
 
   const admin = getSupabaseAdminClient()
 
-  const result: TeamMember[] = []
-  for (const m of memberships) {
-    let email = m.invited_email ?? ""
-    if (m.user_id && admin) {
-      const { data } = await admin.auth.admin.getUserById(m.user_id)
-      if (data.user?.email) email = data.user.email
-    }
-    result.push({ id: m.id, role: m.role, status: m.status, email, createdAt: m.created_at })
-  }
-  return result
+  // One Auth lookup per member, fired together instead of one at a time.
+  return Promise.all(
+    memberships.map(async (m): Promise<TeamMember> => {
+      let email = m.invited_email ?? ""
+      if (m.user_id && admin) {
+        const { data } = await admin.auth.admin.getUserById(m.user_id)
+        if (data.user?.email) email = data.user.email
+      }
+      return { id: m.id, role: m.role, status: m.status, email, createdAt: m.created_at }
+    })
+  )
 }
