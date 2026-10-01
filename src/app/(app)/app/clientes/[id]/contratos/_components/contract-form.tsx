@@ -12,6 +12,7 @@ import { DatePicker } from "@/components/ui/date-picker"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { localDateToISODate, isoDateToLocalDate, type Periodicity } from "@/lib/finance/dates"
 import type { ContractActionState } from "@/lib/contracts/actions"
+import { parseContractTextAction, type ContractTextSuggestion } from "@/lib/ai/parse-contract-text"
 
 const PERIODICITY_LABEL: Record<Periodicity, string> = {
   weekly: "Semanal",
@@ -80,7 +81,44 @@ function ContractForm({ action, initialPrincipalAmountCents, submitLabel }: Cont
     })
   }
 
+  // Preenche só os campos que a IA encontrou na frase; o resto continua como
+  // estava. A pessoa sempre revisa antes de criar o contrato.
+  function applySuggestion(suggestion: ContractTextSuggestion) {
+    const hasInstallmentAmount = suggestion.installmentAmountCents !== null
+    if (hasInstallmentAmount) setInstallmentAmountTouched(true)
+
+    setValues((v) => {
+      const next: ContractFormValues = {
+        ...v,
+        principalAmountCents: suggestion.principalAmountCents ?? v.principalAmountCents,
+        installmentsCount:
+          suggestion.installmentsCount !== null ? String(suggestion.installmentsCount) : v.installmentsCount,
+        periodicity: suggestion.periodicity ?? v.periodicity,
+        firstDueDate: suggestion.firstDueDate ?? v.firstDueDate,
+        installmentAmountCents: suggestion.installmentAmountCents ?? v.installmentAmountCents,
+        lateFeePercent: suggestion.lateFeePercent !== null ? String(suggestion.lateFeePercent) : v.lateFeePercent,
+        lateInterestMonthlyPercent:
+          suggestion.lateInterestMonthlyPercent !== null
+            ? String(suggestion.lateInterestMonthlyPercent)
+            : v.lateInterestMonthlyPercent,
+        notes: suggestion.notes ?? v.notes,
+      }
+
+      const count = parseInt(next.installmentsCount, 10)
+      const canDerive = Number.isInteger(count) && count > 0
+      if (!hasInstallmentAmount && !installmentAmountTouched && canDerive && next.principalAmountCents > 0) {
+        next.installmentAmountCents = Math.ceil(next.principalAmountCents / count)
+      }
+      if (suggestion.principalAmountCents === null && hasInstallmentAmount && canDerive && v.principalAmountCents === 0) {
+        next.principalAmountCents = next.installmentAmountCents * count
+      }
+      return next
+    })
+  }
+
   return (
+    <div className="flex flex-col gap-6">
+    <AiFillBox onSuggestion={applySuggestion} />
     <form action={formAction} className="flex flex-col gap-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
@@ -197,6 +235,50 @@ function ContractForm({ action, initialPrincipalAmountCents, submitLabel }: Cont
         {submitLabel ?? "Criar contrato e gerar carnê"}
       </Button>
     </form>
+    </div>
+  )
+}
+
+function AiFillBox({ onSuggestion }: { onSuggestion: (suggestion: ContractTextSuggestion) => void }) {
+  const [text, setText] = React.useState("")
+  const [error, setError] = React.useState<string | null>(null)
+  const [filled, setFilled] = React.useState(false)
+  const [pending, startTransition] = React.useTransition()
+
+  function handleFill() {
+    setError(null)
+    setFilled(false)
+    startTransition(async () => {
+      const result = await parseContractTextAction(text)
+      if ("error" in result) {
+        setError(result.error)
+        return
+      }
+      onSuggestion(result.suggestion)
+      setFilled(true)
+    })
+  }
+
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border bg-muted/40 p-4">
+      <Label htmlFor="aiContractText">Preencher com IA (opcional)</Label>
+      <Textarea
+        id="aiContractText"
+        placeholder="Ex.: vendi uma geladeira de 2.400 no crediário em 10x, todo mês, primeira dia 10"
+        value={text}
+        maxLength={1000}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <div className="flex flex-wrap items-center gap-3">
+        <Button type="button" variant="outline" loading={pending} disabled={!text.trim()} onClick={handleFill}>
+          Preencher campos
+        </Button>
+        {filled && (
+          <p className="text-xs text-muted-foreground">Campos preenchidos — confira tudo antes de criar o contrato.</p>
+        )}
+      </div>
+      <FormError message={error} />
+    </div>
   )
 }
 
