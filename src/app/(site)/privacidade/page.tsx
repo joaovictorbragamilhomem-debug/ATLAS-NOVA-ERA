@@ -9,7 +9,7 @@ export default function PrivacidadePage() {
         Rascunho — este texto ainda precisa ser revisado por um advogado antes de valer como
         política oficial. Não use para aceitar assinantes pagantes antes dessa revisão.
       </div>
-      <h1 className="text-2xl font-semibold">Política de Privacidade</h1>
+      <h1 className="font-display text-3xl font-semibold sm:text-4xl">Política de Privacidade</h1>
       <p className="mt-2 text-xs text-muted-foreground">Última atualização: rascunho, sem data de vigência.</p>
 
       <div className="mt-6 flex flex-col gap-6 text-sm text-muted-foreground">

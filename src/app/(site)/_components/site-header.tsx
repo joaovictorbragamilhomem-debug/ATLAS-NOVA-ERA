@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "cn"
@@ -31,8 +32,18 @@ function SiteHeader() {
       )}
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" prefetch={false} className="text-base font-semibold tracking-tight">
-          ATLAS <span className="text-primary hidden sm:inline">NOVA ERA</span>
+        <Link href="/" prefetch={false} className="font-display flex items-center gap-2.5 text-[0.95rem] font-semibold tracking-[0.08em]">
+          <Image
+            src="/icon-192.png"
+            alt=""
+            width={28}
+            height={28}
+            className="rounded-md ring-1 ring-border"
+            loading="eager"
+          />
+          <span>
+            ATLAS <span className="hidden font-medium text-muted-foreground sm:inline">NOVA ERA</span>
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex" aria-label="Navegação principal">

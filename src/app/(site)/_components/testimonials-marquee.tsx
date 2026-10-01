@@ -106,7 +106,7 @@ function TestimonialsMarquee({ testimonials = TESTIMONIALS }: { testimonials?: T
   const track = reducedMotion ? testimonials : [...testimonials, ...testimonials]
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-6xl px-4 py-20 lg:py-28 sm:px-6 lg:px-8">
       <MarqueeStyles />
       <div className="mx-auto mb-10 max-w-2xl text-center">
         <h2 className="text-2xl font-semibold sm:text-3xl">O que quem usa o Atlas diz</h2>

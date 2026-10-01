@@ -1,5 +1,6 @@
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { Reveal } from "@/components/ui/reveal"
+import { SectionHeading } from "@/components/marketing/section-heading"
 
 const FAQS = [
   {
@@ -46,10 +47,8 @@ const FAQS = [
 
 function Faq() {
   return (
-    <section id="duvidas" className="mx-auto max-w-3xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
-      <Reveal className="mx-auto mb-8 max-w-2xl text-center">
-        <h2 className="text-2xl font-semibold sm:text-3xl">Dúvidas frequentes</h2>
-      </Reveal>
+    <section id="duvidas" className="mx-auto max-w-3xl scroll-mt-20 px-4 py-20 lg:py-28 sm:px-6 lg:px-8">
+      <SectionHeading title="Dúvidas frequentes" layout="center" />
 
       <Accordion>
         {FAQS.map(({ q, a }, index) => (

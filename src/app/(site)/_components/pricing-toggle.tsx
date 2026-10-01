@@ -33,7 +33,7 @@ function PricingToggle({ monthlyCents, annualCents }: PricingToggleProps) {
   const perDayCents = priceCents !== null ? Math.round(priceCents / (annual ? 365 : 30)) : null
 
   return (
-    <div className="flex flex-col gap-6 rounded-2xl border border-border bg-card p-6">
+    <div className="flex h-full flex-col gap-6 rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
       <div className="flex items-center justify-center gap-3">
         <Label htmlFor="pricing-period" className={!annual ? "font-semibold" : "text-muted-foreground"}>
           Mensal
@@ -51,7 +51,7 @@ function PricingToggle({ monthlyCents, annualCents }: PricingToggleProps) {
 
       <div className="flex flex-col items-center gap-1 text-center">
         <div className="flex items-baseline gap-1">
-          <span className="text-4xl font-semibold tabular-nums">{priceLabel}</span>
+          <span className="font-display text-4xl font-semibold tabular-nums sm:text-5xl">{priceLabel}</span>
           {priceCents !== null && <span className="text-muted-foreground">{period}</span>}
         </div>
         {perDayCents !== null && (
@@ -69,7 +69,7 @@ function PricingToggle({ monthlyCents, annualCents }: PricingToggleProps) {
         ))}
       </ul>
 
-      <div className="w-full transition-transform duration-150 ease-out hover:-translate-y-0.5">
+      <div className="mt-auto w-full transition-transform duration-150 ease-out hover:-translate-y-0.5">
         <Button size="lg" nativeButton={false} render={<Link href="/app" prefetch={false} />} className="w-full">
           Testar grátis por 7 dias
         </Button>

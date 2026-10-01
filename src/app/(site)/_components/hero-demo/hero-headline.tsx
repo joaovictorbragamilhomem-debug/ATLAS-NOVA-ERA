@@ -11,10 +11,11 @@ function HeroHeadline() {
   const { phase } = useHeroDemoContext()
 
   return (
-    <h1 className="flex flex-col gap-1 text-4xl leading-[1.1] font-semibold tracking-tight sm:text-5xl">
+    <h1 className="font-display flex flex-col gap-1 text-[2.375rem] leading-[1.08] font-semibold sm:text-5xl xl:text-[3.375rem]">
       <style>{`
         .hero-phrase {
-          width: fit-content;
+          -webkit-box-decoration-break: clone;
+          box-decoration-break: clone;
           padding-block: 0.05em;
           color: var(--muted-foreground);
           background-image: linear-gradient(var(--accent), var(--accent));
@@ -29,8 +30,10 @@ function HeroHeadline() {
         }
       `}</style>
       {PHRASES.map((phrase, index) => (
-        <span key={phrase} data-active={phase === index} className="hero-phrase">
-          {phrase}
+        <span key={phrase} className="block">
+          <span data-active={phase === index} className="hero-phrase">
+            {phrase}
+          </span>
         </span>
       ))}
     </h1>

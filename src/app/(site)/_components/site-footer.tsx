@@ -1,13 +1,17 @@
 import Link from "next/link"
+import Image from "next/image"
 
 function SiteFooter() {
   return (
-    <footer className="border-t border-border">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:px-6 lg:px-8">
+    <footer className="border-t border-border bg-background-secondary/60">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-12 sm:px-6 lg:px-8">
         <div className="flex flex-col justify-between gap-6 sm:flex-row">
           <div className="flex flex-col gap-2">
-            <span className="text-base font-semibold tracking-tight">
-              ATLAS <span className="text-primary">NOVA ERA</span>
+            <span className="font-display flex items-center gap-2.5 text-[0.95rem] font-semibold tracking-[0.08em]">
+              <Image src="/icon-192.png" alt="" width={28} height={28} className="rounded-md ring-1 ring-border" />
+              <span>
+                ATLAS <span className="font-medium text-muted-foreground">NOVA ERA</span>
+              </span>
             </span>
             <p className="max-w-sm text-sm text-muted-foreground">
               Gestão de empréstimos, parcelas e cobrança automática pelo WhatsApp. Não somos um

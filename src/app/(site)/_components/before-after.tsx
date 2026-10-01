@@ -19,6 +19,7 @@ import { Reveal } from "@/components/ui/reveal"
 import { Button } from "@/components/ui/button"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { formatCentsToBRL } from "@/lib/masks"
+import { SectionHeading } from "@/components/marketing/section-heading"
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)"
 
@@ -416,14 +417,10 @@ function TransformationStrip() {
 
 function BeforeAfter() {
   return (
-    <section id="como-funciona" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
-      <Reveal className="mx-auto mb-10 max-w-2xl text-center">
-        <h2 className="text-2xl font-semibold sm:text-3xl">Chega de juntar as pontas</h2>
-        <p className="mt-2 text-muted-foreground">
-          Tudo o que hoje está espalhado — caderno, planilha, mensagens soltas — passa a morar no
-          mesmo sistema.
-        </p>
-      </Reveal>
+    <section id="como-funciona" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20 lg:py-28 sm:px-6 lg:px-8">
+      <SectionHeading title="Chega de juntar as pontas">
+        Tudo o que hoje está espalhado — caderno, planilha, mensagens soltas — passa a morar no mesmo sistema.
+      </SectionHeading>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
         <Reveal x={-24} className="h-full">

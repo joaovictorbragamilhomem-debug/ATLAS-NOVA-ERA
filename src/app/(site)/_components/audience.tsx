@@ -1,4 +1,5 @@
 import { Reveal } from "@/components/ui/reveal"
+import { SectionHeading } from "@/components/marketing/section-heading"
 
 const PROFILES = [
   "Quem vende no crediário",
@@ -10,10 +11,8 @@ const PROFILES = [
 
 function Audience() {
   return (
-    <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-      <Reveal className="mx-auto mb-8 max-w-2xl text-center">
-        <h2 className="text-2xl font-semibold sm:text-3xl">Para quem é o ATLAS</h2>
-      </Reveal>
+    <section className="mx-auto max-w-6xl px-4 py-20 lg:py-28 sm:px-6 lg:px-8">
+      <SectionHeading title="Para quem é o ATLAS" layout="center" />
       <div className="flex flex-wrap justify-center gap-2.5">
         {PROFILES.map((profile, index) => (
           <Reveal

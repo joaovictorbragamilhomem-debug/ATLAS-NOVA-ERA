@@ -1,5 +1,6 @@
 import { ShieldCheckIcon, FileCheck2Icon, HistoryIcon, LandmarkIcon } from "lucide-react"
 import { Reveal } from "@/components/ui/reveal"
+import { SectionHeading } from "@/components/marketing/section-heading"
 
 const ITEMS = [
   {
@@ -26,11 +27,9 @@ const ITEMS = [
 
 function SecurityLgpd() {
   return (
-    <section className="bg-muted/30">
-      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-        <Reveal className="mx-auto mb-10 max-w-2xl text-center">
-          <h2 className="text-2xl font-semibold sm:text-3xl">Segurança e LGPD, desde o início</h2>
-        </Reveal>
+    <section className="border-y border-border bg-background-secondary/60">
+      <div className="mx-auto max-w-6xl px-4 py-20 lg:py-28 sm:px-6 lg:px-8">
+        <SectionHeading title="Segurança e LGPD, desde o início" />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {ITEMS.map(({ icon: Icon, title, description }, index) => (
