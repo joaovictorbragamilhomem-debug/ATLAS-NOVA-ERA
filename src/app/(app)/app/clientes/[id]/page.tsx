@@ -29,18 +29,19 @@ const CONTRACT_STATUS_LABEL: Record<string, string> = {
 
 export default async function ClienteDetalhePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const membership = await requireMembership()
-
-  const { customer, contracts } = await getCustomerWithContracts(id)
+  // All four lookups only need the id, so they run together. RLS already
+  // limits them to the user's organization; for an unknown id the extra
+  // queries just come back empty before notFound().
+  const [membership, { customer, contracts }, openInstallments, timelineEvents] = await Promise.all([
+    requireMembership(),
+    getCustomerWithContracts(id),
+    getOpenInstallmentsForCustomer(id),
+    getCustomerTimeline(id),
+  ])
 
   if (!customer) notFound()
 
   const canCreateContract = membership.role !== "operator"
-
-  const [openInstallments, timelineEvents] = await Promise.all([
-    getOpenInstallmentsForCustomer(id),
-    getCustomerTimeline(id),
-  ])
   // Já vem ordenada por vencimento — a primeira é a mais urgente (atrasada
   // ou a próxima a vencer).
   const nextInstallment = openInstallments[0] ?? null

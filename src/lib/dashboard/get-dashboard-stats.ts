@@ -33,19 +33,20 @@ export async function getDashboardStats(organizationId: string): Promise<Dashboa
   const today = todayInSaoPauloISODate();
   const currentYearMonth = today.slice(0, 7);
 
-  const { data: openInstallments } = await supabase
-    .from("installments")
-    .select(
-      "id, number, contract_id, due_date, amount_cents, paid_amount_cents, contracts(customer_id, late_fee_percent, late_interest_monthly_percent, customers(id, name))"
-    )
-    .eq("organization_id", organizationId)
-    .in("status", OPEN_STATUSES);
-
-  const { data: paymentsThisMonth } = await supabase
-    .from("payments")
-    .select("amount_cents, paid_at")
-    .eq("organization_id", organizationId)
-    .is("reversed_at", null);
+  const [{ data: openInstallments }, { data: paymentsThisMonth }] = await Promise.all([
+    supabase
+      .from("installments")
+      .select(
+        "id, number, contract_id, due_date, amount_cents, paid_amount_cents, contracts(customer_id, late_fee_percent, late_interest_monthly_percent, customers(id, name))"
+      )
+      .eq("organization_id", organizationId)
+      .in("status", OPEN_STATUSES),
+    supabase
+      .from("payments")
+      .select("amount_cents, paid_at")
+      .eq("organization_id", organizationId)
+      .is("reversed_at", null),
+  ]);
 
   const receivedThisMonthCents = (paymentsThisMonth ?? [])
     .filter((p) => toSaoPauloISODate(new Date(p.paid_at)).slice(0, 7) === currentYearMonth)
