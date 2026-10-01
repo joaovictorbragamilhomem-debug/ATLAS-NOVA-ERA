@@ -5,7 +5,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const membership = await getCurrentMembership()
 
   return (
-    <div className="min-h-screen">
+    <div className="app-readable min-h-screen">
       {membership && <AppNav />}
       {children}
     </div>

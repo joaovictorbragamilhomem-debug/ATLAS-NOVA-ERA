@@ -238,6 +238,27 @@
   }
 }
 
+/* Logged-in app on phones: the main audience includes older lenders with low
+   digital literacy, so small print and small buttons are bumped up there
+   (body text >= 16px, secondary text >= 14px, tap targets >= 44px). Scoped to
+   .app-readable (set in the /app layout) so the marketing site is untouched;
+   desktop keeps the denser layout. */
+@media (max-width: 47.999rem) {
+  .app-readable .text-sm {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+  .app-readable .text-xs {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  .app-readable [data-slot="button"] {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    font-size: 1rem;
+  }
+}
+
 @utility tabular-nums-force {
   font-variant-numeric: tabular-nums;
 }

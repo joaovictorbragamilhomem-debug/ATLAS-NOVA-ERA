@@ -98,7 +98,7 @@ function RuleDialog({ templates, rule }: { templates: TemplateRow[]; rule?: Auto
         </DialogHeader>
         <form action={handleSubmit} className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="triggerType">Gatilho</Label>
+            <Label htmlFor="triggerType">Quando enviar</Label>
             <Select name="triggerType" value={triggerType} onValueChange={(v) => setTriggerType(v ?? "reminder_before")}>
               <SelectTrigger id="triggerType" className="w-full">
                 <SelectValue>{(v: string) => TRIGGER_LABEL[v]}</SelectValue>

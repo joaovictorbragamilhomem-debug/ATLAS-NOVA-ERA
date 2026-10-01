@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { CpfInput, PhoneInput } from "@/components/ui/masked-input"
 import { isValidCPF } from "@/lib/validators"
 import { e164BRToDigits } from "@/lib/masks"
+import { ChevronDownIcon } from "lucide-react"
 import { lookupCep } from "@/lib/viacep"
 import type { CustomerActionState } from "@/lib/customers/actions"
 
@@ -70,6 +71,22 @@ function CustomerForm({ action, initialValues, submitLabel }: CustomerFormProps)
     setValues((v) => ({ ...v, [key]: value }))
   }
 
+  // Optional fields live behind "Mais informações" so a first-time user sees
+  // only the 3 required ones; editing a customer that already has any of them
+  // opens the section so nothing looks lost.
+  const hasOptionalData = [
+    values.cep,
+    values.addressStreet,
+    values.addressNumber,
+    values.addressComplement,
+    values.addressDistrict,
+    values.addressCity,
+    values.addressState,
+    values.tags,
+    values.notes,
+  ].some((v) => v.trim() !== "")
+  const [showMore, setShowMore] = React.useState(hasOptionalData)
+
   const cpfTouched = values.cpf.length === 11
   const cpfValid = !cpfTouched || isValidCPF(values.cpf)
 
@@ -91,9 +108,13 @@ function CustomerForm({ action, initialValues, submitLabel }: CustomerFormProps)
 
   return (
     <form action={formAction} className="flex flex-col gap-6">
+      <p className="text-sm text-muted-foreground">
+        Só <strong className="text-foreground">nome, CPF e WhatsApp</strong> são obrigatórios. O resto você pode
+        preencher depois.
+      </p>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5 sm:col-span-2">
-          <Label htmlFor="name">Nome</Label>
+          <Label htmlFor="name">Nome completo</Label>
           <Input id="name" name="name" value={values.name} onChange={(e) => setField("name", e.target.value)} required />
         </div>
 
@@ -107,99 +128,120 @@ function CustomerForm({ action, initialValues, submitLabel }: CustomerFormProps)
             aria-invalid={!cpfValid}
             required
           />
-          {!cpfValid && <p className="text-xs text-destructive">CPF inválido.</p>}
+          {!cpfValid && (
+            <p className="text-xs text-destructive">Esse CPF não existe — confira os 11 números no documento.</p>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="whatsapp">WhatsApp</Label>
           <PhoneInput id="whatsapp" name="whatsapp" value={values.whatsapp} onValueChange={(v) => setField("whatsapp", v)} required />
+          <p className="text-xs text-muted-foreground">Com DDD. É para esse número que as cobranças vão.</p>
         </div>
 
         <div className="flex flex-col gap-1.5 sm:col-span-2">
           <Label htmlFor="email">E-mail (opcional)</Label>
           <Input id="email" name="email" type="email" value={values.email} onChange={(e) => setField("email", e.target.value)} />
         </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="cep">CEP</Label>
-          <Input
-            id="cep"
-            name="cep"
-            value={values.cep}
-            onChange={(e) => setField("cep", e.target.value)}
-            onBlur={handleCepBlur}
-            placeholder="00000-000"
-          />
-          {cepLoading && <p className="text-xs text-muted-foreground">Buscando endereço…</p>}
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="addressNumber">Número</Label>
-          <Input
-            id="addressNumber"
-            name="addressNumber"
-            value={values.addressNumber}
-            onChange={(e) => setField("addressNumber", e.target.value)}
-          />
-        </div>
-
-        <div className="flex flex-col gap-1.5 sm:col-span-2">
-          <Label htmlFor="addressStreet">Rua</Label>
-          <Input
-            id="addressStreet"
-            name="addressStreet"
-            value={values.addressStreet}
-            onChange={(e) => setField("addressStreet", e.target.value)}
-          />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="addressComplement">Complemento</Label>
-          <Input
-            id="addressComplement"
-            name="addressComplement"
-            value={values.addressComplement}
-            onChange={(e) => setField("addressComplement", e.target.value)}
-          />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="addressDistrict">Bairro</Label>
-          <Input
-            id="addressDistrict"
-            name="addressDistrict"
-            value={values.addressDistrict}
-            onChange={(e) => setField("addressDistrict", e.target.value)}
-          />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="addressCity">Cidade</Label>
-          <Input
-            id="addressCity"
-            name="addressCity"
-            value={values.addressCity}
-            onChange={(e) => setField("addressCity", e.target.value)}
-          />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="addressState">Estado</Label>
-          <Input
-            id="addressState"
-            name="addressState"
-            value={values.addressState}
-            onChange={(e) => setField("addressState", e.target.value.toUpperCase().slice(0, 2))}
-          />
-        </div>
-
-        <div className="flex flex-col gap-1.5 sm:col-span-2">
-          <Label htmlFor="tags">Tags (separe por vírgula)</Label>
-          <Input id="tags" name="tags" value={values.tags} onChange={(e) => setField("tags", e.target.value)} placeholder="vip, indicação" />
-        </div>
-
-        <div className="flex flex-col gap-1.5 sm:col-span-2">
-          <Label htmlFor="notes">Observações</Label>
-          <Textarea id="notes" name="notes" value={values.notes} onChange={(e) => setField("notes", e.target.value)} />
-        </div>
       </div>
+
+      <details
+        open={showMore}
+        onToggle={(e) => setShowMore(e.currentTarget.open)}
+        className="group rounded-lg border border-border"
+      >
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-sm font-medium [&::-webkit-details-marker]:hidden">
+          Mais informações (endereço, etiquetas, observações)
+          <ChevronDownIcon className="size-4 transition-transform group-open:rotate-180" aria-hidden="true" />
+        </summary>
+        <div className="grid gap-4 border-t border-border p-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="cep">CEP (opcional)</Label>
+            <Input
+              id="cep"
+              name="cep"
+              value={values.cep}
+              onChange={(e) => setField("cep", e.target.value)}
+              onBlur={handleCepBlur}
+              placeholder="00000-000"
+              inputMode="numeric"
+            />
+            {cepLoading ? (
+              <p className="text-xs text-muted-foreground">Buscando endereço…</p>
+            ) : (
+              <p className="text-xs text-muted-foreground">Digite o CEP que a rua e a cidade se preenchem sozinhas.</p>
+            )}
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="addressNumber">Número</Label>
+            <Input
+              id="addressNumber"
+              name="addressNumber"
+              value={values.addressNumber}
+              onChange={(e) => setField("addressNumber", e.target.value)}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5 sm:col-span-2">
+            <Label htmlFor="addressStreet">Rua</Label>
+            <Input
+              id="addressStreet"
+              name="addressStreet"
+              value={values.addressStreet}
+              onChange={(e) => setField("addressStreet", e.target.value)}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="addressComplement">Complemento</Label>
+            <Input
+              id="addressComplement"
+              name="addressComplement"
+              value={values.addressComplement}
+              onChange={(e) => setField("addressComplement", e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="addressDistrict">Bairro</Label>
+            <Input
+              id="addressDistrict"
+              name="addressDistrict"
+              value={values.addressDistrict}
+              onChange={(e) => setField("addressDistrict", e.target.value)}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="addressCity">Cidade</Label>
+            <Input
+              id="addressCity"
+              name="addressCity"
+              value={values.addressCity}
+              onChange={(e) => setField("addressCity", e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="addressState">Estado</Label>
+            <Input
+              id="addressState"
+              name="addressState"
+              value={values.addressState}
+              onChange={(e) => setField("addressState", e.target.value.toUpperCase().slice(0, 2))}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5 sm:col-span-2">
+            <Label htmlFor="tags">Etiquetas (opcional)</Label>
+            <Input id="tags" name="tags" value={values.tags} onChange={(e) => setField("tags", e.target.value)} placeholder="vip, indicação" />
+            <p className="text-xs text-muted-foreground">Palavras para achar o cliente depois. Separe com vírgula.</p>
+          </div>
+
+          <div className="flex flex-col gap-1.5 sm:col-span-2">
+            <Label htmlFor="notes">Observações (opcional)</Label>
+            <Textarea id="notes" name="notes" value={values.notes} onChange={(e) => setField("notes", e.target.value)} />
+          </div>
+        </div>
+      </details>
 
       <FormError message={state.error} />
 
