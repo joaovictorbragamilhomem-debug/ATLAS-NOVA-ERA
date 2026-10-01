@@ -10,9 +10,9 @@ import { InstallmentsList } from "./_components/installments-list"
 import { getChargeLinks } from "@/lib/whatsapp/get-charge-links"
 
 const PERIODICITY_LABEL: Record<string, string> = {
-  weekly: "Semanal",
-  biweekly: "Quinzenal",
-  monthly: "Mensal",
+  weekly: "uma por semana",
+  biweekly: "a cada 15 dias",
+  monthly: "uma por mês",
 }
 
 const CONTRACT_STATUS_LABEL: Record<string, string> = {
@@ -87,7 +87,7 @@ export default async function ContratoDetalhePage({ params }: { params: Promise<
         </div>
         {canRenegotiate && (
           <Button variant="secondary" size="sm" nativeButton={false} render={<Link href={`/app/contratos/${id}/renegociar`} />}>
-            <RefreshCcwIcon /> Renegociar
+            <RefreshCcwIcon /> Renegociar dívida
           </Button>
         )}
       </div>
@@ -96,7 +96,7 @@ export default async function ContratoDetalhePage({ params }: { params: Promise<
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">Parcelas</p>
           <p className="mt-1 text-lg font-semibold tabular-nums">
-            {contract.installments_count}x {PERIODICITY_LABEL[contract.periodicity]}
+            {contract.installments_count} parcelas, {PERIODICITY_LABEL[contract.periodicity]}
           </p>
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
@@ -104,9 +104,9 @@ export default async function ContratoDetalhePage({ params }: { params: Promise<
           <p className="mt-1 text-lg font-semibold tabular-nums">{formatCentsToBRL(totalReceivedCents)}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">Multa / juros de mora</p>
+          <p className="text-xs text-muted-foreground">Se atrasar, cobra</p>
           <p className="mt-1 text-lg font-semibold tabular-nums">
-            {contract.late_fee_percent}% + {contract.late_interest_monthly_percent}%/mês
+            multa {contract.late_fee_percent}% + juros {contract.late_interest_monthly_percent}% ao mês
           </p>
         </div>
       </div>
@@ -114,12 +114,18 @@ export default async function ContratoDetalhePage({ params }: { params: Promise<
       {contract.notes && <p className="text-sm text-muted-foreground">{contract.notes}</p>}
 
       <div className="flex flex-col gap-2">
-        <h2 className="text-lg font-semibold">Carnê</h2>
+        <div>
+          <h2 className="text-lg font-semibold">Parcelas (carnê)</h2>
+          <p className="text-sm text-muted-foreground">
+            Quando o cliente pagar, toque em &ldquo;Registrar pagamento&rdquo; na parcela certa.
+          </p>
+        </div>
         <InstallmentsList
           contract={{
             id: contract.id,
             lateFeePercent: contract.late_fee_percent,
             lateInterestMonthlyPercent: contract.late_interest_monthly_percent,
+            customerName: contract.customers.name,
           }}
           installments={installments ?? []}
           payments={payments ?? []}

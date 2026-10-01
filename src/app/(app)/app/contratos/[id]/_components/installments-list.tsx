@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { formatCentsToBRL, formatISODateToBR } from "@/lib/masks"
+import { AmountReview } from "@/components/ui/amount-review"
 import { calculateUpdatedAmountCents, calculateRemainingBalanceCents } from "@/lib/finance/installment-amount"
 import { getInstallmentVisualStatus, type InstallmentDbStatus } from "@/lib/installments/visual-status"
 import { reverseInstallmentPaymentAction } from "@/lib/installments/actions"
@@ -59,35 +60,45 @@ function PaymentHistoryItem({ payment, canReverse }: { payment: PaymentRowData; 
       toast.error(result.error)
       return
     }
-    toast.success("Pagamento estornado.")
+    toast.success(`Pagamento de ${formatCentsToBRL(payment.amount_cents)} desfeito.`)
     setOpen(false)
     setReason("")
   }
 
   return (
-    <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+    <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
       <span className={payment.reversed_at ? "line-through" : undefined}>
         {formatCentsToBRL(payment.amount_cents)} · {PAYMENT_METHOD_LABEL[payment.method]} ·{" "}
         {new Date(payment.paid_at).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}
-        {payment.reversed_at && " · estornado"}
+        {payment.reversed_at && " · desfeito (estornado)"}
       </span>
       {!payment.reversed_at && canReverse && (
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger render={<Button variant="ghost" size="icon-sm" />}>
-            <Undo2Icon />
-            <span className="sr-only">Estornar pagamento</span>
+          <DialogTrigger render={<Button variant="ghost" size="sm" />}>
+            <Undo2Icon aria-hidden="true" /> Desfazer
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Estornar pagamento</DialogTitle>
+              <DialogTitle>Desfazer este pagamento?</DialogTitle>
               <DialogDescription>
-                {formatCentsToBRL(payment.amount_cents)} recebido em{" "}
-                {new Date(payment.paid_at).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}. Essa
-                ação some da parcela e fica registrada na auditoria.
+                Use quando o pagamento foi lançado por engano (isso também é chamado de &ldquo;estorno&rdquo;). O
+                valor volta a ficar em aberto na parcela e o registro fica guardado no histórico.
               </DialogDescription>
             </DialogHeader>
+            <AmountReview
+              tone="danger"
+              lead="Você vai desfazer o pagamento de"
+              cents={payment.amount_cents}
+              detail={
+                <>
+                  recebido em{" "}
+                  {new Date(payment.paid_at).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}, em{" "}
+                  {PAYMENT_METHOD_LABEL[payment.method].toLowerCase()}.
+                </>
+              }
+            />
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor={`reason-${payment.id}`}>Motivo do estorno</Label>
+              <Label htmlFor={`reason-${payment.id}`}>Por que você está desfazendo?</Label>
               <Textarea
                 id={`reason-${payment.id}`}
                 value={reason}
@@ -97,9 +108,9 @@ function PaymentHistoryItem({ payment, canReverse }: { payment: PaymentRowData; 
               />
             </div>
             <DialogFooter>
-              <DialogClose render={<Button variant="outline" />}>Cancelar</DialogClose>
+              <DialogClose render={<Button variant="outline" />}>Não, manter pagamento</DialogClose>
               <Button variant="destructive" loading={busy} disabled={!reason.trim()} onClick={handleReverse}>
-                Confirmar estorno
+                Sim, desfazer {formatCentsToBRL(payment.amount_cents)}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -117,7 +128,9 @@ function InstallmentRow({
   lateInterestMonthlyPercent,
   todayISODate,
   canReverse,
+  customerName,
 }: {
+  customerName?: string
   installment: InstallmentRowData
   payments: PaymentRowData[]
   chargeLinks?: ChargeLinks
@@ -142,7 +155,7 @@ function InstallmentRow({
     <li className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium tabular-nums">#{installment.number}</span>
+          <span className="text-sm font-medium tabular-nums">Parcela {installment.number}</span>
           <span className="text-sm text-muted-foreground">{formatISODateToBR(installment.due_date)}</span>
           <StatusBadge status={getInstallmentVisualStatus(installment, todayISODate)} />
         </div>
@@ -151,7 +164,7 @@ function InstallmentRow({
             <p className="text-sm font-semibold tabular-nums">{formatCentsToBRL(installment.amount_cents)}</p>
             {isPayable && isLate && (
               <p className="text-xs text-warning tabular-nums">
-                atualizado: {formatCentsToBRL(updatedAmountCents)}
+                com multa e juros: {formatCentsToBRL(updatedAmountCents)}
               </p>
             )}
           </div>
@@ -161,6 +174,7 @@ function InstallmentRow({
               installmentId={installment.id}
               installmentNumber={installment.number}
               suggestedAmountCents={suggestedAmountCents}
+              customerName={customerName}
             />
           )}
         </div>
@@ -178,7 +192,7 @@ function InstallmentRow({
 }
 
 type InstallmentsListProps = {
-  contract: { id: string; lateFeePercent: number; lateInterestMonthlyPercent: number }
+  contract: { id: string; lateFeePercent: number; lateInterestMonthlyPercent: number; customerName?: string }
   installments: InstallmentRowData[]
   payments: PaymentRowData[]
   chargeLinks: Record<string, ChargeLinks>
@@ -199,6 +213,7 @@ function InstallmentsList({ contract, installments, payments, chargeLinks, today
           lateInterestMonthlyPercent={contract.lateInterestMonthlyPercent}
           todayISODate={todayISODate}
           canReverse={canReverse}
+          customerName={contract.customerName}
         />
       ))}
     </ul>

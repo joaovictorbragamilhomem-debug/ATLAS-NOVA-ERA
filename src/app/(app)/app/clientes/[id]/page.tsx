@@ -115,6 +115,7 @@ export default async function ClienteDetalhePage({ params }: { params: Promise<{
               installmentId={nextInstallment.id}
               installmentNumber={nextInstallment.number}
               suggestedAmountCents={nextInstallment.remainingCents}
+              customerName={customer.name}
             />
           )}
           {nextChargeLinks && <WhatsAppChargeDialog links={nextChargeLinks} />}
