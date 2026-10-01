@@ -7,6 +7,7 @@ import { formatCentsToBRL } from "@/lib/masks"
 import { Skeleton } from "@/components/ui/skeleton"
 import { AnimateIn } from "@/components/ui/animate-in"
 import { Reveal } from "@/components/ui/reveal"
+import { SectionHeading } from "@/components/marketing/section-heading"
 
 const NOTIFICATIONS = [
   { icon: CheckCheckIcon, text: "Lembrete enviado para Ana Lima" },
@@ -101,14 +102,10 @@ const TABS = [
 
 function ProductTour() {
   return (
-    <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-      <Reveal className="mx-auto mb-8 max-w-2xl text-center">
-        <h2 className="text-2xl font-semibold sm:text-3xl">Conheça o painel</h2>
-        <p className="mt-2 text-muted-foreground">
-          Prévia ilustrativa das telas — capturas reais do sistema entram aqui assim que o produto
-          estiver pronto.
-        </p>
-      </Reveal>
+    <section className="mx-auto max-w-6xl px-4 py-20 lg:py-28 sm:px-6 lg:px-8">
+      <SectionHeading title="Conheça o painel" layout="center">
+        Prévia ilustrativa das telas — capturas reais do sistema entram aqui assim que o produto estiver pronto.
+      </SectionHeading>
 
       <Reveal delay={0.1}>
         <Tabs defaultValue="painel" className="mx-auto max-w-3xl">

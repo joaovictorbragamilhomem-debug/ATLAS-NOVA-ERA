@@ -6,27 +6,32 @@ import { PricingToggle } from "./pricing-toggle"
 import { PRICING } from "@/lib/pricing"
 import { formatCentsToBRL } from "@/lib/masks"
 import { getLifetimeSeatsRemaining } from "@/lib/lifetime-seats"
+import { SectionHeading } from "@/components/marketing/section-heading"
 
 async function PricingSection() {
   const seatsRemaining = await getLifetimeSeatsRemaining()
   const lifetimeLabel = PRICING.lifetimeCents !== null ? formatCentsToBRL(PRICING.lifetimeCents) : "a definir"
 
   return (
-    <section id="precos" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 lg:px-8">
-      <Reveal className="mx-auto mb-10 max-w-2xl text-center">
-        <h2 className="text-2xl font-semibold sm:text-3xl">Preços</h2>
-        <p className="mt-2 text-muted-foreground">
-          O mesmo sistema completo em qualquer plano — você só escolhe como paga. 7 dias grátis, sem
-          cartão de crédito.
-        </p>
-      </Reveal>
+    <section id="precos" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20 lg:py-28 sm:px-6 lg:px-8">
+      <SectionHeading title="Preços" layout="center">
+        O mesmo sistema completo em qualquer plano — você só escolhe como paga. 7 dias grátis, sem cartão de crédito.
+      </SectionHeading>
 
-      <div className="mx-auto grid max-w-3xl gap-6 sm:grid-cols-2">
-        <Reveal>
+      <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-2">
+        <Reveal className="h-full">
           <PricingToggle monthlyCents={PRICING.monthlyCents} annualCents={PRICING.annualCents} />
         </Reveal>
 
-        <Reveal delay={0.1} className="flex flex-col gap-6 rounded-2xl border-2 border-primary bg-card p-6 shadow-md">
+        <Reveal
+          delay={0.1}
+          className="dark relative isolate flex flex-col gap-6 overflow-hidden rounded-3xl border border-primary/50 bg-(--ink) p-6 text-foreground shadow-[0_24px_60px_-24px_color-mix(in_oklch,var(--primary),transparent_55%)] sm:p-8"
+        >
+          {/* Always-dark panel: the "dark" class swaps every token inside it. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -top-24 -right-24 -z-10 size-64 rounded-full bg-primary/20 blur-[90px]"
+          />
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold">Vitalício</span>
             <span className="rounded-4xl bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground">
@@ -35,7 +40,7 @@ async function PricingSection() {
           </div>
 
           <div className="flex flex-col items-center gap-1 text-center">
-            <span className="text-4xl font-semibold tabular-nums">{lifetimeLabel}</span>
+            <span className="font-display text-4xl font-semibold tabular-nums sm:text-5xl">{lifetimeLabel}</span>
             <p className="text-sm text-muted-foreground">uma vez só, acesso para sempre</p>
           </div>
 
@@ -57,7 +62,7 @@ async function PricingSection() {
             </li>
           </ul>
 
-          <div className="w-full transition-transform duration-150 ease-out hover:-translate-y-0.5">
+          <div className="mt-auto w-full transition-transform duration-150 ease-out hover:-translate-y-0.5">
             <Button size="lg" nativeButton={false} render={<Link href="/app" prefetch={false} />} className="w-full">
               Testar grátis por 7 dias
             </Button>

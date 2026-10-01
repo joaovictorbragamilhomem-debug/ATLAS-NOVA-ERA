@@ -1,0 +1,41 @@
+/* Marketing-site-only tokens and helpers. Imported by (site)/layout.tsx, so
+   nothing here reaches the logged-in app. */
+
+.site-root {
+  /* Hero globe and drafting grid ("Desenhar o futuro"). Light: ink lines on
+     paper; dark: the cream of the Atlas icon on obsidian. */
+  --globe-line: #101827;
+  --globe-route: #0b9673;
+  --grid-line: rgba(16, 24, 39, 0.055);
+  --ink: #0d1422;
+  --ink-foreground: #f6f1e8;
+  --cream: #f6f1e8;
+}
+
+.dark .site-root {
+  --globe-line: #f6f1e8;
+  --globe-route: #2dd4a8;
+  --grid-line: rgba(246, 241, 232, 0.045);
+}
+
+.font-display {
+  font-family: var(--font-display), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "ss01";
+  letter-spacing: -0.025em;
+}
+
+/* Fine drafting grid that fades out from the hero's focal point. */
+.drafting-grid {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: -1px -1px;
+  mask-image: radial-gradient(ellipse 70% 65% at 72% 42%, #000 20%, transparent 78%);
+}
+
+@media (max-width: 1023px) {
+  .drafting-grid {
+    mask-image: radial-gradient(ellipse 90% 55% at 50% 62%, #000 15%, transparent 80%);
+  }
+}

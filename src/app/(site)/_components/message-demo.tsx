@@ -10,6 +10,7 @@ import {
   extractTemplateVariables,
   KNOWN_TEMPLATE_VARIABLES,
 } from "@/lib/message-template"
+import { SectionHeading } from "@/components/marketing/section-heading"
 
 const DEFAULT_TEMPLATE =
   "Oi {{nome}}, tudo bem? Aqui é a Atena, do ATLAS 🙂 Sua parcela de {{valor_parcela}} vence em {{vencimento}}. Se já pagou, pode ignorar."
@@ -37,16 +38,11 @@ function MessageDemo() {
   const preview = renderTemplate(template, SAMPLE_DATA)
 
   return (
-    <section className="bg-muted/30">
-      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-        <Reveal className="mx-auto mb-10 max-w-2xl text-center">
-          <h2 className="text-2xl font-semibold sm:text-3xl">Escreva do seu jeito, com suas variáveis</h2>
-          <p className="mt-2 text-muted-foreground">
-            Apresentamos a <strong className="text-foreground">Atena</strong> — é o nome que demos para a
-            cobrança automática, pra ficar mais simpático que uma mensagem de robô. Edite o modelo abaixo e veja,
-            ao lado, como o cliente recebe no WhatsApp.
-          </p>
-        </Reveal>
+    <section className="border-y border-border bg-background-secondary/60">
+      <div className="mx-auto max-w-6xl px-4 py-20 lg:py-28 sm:px-6 lg:px-8">
+        <SectionHeading title="Escreva do seu jeito, com suas variáveis">
+          Apresentamos a <strong className="text-foreground">Atena</strong> — é o nome que demos para a cobrança automática, pra ficar mais simpático que uma mensagem de robô. Edite o modelo abaixo e veja, ao lado, como o cliente recebe no WhatsApp.
+        </SectionHeading>
 
         <Reveal delay={0.1} className="grid gap-6 lg:grid-cols-2">
         <div className="flex flex-col gap-2">

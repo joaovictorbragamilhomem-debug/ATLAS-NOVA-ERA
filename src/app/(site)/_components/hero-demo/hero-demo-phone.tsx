@@ -46,7 +46,7 @@ function HeroDemoPhone() {
         data-btn-down={isBtnDown}
         data-wa-open={isWaOpen}
         data-wa-sent={isWaSent}
-        className="hero-phone-float relative w-full rounded-[2.5rem] border-[6px] border-card-foreground bg-card-foreground p-2 shadow-lg"
+        className="hero-phone-float relative w-full rounded-[2.5rem] border-[6px] border-(--ink) bg-(--ink) p-2 shadow-[0_40px_80px_-30px_rgba(6,12,24,0.55)] ring-1 ring-black/5 dark:border-[#1d2636] dark:bg-[#1d2636] dark:ring-white/10"
       >
         <div className="relative flex h-[540px] flex-col overflow-hidden rounded-[2rem] bg-card">
           <div className="flex items-center justify-between px-4 pt-3 pb-1 text-[0.65rem] font-medium text-card-foreground">
