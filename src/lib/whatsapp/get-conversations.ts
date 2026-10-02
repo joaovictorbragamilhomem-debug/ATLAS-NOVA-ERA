@@ -7,6 +7,9 @@ export type ConversationRow = {
   lastMessageBody: string;
   lastMessageDirection: "inbound" | "outbound";
   lastMessageAt: string;
+  lastMessageByAssistant: boolean;
+  // The collections assistant passed this conversation to the team.
+  needsAttention: boolean;
 };
 
 function unwrap<T>(value: T | T[] | null): T | null {
@@ -20,13 +23,17 @@ function unwrap<T>(value: T | T[] | null): T | null {
 export async function getConversations(organizationId: string, limit = 300): Promise<ConversationRow[]> {
   const supabase = await getSupabaseServerClient();
 
-  const { data } = await supabase
-    .from("whatsapp_messages")
-    .select("customer_id, body, direction, occurred_at, customers(name)")
-    .eq("organization_id", organizationId)
-    .not("customer_id", "is", null)
-    .order("occurred_at", { ascending: false })
-    .limit(limit);
+  const [{ data }, { data: openAlerts }] = await Promise.all([
+    supabase
+      .from("whatsapp_messages")
+      .select("customer_id, body, direction, occurred_at, sent_by_assistant, customers(name)")
+      .eq("organization_id", organizationId)
+      .not("customer_id", "is", null)
+      .order("occurred_at", { ascending: false })
+      .limit(limit),
+    supabase.from("assistant_alerts").select("customer_id").eq("organization_id", organizationId).is("resolved_at", null),
+  ]);
+  const needingAttention = new Set((openAlerts ?? []).map((a) => a.customer_id));
 
   const byCustomer = new Map<string, ConversationRow>();
   for (const row of data ?? []) {
@@ -38,10 +45,13 @@ export async function getConversations(organizationId: string, limit = 300): Pro
       lastMessageBody: row.body,
       lastMessageDirection: row.direction as "inbound" | "outbound",
       lastMessageAt: row.occurred_at,
+      lastMessageByAssistant: row.sent_by_assistant === true,
+      needsAttention: needingAttention.has(row.customer_id),
     });
   }
 
-  return Array.from(byCustomer.values());
+  // Conversations waiting for a person come first.
+  return Array.from(byCustomer.values()).sort((a, b) => Number(b.needsAttention) - Number(a.needsAttention));
 }
 
 // Mensagens de números que ainda não são clientes (customer_id nulo) — sem

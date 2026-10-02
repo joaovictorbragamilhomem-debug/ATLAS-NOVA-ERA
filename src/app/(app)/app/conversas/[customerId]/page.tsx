@@ -11,6 +11,8 @@ import { ThreadPanel } from "./_components/thread-panel"
 import { ReplyComposer } from "./_components/reply-composer"
 import { CustomerContextPanel } from "./_components/customer-context-panel"
 import { AutoRefresh } from "../_components/auto-refresh"
+import { AssistantBanner } from "./_components/assistant-banner"
+import { getAssistantConversationState } from "@/lib/assistant/conversation-state"
 
 export default async function ConversaDetalhePage({
   params,
@@ -23,10 +25,11 @@ export default async function ConversaDetalhePage({
   const { lembrete } = await searchParams
   const membership = await requireMembership()
 
-  const [{ customer, contracts }, messages, openInstallments] = await Promise.all([
+  const [{ customer, contracts }, messages, openInstallments, assistantState] = await Promise.all([
     getCustomerWithContracts(customerId),
     getConversationThread(membership.organizationId, customerId),
     getOpenInstallmentsForCustomer(customerId),
+    getAssistantConversationState(membership.organizationId, customerId),
   ])
 
   if (!customer) notFound()
@@ -51,6 +54,11 @@ export default async function ConversaDetalhePage({
 
       <div className="grid gap-4 md:grid-cols-[2fr_1fr]">
         <div className="flex flex-col gap-4">
+          <AssistantBanner
+            customerId={customerId}
+            state={assistantState}
+            canClearOptOut={membership.role !== "operator"}
+          />
           <div className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto rounded-lg border border-border bg-muted/30 p-3">
             <ThreadPanel messages={messages} />
           </div>

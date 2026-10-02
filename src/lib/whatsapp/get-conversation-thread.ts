@@ -5,6 +5,7 @@ export type ThreadMessage = {
   direction: "inbound" | "outbound";
   body: string;
   occurredAt: string;
+  sentByAssistant: boolean;
 };
 
 export async function getConversationThread(organizationId: string, customerId: string): Promise<ThreadMessage[]> {
@@ -12,7 +13,7 @@ export async function getConversationThread(organizationId: string, customerId: 
 
   const { data } = await supabase
     .from("whatsapp_messages")
-    .select("id, direction, body, occurred_at")
+    .select("id, direction, body, occurred_at, sent_by_assistant")
     .eq("organization_id", organizationId)
     .eq("customer_id", customerId)
     .order("occurred_at", { ascending: true });
@@ -22,6 +23,7 @@ export async function getConversationThread(organizationId: string, customerId: 
     direction: row.direction as "inbound" | "outbound",
     body: row.body,
     occurredAt: row.occurred_at,
+    sentByAssistant: row.sent_by_assistant === true,
   }));
 }
 

@@ -67,3 +67,23 @@ export function paymentFailedEmail() {
     ),
   };
 }
+
+function escapeHtml(text: string): string {
+  return text.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] ?? c);
+}
+
+// Sent to the store owner when the WhatsApp assistant hands a conversation
+// over to a person ("já paguei", negotiation, opt-out...).
+export function assistantAlertEmail(params: { customerName: string; reason: string; customerId: string }) {
+  return {
+    subject: `${params.customerName} precisa de você no WhatsApp`,
+    html: layout(
+      `${escapeHtml(params.customerName)} precisa de você`,
+      `<p>O assistente de cobrança passou esta conversa para a sua equipe:</p>
+       <p style="background:#F7F7F4;border-radius:12px;padding:12px 16px;">${escapeHtml(params.reason)}</p>
+       <p>Enquanto ninguém da equipe responder, o assistente fica em silêncio nessa conversa.</p>`,
+      `${SITE_URL}/app/conversas/${params.customerId}`,
+      "Abrir a conversa"
+    ),
+  };
+}

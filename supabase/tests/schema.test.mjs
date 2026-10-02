@@ -374,5 +374,61 @@ try {
   check("bloqueia duas mensagens com o mesmo provider_message_id (idempotência do webhook)", true);
 }
 
+// --- Assistente de cobrança (IA) -------------------------------------------
+const inboundA = (await db.query(`select id from whatsapp_messages where provider_message_id = 'wamid.teste-1'`)).rows[0].id;
+await db.query(
+  `insert into assistant_runs (organization_id, customer_id, inbound_message_id) values ($1, $2, $3)`,
+  [orgA, customerA, inboundA]
+);
+try {
+  await db.query(
+    `insert into assistant_runs (organization_id, customer_id, inbound_message_id) values ($1, $2, $3)`,
+    [orgA, customerA, inboundA]
+  );
+  check("o assistente não atende a mesma mensagem duas vezes (deveria ter sido bloqueado)", false);
+} catch {
+  check("o assistente não atende a mesma mensagem duas vezes (trava em inbound_message_id)", true);
+}
+
+await db.query(
+  `insert into assistant_alerts (organization_id, customer_id, kind, reason) values ($1, $2, 'paid_claim', 'Disse que já pagou')`,
+  [orgA, customerA]
+);
+await db.query(
+  `insert into payment_promises (organization_id, customer_id, installment_id, promised_date) values ($1, $2, $3, current_date + 3)`,
+  [orgA, customerA, installmentA]
+);
+
+await asUser(userA, async () => {
+  const alerts = await db.query(`select id from assistant_alerts where organization_id = $1`, [orgA]);
+  const promises = await db.query(`select id from payment_promises where organization_id = $1`, [orgA]);
+  check("dono da Empresa A vê os avisos e promessas do assistente", alerts.rows.length === 1 && promises.rows.length === 1);
+});
+
+await asUser(userB, async () => {
+  const alerts = await db.query(`select id from assistant_alerts where organization_id = $1`, [orgA]);
+  const promises = await db.query(`select id from payment_promises where organization_id = $1`, [orgA]);
+  const runs = await db.query(`select id from assistant_runs where organization_id = $1`, [orgA]);
+  check(
+    "dono da Empresa B NÃO vê avisos, promessas nem atendimentos do assistente da Empresa A",
+    alerts.rows.length === 0 && promises.rows.length === 0 && runs.rows.length === 0
+  );
+});
+
+await asUser(userA, async () => {
+  try {
+    await db.query(
+      `insert into assistant_alerts (organization_id, customer_id, kind, reason) values ($1, $2, 'needs_human', 'forjado')`,
+      [orgA, customerA]
+    );
+    check("membro NÃO consegue criar aviso do assistente direto (deveria ter sido bloqueado)", false);
+  } catch {
+    check("só o servidor cria avisos do assistente (membro é bloqueado)", true);
+  }
+});
+
+const defaults = (await db.query(`select assistant_enabled from organizations where id = $1`, [orgA])).rows[0];
+check("o assistente começa desligado em toda empresa", defaults.assistant_enabled === false);
+
 console.log(failures === 0 ? "\nTodos os testes passaram." : `\n${failures} teste(s) falharam.`);
 process.exit(failures === 0 ? 0 : 1);

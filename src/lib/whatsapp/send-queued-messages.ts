@@ -37,7 +37,7 @@ export async function sendQueuedMessages(): Promise<{ sent: number; failed: numb
   const { data: queued } = await admin
     .from("message_queue")
     .select(
-      "id, organization_id, customer_id, installment_id, attempts, automation_rules(send_window_start, send_window_end, skip_sunday), message_templates(body, meta_template_name, meta_template_language, pix_payment_button), customers(whatsapp)"
+      "id, organization_id, customer_id, installment_id, attempts, automation_rules(send_window_start, send_window_end, skip_sunday), message_templates(body, meta_template_name, meta_template_language, pix_payment_button), customers(whatsapp, whatsapp_opted_out_at)"
     )
     .eq("status", "scheduled")
     .lte("scheduled_for", new Date().toISOString())
@@ -74,6 +74,15 @@ export async function sendQueuedMessages(): Promise<{ sent: number; failed: numb
 
     if ((skipSunday && isSunday) || hhmm < windowStart || hhmm > windowEnd) {
       heldForWindow++;
+      continue;
+    }
+
+    // The customer asked to stop WhatsApp messages (WhatsApp policy).
+    if (customer?.whatsapp_opted_out_at) {
+      await admin
+        .from("message_queue")
+        .update({ status: "canceled", last_error: "Cliente pediu para não receber mensagens pelo WhatsApp." })
+        .eq("id", item.id);
       continue;
     }
 

@@ -15,13 +15,18 @@ function ConversationList({ conversations }: { conversations: ConversationRow[] 
             className="flex flex-col gap-1 rounded-lg border border-border bg-card p-3 text-sm transition-colors hover:bg-muted/50"
           >
             <div className="flex items-center justify-between gap-2">
-              <span className="font-medium">{c.customerName}</span>
+              <span className="flex items-center gap-2 font-medium">
+                {c.customerName}
+                {c.needsAttention && (
+                  <span className="rounded-full bg-warning-soft px-2 py-0.5 text-xs font-medium text-warning">Precisa de você</span>
+                )}
+              </span>
               <span className="shrink-0 text-xs text-muted-foreground">
                 {new Date(c.lastMessageAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}
               </span>
             </div>
             <p className="truncate text-xs text-muted-foreground">
-              {c.lastMessageDirection === "outbound" ? "Você: " : ""}
+              {c.lastMessageDirection === "outbound" ? (c.lastMessageByAssistant ? "Assistente: " : "Você: ") : ""}
               {c.lastMessageBody}
             </p>
           </Link>

@@ -121,6 +121,15 @@ export async function sendReplyAction(
   });
   if (insertError) return { error: "Mensagem enviada, mas houve um erro ao registrar na conversa." };
 
+  // Someone from the store answered: the assistant's open alerts for this
+  // conversation are handled.
+  await admin
+    .from("assistant_alerts")
+    .update({ resolved_at: new Date().toISOString(), resolved_by: membership.userId })
+    .eq("organization_id", membership.organizationId)
+    .eq("customer_id", customerId)
+    .is("resolved_at", null);
+
   await logAudit({
     organizationId: membership.organizationId,
     userId: membership.userId,

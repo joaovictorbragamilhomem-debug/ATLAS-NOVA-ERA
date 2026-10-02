@@ -318,6 +318,37 @@ a cada envio, nunca guardado como um estado à parte.
 
 ---
 
+## 5. Assistente de cobrança (IA)
+
+Responde o cliente da loja no WhatsApp quando ele escreve (reenvia o Pix,
+anota promessa de pagamento, passa para uma pessoa da loja quando precisa).
+Começa **desligado**; o Dono liga em WhatsApp → Assistente (IA).
+
+- `organizations.assistant_enabled` — liga/desliga o assistente da empresa.
+- `customers.whatsapp_opted_out_at` — o cliente pediu para não receber mais
+  mensagens automáticas; enquanto estiver preenchido, a fila cancela os
+  envios para ele (regra do WhatsApp).
+- `whatsapp_messages.sent_by_assistant` — marca as respostas escritas pelo
+  assistente (aparecem como "Assistente (IA)" em Conversas).
+
+### `assistant_runs`
+
+Uma linha por mensagem do cliente que o assistente analisou: o que ele
+decidiu, se respondeu e quanto de IA usou. A mesma mensagem nunca é
+atendida duas vezes (trava única em `inbound_message_id`).
+
+### `assistant_alerts`
+
+O que só uma pessoa da loja resolve ("já paguei", negociação, cliente
+chateado, pedido para parar). Enquanto houver aviso aberto, o assistente
+fica em silêncio naquela conversa; uma resposta da equipe ou o botão
+"Resolvido" fecha o aviso.
+
+### `payment_promises`
+
+"Pago na sexta": a data prometida. Até lá a cobrança automática daquela
+parcela fica pausada; no dia, sai um lembrete com o modelo de atraso da loja.
+
 ## Segurança (RLS) — resumo
 
 Toda tabela acima (exceto `organizations`) tem `organization_id`. A regra é

@@ -22,19 +22,21 @@ export type ParseContractTextResult = { error: string } | { suggestion: Contract
 const MODEL = "claude-opus-5-5";
 const MAX_TEXT_LENGTH = 1000;
 
-const nullable = (type: string) => ({ type: [type, "null"] });
+// Nullable fields as anyOf — the form the structured-outputs docs list as
+// supported (type arrays are not).
+const nullable = (schema: Record<string, unknown>) => ({ anyOf: [schema, { type: "null" }] });
 
 const SUGGESTION_SCHEMA = {
   type: "object",
   properties: {
-    principal_amount_reais: { ...nullable("number"), description: "Total amount lent, in BRL." },
-    installments_count: { ...nullable("integer"), description: "Number of installments." },
-    periodicity: { type: ["string", "null"], enum: ["weekly", "biweekly", "monthly", null] },
-    first_due_date: { ...nullable("string"), description: "First due date, YYYY-MM-DD." },
-    installment_amount_reais: { ...nullable("number"), description: "Amount of each installment, in BRL." },
-    late_fee_percent: { ...nullable("number"), description: "One-time late fee, percent." },
-    late_interest_monthly_percent: { ...nullable("number"), description: "Late interest per month, percent." },
-    notes: { ...nullable("string"), description: "Relevant details that fit no other field." },
+    principal_amount_reais: { ...nullable({ type: "number" }), description: "Total the customer will pay, in BRL." },
+    installments_count: { ...nullable({ type: "integer" }), description: "Number of installments." },
+    periodicity: nullable({ type: "string", enum: ["weekly", "biweekly", "monthly"] }),
+    first_due_date: { ...nullable({ type: "string", format: "date" }), description: "First due date, YYYY-MM-DD." },
+    installment_amount_reais: { ...nullable({ type: "number" }), description: "Amount of each installment, in BRL." },
+    late_fee_percent: { ...nullable({ type: "number" }), description: "One-time late fee, percent." },
+    late_interest_monthly_percent: { ...nullable({ type: "number" }), description: "Late interest per month, percent." },
+    notes: { ...nullable({ type: "string" }), description: "Relevant details that fit no other field." },
   },
   required: [
     "principal_amount_reais",

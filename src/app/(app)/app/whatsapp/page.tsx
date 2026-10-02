@@ -5,6 +5,8 @@ import { ConnectionPanel } from "./_components/connection-panel"
 import { TemplatesPanel, type TemplateRow } from "./_components/templates-panel"
 import { RulesPanel, type AutomationRuleRow } from "./_components/rules-panel"
 import { MessagesPanel } from "./_components/messages-panel"
+import { AssistantPanel } from "./_components/assistant-panel"
+import { isAssistantModelConfigured } from "@/lib/assistant/model"
 import { getMessageQueue } from "@/lib/whatsapp/get-message-queue"
 
 export default async function WhatsAppPage() {
@@ -13,7 +15,7 @@ export default async function WhatsAppPage() {
   const supabase = await getSupabaseServerClient()
 
   const [{ data: organization }, { data: connection }, { data: templates }, { data: rules }, messages] = await Promise.all([
-    supabase.from("organizations").select("pix_key, pix_city").eq("id", membership.organizationId).maybeSingle(),
+    supabase.from("organizations").select("pix_key, pix_city, assistant_enabled").eq("id", membership.organizationId).maybeSingle(),
     supabase
       .from("whatsapp_connections")
       .select("status, phone_number")
@@ -65,6 +67,7 @@ export default async function WhatsAppPage() {
           <TabsTrigger value="modelos">Modelos de mensagem</TabsTrigger>
           <TabsTrigger value="regras">Cobrança automática</TabsTrigger>
           <TabsTrigger value="mensagens">Mensagens</TabsTrigger>
+          <TabsTrigger value="assistente">Assistente (IA)</TabsTrigger>
         </TabsList>
 
         <TabsContent value="conexao" className="pt-4">
@@ -74,6 +77,16 @@ export default async function WhatsAppPage() {
             pixKey={organization?.pix_key ?? null}
             pixCity={organization?.pix_city ?? null}
             canEdit={membership.role === "owner"}
+          />
+        </TabsContent>
+
+        <TabsContent value="assistente" className="pt-4">
+          <AssistantPanel
+            enabled={organization?.assistant_enabled ?? false}
+            canEdit={membership.role === "owner"}
+            modelConfigured={isAssistantModelConfigured()}
+            connected={connection?.status === "connected"}
+            hasPix={Boolean(organization?.pix_key && organization?.pix_city)}
           />
         </TabsContent>
 

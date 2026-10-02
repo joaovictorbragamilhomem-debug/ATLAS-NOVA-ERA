@@ -1,10 +1,15 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { matchesWhatsAppNumber } from "@/lib/whatsapp/phone-match";
 import { pickConnectionOwner } from "@/lib/whatsapp/pick-connection-owner";
 import { onlyDigits } from "@/lib/masks";
 import { describeStatusErrors, type MetaStatusError } from "@/lib/whatsapp/status-errors";
+import { respondToInboundMessage } from "@/lib/assistant/run-assistant";
+
+// The assistant answers after the response is sent (Meta wants a fast 200),
+// within this route's time limit.
+export const maxDuration = 60;
 
 // Handshake de verificação que a Meta faz uma vez, ao configurar o webhook
 // no painel de desenvolvedor.
@@ -88,6 +93,7 @@ export async function POST(request: NextRequest) {
   // do número que recebeu (via phone_number_id), não de uma mensagem
   // enfileirada por nós.
   const orgIdByPhoneNumberId = new Map<string, string | null>();
+  const newCustomerMessageIds: string[] = [];
   const customersByOrg = new Map<string, { id: string; whatsapp: string }[]>();
 
   for (const change of changes) {
@@ -123,7 +129,7 @@ export async function POST(request: NextRequest) {
 
       // upsert + ignoreDuplicates: a Meta reenvia entrega de webhook; a
       // trava única em provider_message_id vira um no-op em vez de erro.
-      await admin.from("whatsapp_messages").upsert(
+      const { data: inserted } = await admin.from("whatsapp_messages").upsert(
         {
           organization_id: organizationId,
           customer_id: customer?.id ?? null,
@@ -134,8 +140,16 @@ export async function POST(request: NextRequest) {
           occurred_at: new Date(Number(message.timestamp) * 1000).toISOString(),
         },
         { onConflict: "provider_message_id", ignoreDuplicates: true }
-      );
+      ).select("id");
+      // Empty for a redelivered (duplicate) message — nothing new to answer.
+      if (customer && inserted?.[0]) newCustomerMessageIds.push(inserted[0].id);
     }
+  }
+
+  if (newCustomerMessageIds.length > 0) {
+    after(async () => {
+      for (const id of newCustomerMessageIds) await respondToInboundMessage(id);
+    });
   }
 
   return NextResponse.json({ ok: true });

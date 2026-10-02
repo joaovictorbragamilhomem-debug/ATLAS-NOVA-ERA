@@ -2,6 +2,10 @@ import { timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { scanAndEnqueueDueInstallmentMessages } from "@/lib/whatsapp/scan-due-installments";
 import { sendQueuedMessages } from "@/lib/whatsapp/send-queued-messages";
+import { answerPendingAssistantMessages, enqueuePromiseReminders } from "@/lib/assistant/cron";
+
+// The assistant answers night messages here, one model call each.
+export const maxDuration = 60;
 
 function isAuthorizedCronRequest(authHeader: string | null): boolean {
   const expected = `Bearer ${process.env.CRON_SECRET}`;
@@ -23,7 +27,9 @@ export async function GET(request: NextRequest) {
   }
 
   const scanResult = await scanAndEnqueueDueInstallmentMessages();
+  const promiseResult = await enqueuePromiseReminders();
   const sendResult = await sendQueuedMessages();
+  const assistantResult = await answerPendingAssistantMessages();
 
-  return NextResponse.json({ ...scanResult, ...sendResult });
+  return NextResponse.json({ ...scanResult, ...promiseResult, ...sendResult, ...assistantResult });
 }

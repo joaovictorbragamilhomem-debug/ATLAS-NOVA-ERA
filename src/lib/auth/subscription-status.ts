@@ -9,6 +9,13 @@ export type SubscriptionInfo = {
   trialDaysLeft: number | null;
 };
 
+export type SubscriptionRow = {
+  plan: SubscriptionInfo["plan"];
+  status: SubscriptionInfo["status"];
+  trial_ends_at: string | null;
+  current_period_end: string | null;
+};
+
 // "Somente leitura" = teste acabou sem assinatura ativa, ou pagamento
 // atrasado. Nunca apaga dado nenhum — só bloqueia criar/editar.
 export async function getSubscriptionStatus(organizationId: string): Promise<SubscriptionInfo | null> {
@@ -20,7 +27,12 @@ export async function getSubscriptionStatus(organizationId: string): Promise<Sub
     .maybeSingle();
 
   if (!data) return null;
+  return toSubscriptionInfo(data);
+}
 
+// Pure part, also used where there is no signed-in user (e.g. the WhatsApp
+// assistant, which reads the row with the admin client).
+export function toSubscriptionInfo(data: SubscriptionRow): SubscriptionInfo {
   const now = Date.now();
   const trialEndsAt = data.trial_ends_at as string | null;
   const trialExpired = data.status === "trialing" && trialEndsAt !== null && new Date(trialEndsAt).getTime() < now;

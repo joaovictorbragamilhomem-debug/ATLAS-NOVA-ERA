@@ -2,6 +2,7 @@ import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { todayInSaoPauloISODate, addDaysToISODate } from "@/lib/finance/dates";
 import { renderTemplate } from "@/lib/message-template";
 import { fetchInstallmentContext, buildVariables, enqueue } from "./enqueue";
+import { getInstallmentsWithOpenPromise } from "@/lib/assistant/cron";
 
 const OPEN_STATUSES = ["pending", "partially_paid", "reversed"];
 
@@ -27,6 +28,9 @@ export async function scanAndEnqueueDueInstallmentMessages(): Promise<{ enqueued
     .in("trigger_type", ["reminder_before", "due_today", "overdue_after", "renegotiation_offer"])
     .eq("active", true);
 
+  // "Pago na sexta" (assistant): no regular reminder until that date.
+  const promised = await getInstallmentsWithOpenPromise();
+
   let enqueuedCount = 0;
 
   for (const rule of rules ?? []) {
@@ -46,6 +50,7 @@ export async function scanAndEnqueueDueInstallmentMessages(): Promise<{ enqueued
       .in("status", OPEN_STATUSES);
 
     for (const installment of installments ?? []) {
+      if (promised.has(installment.id)) continue;
       const ctx = await fetchInstallmentContext(admin, installment.id);
       if (!ctx) continue;
 

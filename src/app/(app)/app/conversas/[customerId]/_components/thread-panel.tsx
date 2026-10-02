@@ -16,7 +16,8 @@ function ThreadPanel({ messages }: { messages: ThreadMessage[] }) {
               : "mr-auto max-w-[80%] rounded-lg rounded-tl-sm bg-muted px-3 py-2 text-sm"
           }
         >
-          <p>{m.body}</p>
+          {m.sentByAssistant && <p className="mb-1 text-[0.7rem] font-semibold text-muted-foreground">Assistente (IA)</p>}
+          <p className="whitespace-pre-wrap break-words">{m.body}</p>
           <p className="mt-1 text-[0.7rem] text-muted-foreground">
             {new Date(m.occurredAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}
           </p>
