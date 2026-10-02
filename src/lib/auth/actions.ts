@@ -48,7 +48,9 @@ export async function signUpAction(_prev: ActionState, formData: FormData): Prom
   // a organização com esse id fantasma, o que sempre falhava (violação de
   // FK) com uma mensagem genérica que não ajudava ninguém a se recuperar.
   if (data.user.identities?.length === 0) {
-    return { error: "Este e-mail já tem uma conta. Entre ou recupere sua senha." }
+    return {
+      error: "Este e-mail já tem uma conta. Toque em “Entrar” — se não lembrar a senha, use “Prefiro entrar com um link por e-mail”.",
+    }
   }
 
   const provisioned = await provisionOrganizationForNewUser({
@@ -63,6 +65,46 @@ export async function signUpAction(_prev: ActionState, formData: FormData): Prom
   await sendEmail({ to: email, subject, html })
 
   redirect("/app/verificar-email")
+}
+
+// For a signed-in person with no organization at all (see requireMembership):
+// creates their company and trial, the same way sign-up does.
+export async function createOrganizationForCurrentUserAction(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const organizationName = String(formData.get("organizationName") ?? "").trim()
+  const fullName = String(formData.get("fullName") ?? "").trim()
+  if (!organizationName || !fullName) return { error: "Preencha todos os campos." }
+
+  const supabase = await getSupabaseServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) redirect("/app/entrar")
+
+  const admin = getSupabaseAdminClient()
+  if (!admin) return { error: "Supabase não está configurado no servidor." }
+
+  // Only for accounts that were never linked to any company — someone removed
+  // from a team must not be able to turn that into a new trial here.
+  const { data: rows, error: rowsError } = await admin.from("memberships").select("id").eq("user_id", user.id).limit(1)
+  if (rowsError) return { error: "Não foi possível concluir agora. Tente novamente em instantes." }
+  if ((rows ?? []).length > 0) redirect("/app")
+
+  const provisioned = await provisionOrganizationForNewUser({ userId: user.id, organizationName })
+  if ("error" in provisioned) return { error: provisioned.error }
+
+  if (!user.user_metadata?.full_name) {
+    await supabase.auth.updateUser({ data: { full_name: fullName } })
+  }
+
+  if (user.email) {
+    const { subject, html } = welcomeEmail({ organizationName })
+    await sendEmail({ to: user.email, subject, html })
+  }
+
+  redirect("/app")
 }
 
 export async function signInWithPasswordAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -89,9 +131,14 @@ export async function signInWithMagicLinkAction(_prev: ActionState, formData: Fo
   if (!email) return { error: "Informe seu e-mail." }
 
   const supabase = await getSupabaseServerClient()
+  // shouldCreateUser: false — the e-mail link is only a way to sign in. By
+  // default Supabase creates a brand-new auth user for an unknown e-mail,
+  // which left people with an account but no organization: they then saw
+  // "sua conta não está vinculada a nenhuma empresa" and could no longer
+  // sign up ("já existe uma conta"). Accounts are only created by sign-up.
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: `${SITE_URL}/api/auth/confirm?next=/app` },
+    options: { shouldCreateUser: false, emailRedirectTo: `${SITE_URL}/api/auth/confirm?next=/app` },
   })
 
   if (error) return { error: traduzErroAuth(error.message) }
@@ -150,6 +197,9 @@ function traduzErroAuth(message: string): string {
   if (m.includes("already registered") || m.includes("already exists")) return "Já existe uma conta com esse e-mail."
   if (m.includes("email not confirmed")) return "Confirme seu e-mail antes de entrar — veja sua caixa de entrada."
   if (m.includes("password should be at least")) return "A senha precisa ter pelo menos 8 caracteres."
+  if (m.includes("signups not allowed")) {
+    return "Não encontramos uma conta com esse e-mail. Se é seu primeiro acesso, toque em “Cadastre-se grátis”."
+  }
   if (m.includes("rate limit")) return "Muitos cadastros seguidos em pouco tempo. Aguarde alguns minutos e tente de novo."
   if (m.includes("email address") && m.includes("invalid")) return "Esse e-mail não é válido. Confira se digitou certo."
   console.error("[traduzErroAuth] erro não mapeado:", message)

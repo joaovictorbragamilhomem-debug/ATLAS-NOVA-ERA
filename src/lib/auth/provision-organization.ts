@@ -41,7 +41,8 @@ export async function provisionOrganizationForNewUser(params: {
     .single();
 
   if (orgError || !org) {
-    return { error: orgError?.message ?? "Não foi possível criar a organização." };
+    console.error("[provisionOrganizationForNewUser] orgError", orgError);
+    return { error: "Não foi possível criar a empresa. Tente novamente em alguns instantes." };
   }
 
   const { error: membershipError } = await supabase.from("memberships").insert({

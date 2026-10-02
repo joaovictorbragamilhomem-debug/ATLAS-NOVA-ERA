@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export type CurrentMembership = {
   userId: string;
@@ -57,6 +58,31 @@ export async function requireMembership(): Promise<CurrentMembership> {
   if (membership) return membership;
 
   const supabase = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const admin = getSupabaseAdminClient();
+
+  if (user && admin) {
+    const { data: rows, error } = await admin.from("memberships").select("status").eq("user_id", user.id);
+
+    // Signed in but never linked to any company (e.g. an account created by
+    // the old e-mail-link login, or a sign-up whose provisioning failed
+    // halfway): let the person finish the setup instead of a dead end.
+    if (!error && (rows ?? []).length === 0) redirect("/app/criar-empresa");
+
+    // A pending team invite: signing in proves they own the invited e-mail,
+    // same as setting the password from the invite link does.
+    if (!error && (rows ?? []).some((row) => row.status === "invited")) {
+      const { error: activateError } = await admin
+        .from("memberships")
+        .update({ status: "active" })
+        .eq("user_id", user.id)
+        .eq("status", "invited");
+      if (!activateError) redirect("/app");
+    }
+  }
+
   await supabase.auth.signOut();
   redirect("/app/entrar?erro=sem_organizacao");
 }

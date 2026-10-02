@@ -32,6 +32,9 @@ function EntrarForm() {
   const [passwordState, passwordAction, passwordPending] = useActionState(signInWithPasswordAction, initialState)
   const [magicState, magicAction, magicPending] = useActionState(signInWithMagicLinkAction, initialState)
   const [magicSent, setMagicSent] = React.useState(false)
+  // Controlled: React 19 resets uncontrolled fields when a Server Action
+  // returns, so a wrong password or an unknown e-mail wiped what was typed.
+  const [email, setEmail] = React.useState("")
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-4 py-16">
@@ -61,7 +64,15 @@ function EntrarForm() {
           <input type="hidden" name="next" value={next} />
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="email">E-mail</Label>
-            <Input id="email" name="email" type="email" autoComplete="email" required />
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
@@ -100,7 +111,15 @@ function EntrarForm() {
             <>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="magic-email">E-mail</Label>
-                <Input id="magic-email" name="email" type="email" autoComplete="email" required />
+                <Input
+                  id="magic-email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
               </div>
               <FormError message={magicState.error} />
               <Button type="submit" loading={magicPending} className="w-full">
