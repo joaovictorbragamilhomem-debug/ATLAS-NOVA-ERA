@@ -10,6 +10,9 @@
   --ink: #0d1422;
   --ink-foreground: #f6f1e8;
   --cream: #f6f1e8;
+
+  /* Satoshi is the site's typeface for body text too, not only headings. */
+  font-family: var(--font-display), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
 .dark .site-root {
@@ -20,7 +23,6 @@
 
 .font-display {
   font-family: var(--font-display), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  font-feature-settings: "ss01";
   letter-spacing: -0.025em;
 }
 
